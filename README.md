@@ -72,33 +72,40 @@ npm install
 
 ### Paso 3: Crear Base de Datos
 
-#### Opción A: Usando MySQL CLI
+#### Opción A: Con npm (usa los datos del archivo `.env`)
 ```bash
-mysql -u root -p < database.sql
+npm run db
 ```
 
-#### Opción B: Usando phpMyAdmin
+#### Opción B: Usando MySQL CLI
+```bash
+mysql -u root -p < data/instituto_watson.sql
+```
+
+#### Opción C: Usando phpMyAdmin
 1. Abre `http://localhost/phpmyadmin`
 2. Ve a la pestaña "Importar"
-3. Selecciona el archivo `database.sql`
+3. Selecciona el archivo `data/instituto_watson.sql`
 4. Haz clic en "Continuar"
 
-#### Opción C: Usando MySQL Workbench
+#### Opción D: Usando MySQL Workbench
 1. Abre una nueva conexión SQL
-2. Copia y pega el contenido de `database.sql`
+2. Copia y pega el contenido de `data/instituto_watson.sql`
 3. Ejecuta el script
 
 ### Paso 4: Configurar Variables de Entorno
 
-Crea un archivo `.env` en la raíz del proyecto:
+Copia `.env.example` como `.env` en la raíz del proyecto y ajusta tus datos:
 ```bash
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=root
 DB_NAME=instituto_watson
 PORT=3000
-NODE_ENV=development
+SESSION_SECRET=una-clave-larga-y-aleatoria
 ```
+
+`SESSION_SECRET` firma la cookie de sesión. Si no se define, las sesiones se cierran cada vez que se reinicia el servidor.
 
 ### Paso 5: Iniciar el Servidor
 ```bash
@@ -176,7 +183,8 @@ SolicitudesAcad-micas-EVA.4/
 │       └── [imágenes]
 ├── server.js                        ⭐ Backend
 ├── package.json
-├── database.sql                     ⭐ Script DB
+├── data/
+│   └── instituto_watson.sql         ⭐ Script DB
 ├── .env                            [Tu configuración]
 └── README.md
 ```
@@ -186,7 +194,16 @@ SolicitudesAcad-micas-EVA.4/
 ## 🔌 API REST
 
 ### Autenticación
-Actualmente, la API no requiere autenticación. **En producción, implemente JWT**.
+La API usa sesión en el servidor (cookie `httpOnly`) y contraseñas cifradas con bcrypt. Se inicia sesión con `POST /api/auth/login` (correo y contraseña) y el servidor detecta el rol.
+
+| Rol | Puede |
+|---|---|
+| Visitante | Ver datos públicos, postular, consultar su postulación y enviar mensajes de contacto |
+| Alumno / Apoderado | Ver material y solo las notas del alumno |
+| Profesor | Publicar material y poner notas en sus asignaturas, y reportar fallas en Soporte |
+| Admin | Gestionar docentes, asignaturas, horarios, anuncios, postulaciones, tickets y mensajes |
+
+Los intentos fallidos de inicio de sesión se limitan a 10 cada 15 minutos.
 
 ### Base URL
 ```
@@ -514,12 +531,12 @@ mkdir -p public/Image
 ### Checklist:
 
 - [ ] Cambiar contraseña de MySQL
-- [ ] Usar variables de entorno en lugar de hardcodear credenciales
-- [ ] Implementar autenticación JWT
+- [x] Usar variables de entorno en lugar de hardcodear credenciales
+- [x] Implementar autenticación (sesiones con roles)
 - [ ] Usar HTTPS en lugar de HTTP
 - [ ] Configurar CORS correctamente
-- [ ] Validar y sanitizar todas las entradas
-- [ ] Implementar rate limiting
+- [x] Validar y sanitizar todas las entradas
+- [x] Implementar rate limiting
 - [ ] Usar firewalls
 - [ ] Crear backups regulares de la BD
 - [ ] Implementar logging y monitoreo

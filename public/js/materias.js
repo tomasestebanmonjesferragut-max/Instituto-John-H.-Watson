@@ -30,6 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return; 
         }
 
+        // Asignatura con más bloques en la semana (referencia para la barra)
+        const maxBloques = Math.max(1, ...db.asignaturas.map(a => (db.horarios || []).filter(h => h.asignatura_id === a.id).length));
+
         db.asignaturas.forEach(asig => {
             // Buscar el nombre del profesor
             const profesor = db.profesores.find(p => p.id === asig.profesor_id);
@@ -43,27 +46,29 @@ document.addEventListener('DOMContentLoaded', () => {
             if(asig.color === 'warning') icon = 'shield-lock'; 
             if(asig.color === 'danger') icon = 'bug';
             
-            // Simular un progreso aleatorio
-            const progreso = Math.floor(Math.random() * 60) + 20; 
+            // Carga semanal real según la agenda (cada bloque dura 1,5 horas)
+            const bloques = (db.horarios || []).filter(h => h.asignatura_id === asig.id).length;
+            const horas = (bloques * 1.5).toLocaleString('es-CL');
+            const porcentaje = Math.round((bloques / maxBloques) * 100);
 
             contenedorMaterias.innerHTML += `
                 <div class="col-md-6 col-lg-4 fade-in">
                     <div class="card h-100 p-0 overflow-hidden" style="border-top: 4px solid var(--accent-${asig.color});">
                         <div class="p-4 border-bottom" style="border-color: var(--glass-border) !important;">
                             <div class="d-flex justify-content-between align-items-start mb-2">
-                                <span class="badge text-bg-secondary">Código: ${asig.codigo}</span>
+                                <span class="badge text-bg-secondary">Código: ${escaparHTML(asig.codigo)}</span>
                                 <i class="bi bi-${icon} fs-3 text-${asig.color}"></i>
                             </div>
-                            <h4 class="fw-bold mt-3 mb-1">${asig.nombre}</h4>
-                            <p class="text-muted small mb-0"><i class="bi bi-person-circle me-1"></i> ${nombreProf}</p>
+                            <h4 class="fw-bold mt-3 mb-1">${escaparHTML(asig.nombre)}</h4>
+                            <p class="text-muted small mb-0"><i class="bi bi-person-circle me-1"></i> ${escaparHTML(nombreProf)}</p>
                         </div>
                         <div class="p-4 bg-transparent">
                             <div class="d-flex justify-content-between text-muted small mb-2">
-                                <span>Progreso</span>
-                                <span class="fw-bold text-${asig.color}">${progreso}%</span>
+                                <span>Carga semanal</span>
+                                <span class="fw-bold text-${asig.color}">${bloques} ${bloques === 1 ? 'bloque' : 'bloques'} · ${horas} h</span>
                             </div>
-                            <div class="progress mb-2">
-                                <div class="progress-bar bg-${asig.color}" role="progressbar" style="width: ${progreso}%"></div>
+                            <div class="progress mb-2" role="progressbar" aria-label="Carga semanal de ${escaparHTML(asig.nombre)}" aria-valuenow="${bloques}" aria-valuemin="0" aria-valuemax="${maxBloques}">
+                                <div class="progress-bar bg-${asig.color}" style="width: ${porcentaje}%"></div>
                             </div>
                         </div>
                     </div>
@@ -119,7 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     
                     return { 
-                        id: 'A' + Math.floor(Math.random() * 900 + 100), 
                         codigo: cod, 
                         nombre: nom, 
                         profesor_id: document.getElementById('swal-prof').value || null, 
@@ -138,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!response.ok) throw new Error("Error guardando asignatura");
                     
                     await inicializarMaterias(); 
-                    Swal.fire('¡Añadida!', 'La asignatura ha sido guardada en MySQL.', 'success'); 
+                    Swal.fire('¡Añadida!', 'La asignatura fue guardada correctamente.', 'success'); 
                 } catch (e) {
                     console.error(e);
                     Swal.fire('Error', 'Hubo un problema al guardar.', 'error');
@@ -157,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             let opciones = ''; 
-            db.asignaturas.forEach(a => opciones += `<option value="${a.id}">${a.codigo} - ${a.nombre}</option>`);
+            db.asignaturas.forEach(a => opciones += `<option value="${a.id}">${escaparHTML(a.codigo)} - ${escaparHTML(a.nombre)}</option>`);
             
             // Primer modal: Seleccionar la materia a editar
             const { value: asigId } = await Swal.fire({ 
@@ -181,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     title: 'Editando: ' + materia.codigo, 
                     html: `
                         <div class="form-floating mb-3">
-                            <input id="edit-nom" class="form-control" value="${materia.nombre}">
+                            <input id="edit-nom" class="form-control" value="${escaparHTML(materia.nombre)}">
                             <label>Nombre</label>
                         </div>
                         <div class="form-floating mb-3">
@@ -224,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (!response.ok) throw new Error("Error al modificar");
                         
                         await inicializarMaterias(); 
-                        Swal.fire('¡Actualizado!', 'La asignatura ha sido modificada en MySQL.', 'success'); 
+                        Swal.fire('¡Actualizado!', 'La asignatura fue modificada correctamente.', 'success'); 
                     } catch (e) {
                         console.error(e);
                         Swal.fire('Error', 'Hubo un problema al actualizar.', 'error');

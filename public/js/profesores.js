@@ -53,11 +53,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <i class="bi bi-person-fill fs-1 text-${color}"></i>
                             </div>
                         </div>
-                        <h5 class="fw-bold mb-1">${prof.nombre}</h5>
-                        <p class="text-muted small mb-2">Dpto. de ${prof.departamento}</p>
+                        <h5 class="fw-bold mb-1">${escaparHTML(prof.nombre)}</h5>
+                        <p class="text-muted small mb-2">Dpto. de ${escaparHTML(prof.departamento)}</p>
                         <div class="mb-2">
                             <span class="badge text-bg-${color} rounded-pill">Académico</span> 
-                            <span class="badge text-bg-dark rounded-pill">ID: ${prof.id}</span>
+                            <span class="badge text-bg-dark rounded-pill">ID: ${escaparHTML(prof.id)}</span>
                         </div>
                     </div>
                 </div>`;
@@ -83,48 +83,59 @@ document.addEventListener('DOMContentLoaded', () => {
                         <input id="swal-nombre" class="form-control" placeholder="Ej: Dr. Juan Pérez">
                         <label>Nombre y Título</label>
                     </div>
-                    <div class="form-floating">
+                    <div class="form-floating mb-3">
                         <input id="swal-dpto" class="form-control" placeholder="Ej: Ciencias Exactas">
                         <label>Departamento Académico</label>
-                    </div>`, 
-                focusConfirm: false, 
-                showCancelButton: true, 
-                confirmButtonText: 'Guardar Docente', 
-                preConfirm: () => { 
+                    </div>
+                    <p class="small text-muted text-start mb-2">Acceso al Aula Virtual (opcional)</p>
+                    <div class="form-floating mb-3">
+                        <input id="swal-correo" type="email" class="form-control" placeholder="nombre@jhwatson.cl" autocomplete="off">
+                        <label>Correo institucional</label>
+                    </div>
+                    <div class="form-floating">
+                        <input id="swal-clave" type="password" class="form-control" placeholder="Contraseña inicial" autocomplete="new-password">
+                        <label>Contraseña inicial (mín. 6 caracteres)</label>
+                    </div>`,
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'Guardar Docente',
+                preConfirm: () => {
                     const nombre = document.getElementById('swal-nombre').value.trim();
                     const dpto = document.getElementById('swal-dpto').value.trim();
+                    const correo = document.getElementById('swal-correo').value.trim();
+                    const contrasena = document.getElementById('swal-clave').value;
 
                     // Validación para evitar campos vacíos
                     if (!nombre || !dpto) {
-                        Swal.showValidationMessage('Todos los campos son obligatorios');
+                        Swal.showValidationMessage('Nombre y departamento son obligatorios');
+                        return false;
+                    }
+                    if (correo && contrasena.length < 6) {
+                        Swal.showValidationMessage('La contraseña inicial debe tener al menos 6 caracteres');
                         return false;
                     }
 
-                    return { 
-                        id: 'P' + Math.floor(Math.random() * 900 + 100), // Genera un ID aleatorio (ej. P452)
-                        nombre: nombre, 
-                        departamento: dpto 
-                    } 
+                    return { nombre, departamento: dpto, correo, contrasena };
                 }
             });
 
-            if (formValues) { 
-                try { 
-                    const response = await fetch(`${API_URL}/profesores`, { 
-                        method: 'POST', 
-                        headers: { 'Content-Type': 'application/json' }, 
-                        body: JSON.stringify(formValues) 
-                    }); 
-                    
-                    if (!response.ok) throw new Error("Error al guardar en el servidor");
+            if (formValues) {
+                try {
+                    const response = await fetch(`${API_URL}/profesores`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formValues)
+                    });
+                    const data = await response.json().catch(() => ({}));
+                    if (!response.ok) throw new Error(data.error || "Error al guardar en el servidor");
 
-                    await inicializarProfesores(); 
+                    await inicializarProfesores();
                     if(buscador) buscador.value = ''; // Limpiar el buscador si estaba en uso
-                    Swal.fire('¡Añadido!', 'El docente ha sido registrado en MySQL.', 'success'); 
+                    Swal.fire('¡Añadido!', 'El docente fue registrado correctamente.', 'success');
                 } catch (e) {
                     console.error(e);
-                    Swal.fire('Error', 'Hubo un problema al guardar el docente.', 'error');
-                } 
+                    Swal.fire('Error', escaparHTML(e.message), 'error');
+                }
             }
         });
     }
@@ -138,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             let opciones = '<option value="">-- Seleccione un docente --</option>'; 
-            db.profesores.forEach(p => opciones += `<option value="${p.id}">${p.nombre} (Dpto. ${p.departamento})</option>`);
+            db.profesores.forEach(p => opciones += `<option value="${p.id}">${escaparHTML(p.nombre)} (Dpto. ${escaparHTML(p.departamento)})</option>`);
             
             // Primer modal: Seleccionar docente
             const { value: profId } = await Swal.fire({ 
@@ -164,11 +175,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     title: 'Editando Perfil', 
                     html: `
                         <div class="form-floating mb-3">
-                            <input id="edit-nombre" class="form-control" value="${prof.nombre}">
+                            <input id="edit-nombre" class="form-control" value="${escaparHTML(prof.nombre)}">
                             <label>Nombre y Título</label>
                         </div>
                         <div class="form-floating">
-                            <input id="edit-dpto" class="form-control" value="${prof.departamento}">
+                            <input id="edit-dpto" class="form-control" value="${escaparHTML(prof.departamento)}">
                             <label>Departamento Académico</label>
                         </div>`, 
                     showCancelButton: true, 
@@ -198,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         await inicializarProfesores(); 
                         if(buscador) buscador.value = ''; // Limpiar el buscador
-                        Swal.fire('¡Actualizado!', 'Los datos del docente han sido modificados.', 'success'); 
+                        Swal.fire('¡Actualizado!', 'Los datos del docente fueron modificados.', 'success'); 
                     } catch (e) {
                         console.error(e);
                         Swal.fire('Error', 'Hubo un problema al actualizar el docente.', 'error');

@@ -6,6 +6,7 @@ USE instituto_watson;
 -- LIMPIEZA PREVIA (Borra las tablas si ya existen para evitar errores)
 -- Se borran en orden inverso a sus relaciones para evitar conflictos
 -- =======================================================
+DROP TABLE IF EXISTS mensajes_contacto;
 DROP TABLE IF EXISTS calificaciones;
 DROP TABLE IF EXISTS recursos_aula;
 DROP TABLE IF EXISTS administradores;
@@ -84,7 +85,8 @@ CREATE TABLE anuncios_aula (
     titulo VARCHAR(100) NOT NULL,
     contenido TEXT NOT NULL,
     autor VARCHAR(100) NOT NULL,
-    fecha VARCHAR(20)
+    fecha VARCHAR(20),
+    creado_en DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Tabla de Estudiantes matriculados (portal con inicio de sesión)
@@ -135,22 +137,33 @@ CREATE TABLE calificaciones (
     FOREIGN KEY (asignatura_id) REFERENCES asignaturas(id) ON DELETE CASCADE
 );
 
+-- Tabla de Mensajes recibidos desde el formulario de Contacto
+CREATE TABLE mensajes_contacto (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    correo VARCHAR(100) NOT NULL,
+    asunto VARCHAR(150) NOT NULL,
+    mensaje TEXT NOT NULL,
+    creado_en DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 -- =======================================================
 -- 3. INSERCIÓN DE DATOS (POBLAR LA BASE DE DATOS)
 -- =======================================================
 
 -- Insertar Profesores
 -- (correo/contrasena de demostración: mismo formato para todos, clave "profe123")
+-- Las contraseñas se guardan cifradas con bcrypt
 INSERT INTO profesores (id, nombre, departamento, correo, contrasena) VALUES
-('P001', 'Dr. Roberto Salazar', 'Soporte Computacional', 'roberto.salazar@jhwatson.cl', 'profe123'),
-('P002', 'MSc. Elena Valdés', 'Matemática y Ciencias', 'elena.valdes@jhwatson.cl', 'profe123'),
-('P003', 'Ing. Marcos Rivas', 'Conectividad y Redes', 'marcos.rivas@jhwatson.cl', 'profe123'),
-('P004', 'Lic. Carmen Rojas', 'Lenguaje y Comunicación', 'carmen.rojas@jhwatson.cl', 'profe123'),
-('P005', 'Lic. Andrés Bello', 'Historia y Educación Ciudadana', 'andres.bello@jhwatson.cl', 'profe123'),
-('P006', 'Prof. Jorge Silva', 'Educación Física', 'jorge.silva@jhwatson.cl', 'profe123'),
-('P007', 'Ing. Daniela Torres', 'Desarrollo de Software', 'daniela.torres@jhwatson.cl', 'profe123'),
-('P008', 'Mg. Carlos Mendoza', 'Programación y Bases de Datos', 'carlos.mendoza@jhwatson.cl', 'profe123'),
-('P009', 'Teacher Sarah Connor', 'Inglés', 'sarah.connor@jhwatson.cl', 'profe123');
+('P001', 'Dr. Roberto Salazar', 'Soporte Computacional', 'roberto.salazar@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS'),
+('P002', 'MSc. Elena Valdés', 'Matemática y Ciencias', 'elena.valdes@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS'),
+('P003', 'Ing. Marcos Rivas', 'Conectividad y Redes', 'marcos.rivas@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS'),
+('P004', 'Lic. Carmen Rojas', 'Lenguaje y Comunicación', 'carmen.rojas@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS'),
+('P005', 'Lic. Andrés Bello', 'Historia y Educación Ciudadana', 'andres.bello@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS'),
+('P006', 'Prof. Jorge Silva', 'Educación Física', 'jorge.silva@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS'),
+('P007', 'Ing. Daniela Torres', 'Desarrollo de Software', 'daniela.torres@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS'),
+('P008', 'Mg. Carlos Mendoza', 'Programación y Bases de Datos', 'carlos.mendoza@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS'),
+('P009', 'Teacher Sarah Connor', 'Inglés', 'sarah.connor@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS');
 
 -- Insertar Asignaturas
 INSERT INTO asignaturas (id, codigo, nombre, profesor_id, color) VALUES
@@ -213,18 +226,21 @@ INSERT INTO notas (descripcion) VALUES
 ('El Módulo de Emprendimiento y Empleabilidad se evaluará con un proyecto final en noviembre.'),
 ('Para Educación Física (Lunes y Miércoles, último bloque) deben traer sus útiles de aseo personal.');
 
-INSERT INTO anuncios_aula (id, titulo, contenido, autor, fecha) VALUES
-('AV-101', '¡Bienvenidos al semestre!', 'Ya está disponible el material de estudio de la primera unidad. Por favor, revisen sus correos.', 'Administración', '20/06/2026');
+INSERT INTO anuncios_aula (id, titulo, contenido, autor, fecha, creado_en) VALUES
+('AV-101', '¡Bienvenidos al semestre!', 'Ya está disponible el material de estudio de la primera unidad. Por favor, revisen sus correos.', 'Administración', '20/06/2026', '2026-06-20 08:00:00'),
+('AV-102', 'Proceso de Admisión 2027 abierto', 'Ya puedes postular a 1° y 3° Medio para el año 2027 desde la sección Admisión del portal. Las postulaciones se revisan por orden de llegada.', 'Dirección', '01/09/2026', '2026-09-01 09:00:00'),
+('AV-103', 'Feria Técnico-Profesional JHW', 'El viernes 23 de octubre los estudiantes de los módulos de Programación y Redes presentarán sus proyectos a la comunidad. ¡Los esperamos en el gimnasio desde las 10:00!', 'Coordinación TP', '05/10/2026', '2026-10-05 10:00:00'),
+('AV-104', 'Importante: reunión de apoderados', 'La reunión de apoderados del segundo semestre será el jueves 29 de octubre a las 19:00 en cada sala de curso. La asistencia es obligatoria.', 'Inspectoría General', '12/10/2026', '2026-10-12 12:00:00');
 
 -- Insertar Administrador (acceso de edición al portal)
 INSERT INTO administradores (id, nombre, correo, contrasena) VALUES
-('ADM-001', 'Administración JHW', 'admin@jhwatson.cl', 'admin123');
+('ADM-001', 'Administración JHW', 'admin@jhwatson.cl', '$2b$10$q4Jth7lIkL0nF7/1hhUT1.qf1otbqKab4FE6AOVCyEssyK8Z8tAKe');
 
 -- Insertar Estudiantes matriculados (portal de alumno/apoderado)
 -- (contraseñas de demostración: alumno123 / apoderado123)
 INSERT INTO estudiantes (id, nombre, curso, correo_alumno, contrasena_alumno, apoderado_nombre, correo_apoderado, contrasena_apoderado) VALUES
-('EST-001', 'Valentina Rojas', '3° Medio', 'valentina.rojas@alumnos.jhwatson.cl', 'alumno123', 'Marcela Fuentes', 'marcela.fuentes@apoderados.jhwatson.cl', 'apoderado123'),
-('EST-002', 'Lucas San Martín', '1° Medio', 'lucas.sanmartin@alumnos.jhwatson.cl', 'alumno123', 'Pedro San Martín', 'pedro.sanmartin@apoderados.jhwatson.cl', 'apoderado123');
+('EST-001', 'Valentina Rojas', '3° Medio', 'valentina.rojas@alumnos.jhwatson.cl', '$2b$10$aYbCeXIy/MI5MKsQQ99M7.L7wQUUZzy1Ehf7dGXVuu1wsw/4U/A/q', 'Marcela Fuentes', 'marcela.fuentes@apoderados.jhwatson.cl', '$2b$10$12cg07p7TcRM/ONo1Nap8epeXChayJuOLsqlc.r8neClS7/1p6h.2'),
+('EST-002', 'Lucas San Martín', '1° Medio', 'lucas.sanmartin@alumnos.jhwatson.cl', '$2b$10$aYbCeXIy/MI5MKsQQ99M7.L7wQUUZzy1Ehf7dGXVuu1wsw/4U/A/q', 'Pedro San Martín', 'pedro.sanmartin@apoderados.jhwatson.cl', '$2b$10$12cg07p7TcRM/ONo1Nap8epeXChayJuOLsqlc.r8neClS7/1p6h.2');
 
 -- Insertar Recursos del Aula Virtual (libros digitales, guías, enlaces, tareas)
 INSERT INTO recursos_aula (id, asignatura_id, tipo, titulo, descripcion, url, fecha) VALUES

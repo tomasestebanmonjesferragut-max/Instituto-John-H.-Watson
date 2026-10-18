@@ -1275,5 +1275,238 @@ body.dark-mode .form-select {
 .gap-4 { gap: 2rem !important; }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
+   27. PORTAL OFICIAL (sesión, accesibilidad, footer y secciones institucionales)
+═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Botones de edición: ocultos hasta confirmar la sesión de administración */
+#btnModificar, #btnEliminar, #btnEditarMateria, #btnEditarProf,
+#btnMoverHorario, #btnAgregarMateria, #btnAgregarProf, #btnPublicarAnuncio {
+    display: none;
+}
+
+/* Enlace para saltar directo al contenido (teclado y lectores de pantalla) */
+.saltar-contenido {
+    position: absolute;
+    left: 1rem;
+    top: -100px;
+    z-index: calc(var(--z-sticky) + 1);
+    background: var(--color-accent);
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+}
+
+.saltar-contenido:focus {
+    top: 0.5rem;
+    color: #fff;
+}
+
+/* Botones del menú legibles sobre la cabecera azul */
+header .btn-outline-primary {
+    color: var(--text-on-dark);
+    border-color: rgba(242, 244, 247, 0.45);
+}
+
+header .btn-outline-primary:hover {
+    background: rgba(242, 244, 247, 0.15);
+    color: #fff;
+}
+
+/* Tema oscuro: tonos más claros para que los textos de color se lean bien */
+body.dark-mode {
+    --texto-azul: #8db8e3;
+    --texto-verde: #74c79c;
+    --texto-amarillo: #e3b45e;
+    --texto-rojo: #ec8f93;
+}
+
+/* Controles nativos (fecha, listas, barras) en tonos oscuros y texto claro
+   dentro de los componentes de Bootstrap (tarjetas, listas, tablas) */
+body.dark-mode {
+    color-scheme: dark;
+    --bs-body-color: var(--text-secondary);
+}
+
+/* Ícono del menú móvil visible sobre la cabecera azul */
+header .navbar-toggler-icon {
+    filter: invert(1) brightness(1.6);
+}
+
+/* Botón de tema siempre circular (también en el menú móvil) */
+#btnTheme {
+    flex: 0 0 auto;
+    width: 2.1rem;
+    height: 2.1rem;
+    padding: 0;
+}
+
+/* Los enlaces del menú no se parten en dos líneas */
+.navbar-nav .nav-link {
+    white-space: nowrap;
+}
+
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+    .navbar-nav .nav-link {
+        padding: 0.6rem 0.7rem !important;
+    }
+}
+
+/* Etiquetas flotantes sin el recuadro blanco de Bootstrap */
+body.dark-mode .form-floating > label,
+body.dark-mode .form-floating > .form-control:focus ~ label,
+body.dark-mode .form-floating > .form-control:not(:placeholder-shown) ~ label,
+body.dark-mode .form-floating > .form-select ~ label {
+    color: var(--text-muted);
+}
+
+body.dark-mode .form-floating > label::after {
+    background-color: var(--bg-tertiary) !important;
+}
+
+body.dark-mode .text-primary,
+body.dark-mode .text-info { color: var(--texto-azul) !important; }
+body.dark-mode .text-success { color: var(--texto-verde) !important; }
+body.dark-mode .text-warning { color: var(--texto-amarillo) !important; }
+body.dark-mode .text-danger { color: var(--texto-rojo) !important; }
+body.dark-mode main a:not(.btn) { color: var(--texto-azul); }
+
+body.dark-mode .btn-outline-primary,
+body.dark-mode .btn-outline-info { color: var(--texto-azul); border-color: var(--texto-azul); }
+body.dark-mode .btn-outline-success { color: var(--texto-verde); border-color: var(--texto-verde); }
+body.dark-mode .btn-outline-warning { color: var(--texto-amarillo); border-color: var(--texto-amarillo); }
+body.dark-mode .btn-outline-danger { color: var(--texto-rojo); border-color: var(--texto-rojo); }
+body.dark-mode .btn-outline-primary:hover,
+body.dark-mode .btn-outline-info:hover,
+body.dark-mode .btn-outline-success:hover,
+body.dark-mode .btn-outline-warning:hover,
+body.dark-mode .btn-outline-danger:hover { color: #0f1720; }
+body.dark-mode .btn-outline-primary:hover,
+body.dark-mode .btn-outline-info:hover { background: var(--texto-azul); }
+body.dark-mode .btn-outline-success:hover { background: var(--texto-verde); }
+body.dark-mode .btn-outline-warning:hover { background: var(--texto-amarillo); }
+body.dark-mode .btn-outline-danger:hover { background: var(--texto-rojo); }
+
+/* Pie de página institucional */
+footer.footer-oficial {
+    padding: 3rem 0 0;
+    font-size: 0.92rem;
+}
+
+.footer-oficial h2 {
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+.footer-oficial h3 {
+    color: #fff;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+}
+
+.footer-oficial ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-oficial li {
+    margin-bottom: 0.5rem;
+}
+
+.footer-oficial .redes a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(242, 244, 247, 0.3);
+    margin-right: 0.4rem;
+    text-decoration: none;
+}
+
+.footer-oficial .redes a:hover {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+}
+
+.footer-oficial .footer-legal {
+    border-top: 1px solid rgba(242, 244, 247, 0.15);
+    margin-top: 2rem;
+    padding: 1.25rem 0;
+    font-size: 0.82rem;
+}
+
+/* Cifras institucionales */
+.cifra {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-lg);
+    height: 100%;
+}
+
+.cifra strong {
+    display: block;
+    font-size: 2.2rem;
+    line-height: 1.1;
+    color: var(--color-accent);
+}
+
+body.dark-mode .cifra strong {
+    color: var(--texto-rojo);
+}
+
+.cifra span {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* Tarjetas de noticias */
+.noticia-card {
+    border-left: 4px solid var(--color-accent) !important;
+}
+
+.noticia-card p {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Mapa de ubicación */
+.mapa-contacto {
+    width: 100%;
+    min-height: 320px;
+    border: 0;
+    border-radius: var(--radius-lg);
+}
+
+/* Página no encontrada */
+.pagina-404 {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.pagina-404 .codigo {
+    font-size: clamp(4rem, 15vw, 8rem);
+    font-weight: 800;
+    line-height: 1;
+    color: var(--color-accent);
+}
+
+body.dark-mode .pagina-404 .codigo {
+    color: var(--texto-rojo);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
    FIN DEL STYLESHEET
 ═══════════════════════════════════════════════════════════════════════════════ */

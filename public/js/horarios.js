@@ -147,10 +147,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     // Recargamos los datos desde MySQL para actualizar la tabla en tiempo real
                     await inicializarHorario(); 
-                    Swal.fire('¡Éxito!', 'Horario actualizado y guardado en MySQL.', 'success');
+                    Swal.fire('¡Éxito!', 'El horario fue actualizado correctamente.', 'success');
                 } catch (e) {
                     console.error(e);
-                    Swal.fire('Error', 'No se pudo guardar en la BD. Revisa el endpoint en tu servidor.', 'error');
+                    Swal.fire('Error', 'No se pudo guardar el cambio. Inténtalo nuevamente.', 'error');
                 }
             }
         });

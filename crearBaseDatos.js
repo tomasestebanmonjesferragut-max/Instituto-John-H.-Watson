@@ -1,5 +1,5 @@
 /**
- * Crea la base de datos instituto_watson a partir de database.sql
+ * Crea la base de datos instituto_watson a partir de data/instituto_watson.sql
  * Uso: npm run db
  */
 
@@ -12,7 +12,7 @@ const mysql = require('mysql2/promise');
 try { process.loadEnvFile(path.join(__dirname, '.env')); } catch (error) { /* sin .env se usan los valores por defecto */ }
 
 (async () => {
-    const sql = fs.readFileSync(path.join(__dirname, 'database.sql'), 'utf8');
+    const sql = fs.readFileSync(path.join(__dirname, 'data', 'instituto_watson.sql'), 'utf8');
 
     let connection;
     try {

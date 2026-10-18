@@ -10,16 +10,15 @@
 
         const API_URL = '/api';
         let db = null;
+        let esAdmin = false;
 
-        const checkAdmin = () => {
-            if (localStorage.getItem('adminJHW') === 'true') {
-                if(btnPublicar) btnPublicar.style.display = 'block';
-            } else {
-                if(btnPublicar) btnPublicar.style.display = 'none';
-            }
-        };
-        
-        setInterval(checkAdmin, 1000); 
+        // Solo administración publica y borra anuncios
+        obtenerSesion().then(sesion => {
+            esAdmin = sesion.rol === 'admin';
+            if (btnPublicar) btnPublicar.style.display = esAdmin ? 'block' : 'none';
+            if (db) renderizarAnuncios(buscadorAula?.value || '');
+        });
+
         inicializarAula();
 
         async function inicializarAula() {
@@ -71,16 +70,15 @@
             );
 
             if (anunciosFiltrados.length === 0) {
-                contenedorAnuncios.innerHTML = `<div class="text-center w-100 py-5"><p class="text-muted">No se encontraron anuncios para "${filtro}".</p></div>`;
+                contenedorAnuncios.innerHTML = `<div class="text-center w-100 py-5"><p class="text-muted">No se encontraron anuncios para "${escaparHTML(filtro)}".</p></div>`;
                 return;
             }
 
-            const anunciosInvertidos = [...anunciosFiltrados].reverse();
+            // El servidor ya los entrega del más reciente al más antiguo
             const likesGuardados = JSON.parse(localStorage.getItem('likesAula') || '[]');
 
-            anunciosInvertidos.forEach(anuncio => {
-                const esAdmin = localStorage.getItem('adminJHW') === 'true';
-                const btnEliminarHtml = esAdmin ? `<button class="btn btn-sm btn-outline-danger ms-auto" onclick="eliminarAnuncio('${anuncio.id}')" title="Borrar anuncio"><i class="bi bi-trash"></i></button>` : '';
+            anunciosFiltrados.forEach(anuncio => {
+                const btnEliminarHtml = esAdmin ? `<button class="btn btn-sm btn-outline-danger ms-auto" onclick="eliminarAnuncio('${escaparHTML(anuncio.id)}')" title="Borrar anuncio" aria-label="Borrar anuncio"><i class="bi bi-trash"></i></button>` : '';
                 const tieneLike = likesGuardados.includes(anuncio.id);
                 const likeIcon = tieneLike ? 'bi-heart-fill text-danger' : 'bi-heart text-muted';
                 const etiquetas = generarEtiquetas(`${anuncio.titulo} ${anuncio.contenido}`);
@@ -91,19 +89,19 @@
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div class="w-100">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="badge text-bg-primary"><i class="bi bi-person-circle me-1"></i>${anuncio.autor}</span>
-                                        <small class="text-muted"><i class="bi bi-calendar-event me-1"></i>${anuncio.fecha}</small>
+                                        <span class="badge text-bg-primary"><i class="bi bi-person-circle me-1"></i>${escaparHTML(anuncio.autor)}</span>
+                                        <small class="text-muted"><i class="bi bi-calendar-event me-1"></i>${escaparHTML(anuncio.fecha)}</small>
                                     </div>
                                     ${etiquetas ? `<div class="mb-2">${etiquetas}</div>` : ''}
-                                    <h4 class="fw-bold mb-1 mt-2">${anuncio.titulo}</h4>
+                                    <h4 class="fw-bold mb-1 mt-2">${escaparHTML(anuncio.titulo)}</h4>
                                 </div>
                             </div>
-                            <p class="text-muted flex-grow-1" style="white-space: pre-line;">${anuncio.contenido}</p>
+                            <p class="text-muted flex-grow-1" style="white-space: pre-line;">${escaparHTML(anuncio.contenido)}</p>
                             <div class="d-flex align-items-center mt-3 pt-3 border-top" style="border-color: var(--glass-border) !important;">
-                                <button class="btn btn-sm btn-link text-decoration-none p-0 me-3 btn-like" data-id="${anuncio.id}" title="Marcar como importante">
+                                <button class="btn btn-sm btn-link text-decoration-none p-0 me-3 btn-like" data-id="${escaparHTML(anuncio.id)}" title="Marcar como importante" aria-label="Marcar como importante">
                                     <i class="bi ${likeIcon} fs-5" style="transition: transform 0.2s;"></i>
                                 </button>
-                                <button class="btn btn-sm btn-link text-muted text-decoration-none p-0 btn-copiar" data-texto="${anuncio.titulo}: ${anuncio.contenido}" title="Copiar al portapapeles">
+                                <button class="btn btn-sm btn-link text-muted text-decoration-none p-0 btn-copiar" data-texto="${escaparHTML(`${anuncio.titulo}: ${anuncio.contenido}`)}" title="Copiar al portapapeles" aria-label="Copiar al portapapeles">
                                     <i class="bi bi-share fs-5"></i>
                                 </button>
                                 ${btnEliminarHtml}
@@ -139,7 +137,7 @@
                         <p class="text-muted small mb-3">
                             <i class="bi bi-person-fill me-1"></i>${nombreProf}
                         </p>
-                        <button class="btn btn-sm btn-outline-${materia.color} rounded-pill w-100 fw-bold mt-auto" onclick="verMaterialMateria('${materia.nombre}')">
+                        <button class="btn btn-sm btn-outline-${materia.color} rounded-pill w-100 fw-bold mt-auto" onclick="verMaterialMateria('${escaparHTML(materia.id)}')">
                             Ver Material
                         </button>
                     </div>
@@ -147,22 +145,46 @@
             });
         }
 
-        // Simulación de interacción al hacer clic en "Ver Material"
-        window.verMaterialMateria = (nombreMateria) => {
+        // Material publicado por el docente (requiere iniciar sesión)
+        window.verMaterialMateria = async (asignaturaId) => {
+            const materia = db.asignaturas.find(a => a.id === asignaturaId);
+            const titulo = `<i class="bi bi-folder-check text-primary me-2"></i>${escaparHTML(materia?.nombre)}`;
+
+            const respuesta = await fetch(`${API_URL}/recursos_aula?asignatura_id=${encodeURIComponent(asignaturaId)}`).catch(() => null);
+
+            if (respuesta?.status === 401) {
+                const { isConfirmed } = await Swal.fire({
+                    title: titulo,
+                    html: '<p class="text-muted mt-3">El material de las asignaturas es exclusivo para alumnos, apoderados y docentes del instituto.</p>',
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="bi bi-box-arrow-in-right me-1"></i>Iniciar sesión',
+                    cancelButtonText: 'Cerrar',
+                    confirmButtonColor: '#1c3a63'
+                });
+                if (isConfirmed) abrirLogin();
+                return;
+            }
+
+            if (!respuesta?.ok) {
+                return Swal.fire('Error', 'No se pudo cargar el material de esta asignatura.', 'error');
+            }
+
+            const recursos = await respuesta.json();
+            const html = recursos.length === 0
+                ? '<p class="text-muted mt-3">El docente aún no ha publicado material en esta asignatura.</p>'
+                : `<div class="text-start mt-3">${recursos.map(r => `
+                    <div class="p-2 mb-2 rounded" style="background: var(--bg-tertiary);">
+                        <strong class="d-block">${escaparHTML(r.titulo)}</strong>
+                        <small class="text-muted d-block">${escaparHTML(r.fecha)}</small>
+                        ${r.descripcion ? `<p class="small mb-1">${escaparHTML(r.descripcion)}</p>` : ''}
+                        ${r.url ? `<a href="${escaparHTML(r.url)}" target="_blank" rel="noopener noreferrer" class="small fw-semibold">Abrir <i class="bi bi-box-arrow-up-right ms-1"></i></a>` : ''}
+                    </div>`).join('')}</div>`;
+
             Swal.fire({
-                title: `<i class="bi bi-folder-check text-primary me-2"></i>${nombreMateria}`,
-                html: `
-                    <p class="text-muted mt-3">Aún no hay documentos ni recursos subidos para esta asignatura por parte del docente.</p>
-                    <hr style="border-color: var(--glass-border);">
-                    <div class="text-start mt-3">
-                        <h6 class="fw-bold">Carpetas disponibles:</h6>
-                        <ul class="list-unstyled text-muted small mt-2">
-                            <li><i class="bi bi-folder me-2 text-warning"></i> 01 - Apuntes de Clases (Vacío)</li>
-                            <li class="mt-2"><i class="bi bi-folder me-2 text-warning"></i> 02 - Evaluaciones (Vacío)</li>
-                            <li class="mt-2"><i class="bi bi-folder me-2 text-warning"></i> 03 - Trabajos Grupales (Vacío)</li>
-                        </ul>
-                    </div>
-                `,
+                title: titulo,
+                html,
+                width: '600px',
                 confirmButtonText: 'Cerrar',
                 confirmButtonColor: '#1c3a63',
                 background: 'var(--bg-secondary)',
@@ -188,43 +210,17 @@
                             <div class="bg-${color} bg-opacity-10 p-2 rounded me-3 text-${color}">
                                 <i class="bi bi-person-badge fs-3"></i>
                             </div>
-                            <div style="min-width: 0;"> <h6 class="fw-bold mb-0 text-truncate">${prof.nombre}</h6>
-                                <small class="text-${color} d-block text-truncate" style="font-size: 0.75rem;">${prof.departamento}</small>
+                            <div style="min-width: 0;"> <h6 class="fw-bold mb-0 text-truncate">${escaparHTML(prof.nombre)}</h6>
+                                <small class="text-${color} d-block text-truncate" style="font-size: 0.75rem;">${escaparHTML(prof.departamento)}</small>
                             </div>
                         </div>
-                        <button class="btn btn-sm btn-outline-${color} w-100 rounded-pill" onclick="enviarMensajeProfe('${prof.nombre}')">
+                        <a class="btn btn-sm btn-outline-${color} w-100 rounded-pill" href="contacto.html?asunto=${encodeURIComponent(`Consulta para ${prof.nombre}`)}">
                             Contactar
-                        </button>
+                        </a>
                     </div>
                 `;
             });
         }
-
-        window.enviarMensajeProfe = (nombreProfe) => {
-            Swal.fire({
-                title: `Contactar a ${nombreProfe}`,
-                html: `
-                    <p class="text-muted small mb-3">El mensaje será enviado a la bandeja institucional del docente.</p>
-                    <div class="form-floating">
-                        <textarea id="swal-mensaje-docente" class="form-control" style="height: 120px" placeholder="Mensaje..."></textarea>
-                        <label>Escribe tu consulta aquí</label>
-                    </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: '<i class="bi bi-send-fill me-2"></i>Enviar Mensaje',
-                cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#1c3a63',
-                preConfirm: () => {
-                    const msj = document.getElementById('swal-mensaje-docente').value;
-                    if(!msj) Swal.showValidationMessage('El mensaje no puede estar vacío.');
-                    return msj;
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire('¡Mensaje Enviado!', `El docente recibirá una notificación y te responderá a la brevedad.`, 'success');
-                }
-            });
-        };
 
         // ==========================================
         // INTERACCIONES Y LÓGICA DE BD (LIKES, BORRAR, PUBLICAR)
@@ -259,9 +255,10 @@
             Swal.fire({ title: '¿Borrar anuncio?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí, borrar' }).then(async (result) => {
                 if (result.isConfirmed) {
                     try {
-                        await fetch(`${API_URL}/anuncios_aula/${idBuscado}`, { method: 'DELETE' });
+                        const respuesta = await fetch(`${API_URL}/anuncios_aula/${idBuscado}`, { method: 'DELETE' });
+                        if (!respuesta.ok) throw new Error('No se pudo borrar');
                         await inicializarAula();
-                        Swal.fire('Eliminado', 'Anuncio borrado de MySQL.', 'success');
+                        Swal.fire('Eliminado', 'El anuncio fue eliminado.', 'success');
                     } catch(error) { Swal.fire('Error', 'Problema al borrar.', 'error'); }
                 }
             });
@@ -317,7 +314,6 @@
                     const tituloFinal = materia ? `[${materia}] ${tituloOriginal}` : tituloOriginal;
                     
                     return { 
-                        id: 'AV-' + Math.floor(Math.random() * 900 + 100), 
                         titulo: tituloFinal, 
                         autor: autor, 
                         contenido: cont, 
@@ -328,11 +324,12 @@
 
             if (formValues) {
                 try {
-                    await fetch(`${API_URL}/anuncios_aula`, { 
-                        method: 'POST', 
-                        headers: { 'Content-Type': 'application/json' }, 
-                        body: JSON.stringify(formValues) 
+                    const respuesta = await fetch(`${API_URL}/anuncios_aula`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formValues)
                     });
+                    if (!respuesta.ok) throw new Error('No se pudo publicar');
                     await inicializarAula();
                     Swal.fire('¡Publicado!', 'El anuncio está en el Aula Virtual.', 'success');
                 } catch (e) { Swal.fire('Error', 'No se pudo guardar', 'error'); }

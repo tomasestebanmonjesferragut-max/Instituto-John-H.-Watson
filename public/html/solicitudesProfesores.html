@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Instituto John H. Watson - Soporte Técnico para Docentes">
+    <meta name="description" content="Mesa de soporte técnico para docentes del Instituto John H. Watson.">
+    <meta name="theme-color" content="#142744">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Instituto John H. Watson">
+    <meta property="og:locale" content="es_CL">
+    <meta property="og:title" content="Soporte Docente | Instituto John H. Watson">
+    <meta property="og:description" content="Mesa de soporte técnico para docentes del Instituto John H. Watson.">
+    <meta property="og:image" content="https://www.institutojohnhwatson.cl/Image/Aula.png">
     <title>Soporte Docente | Instituto John H. Watson</title>
     <link rel="icon" type="image/svg+xml" href="../Image/favicon.svg">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -12,27 +19,23 @@
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
+    <a href="#contenido" class="saltar-contenido">Saltar al contenido principal</a>
     <header>
-        <h1><i class="bi bi-mortarboard-fill me-2"></i>Instituto John H. Watson</h1>
-        <nav class="navbar navbar-expand-lg">
+        <h1><i class="bi bi-mortarboard-fill me-2" aria-hidden="true"></i>Instituto John H. Watson</h1>
+        <nav class="navbar navbar-expand-xl" aria-label="Navegación principal">
             <div class="container-fluid">
                 <a class="navbar-brand" href="index.html"><i class="bi bi-house-door-fill me-2"></i>Inicio</a>
-                <button class="navbar-toggler btn-outline-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <button class="navbar-toggler btn-outline-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Abrir menú">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto gap-1">
                         <li class="nav-item">
-                            <a class="nav-link" href="solicitudes.html">
-                                <i class="bi bi-person-lines-fill me-1"></i>Admisión
-                            </a>
+                            <a class="nav-link" href="solicitudes.html"><i class="bi bi-person-lines-fill me-1"></i>Admisión</a>
                         </li>
-                        
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-tools me-1"></i>Servicios
-                            </a>
-                             <ul class="dropdown-menu">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-tools me-1"></i>Servicios</a>
+                            <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="materias.html"><i class="bi bi-journal-bookmark-fill me-2"></i>Asignaturas</a></li>
                                 <li><a class="dropdown-item" href="profesores.html"><i class="bi bi-person-video3 me-2"></i>Docentes</a></li>
                                 <li><a class="dropdown-item" href="horarios.html"><i class="bi bi-calendar-week me-2"></i>Agenda Semanal</a></li>
@@ -40,38 +43,43 @@
                                 <li><a class="dropdown-item" href="aulaVirtualAlumnos.html"><i class="bi bi-mortarboard me-2"></i>Aula Virtual (Alumnos)</a></li>
                             </ul>
                         </li>
-
                         <li class="nav-item">
-                            <a class="nav-link" href="solicitudesProfesores.html">
-                                <i class="bi bi-pc-display me-1"></i>Soporte
-                            </a>
+                            <a class="nav-link" href="solicitudesProfesores.html"><i class="bi bi-pc-display me-1"></i>Soporte</a>
                         </li>
-
                         <li class="nav-item">
-                            <a class="nav-link" href="informacion.html">
-                                <i class="bi bi-info-circle-fill me-1"></i>Directorio
-                            </a>
+                            <a class="nav-link" href="informacion.html"><i class="bi bi-info-circle-fill me-1"></i>Directorio</a>
                         </li>
-
-                        <li class="nav-item ms-lg-3 d-flex align-items-center">
-                            <button id="btnTheme" class="btn btn-outline-primary btn-sm rounded-circle me-2" aria-label="Cambiar tema">
-                                <i class="bi bi-moon-stars-fill"></i>
+                        <li class="nav-item">
+                            <a class="nav-link" href="contacto.html"><i class="bi bi-envelope-fill me-1"></i>Contacto</a>
+                        </li>
+                        <!-- Botón Tema y Sesión -->
+                        <li class="nav-item ms-xl-3 d-flex align-items-center">
+                            <button id="btnTheme" class="btn btn-outline-primary btn-sm rounded-circle me-2" aria-label="Cambiar tema claro u oscuro">
+                                <i class="bi bi-sun-fill"></i>
                             </button>
-                            <button id="btnAdmin" class="btn btn-outline-danger btn-sm rounded-pill" aria-label="Login">
-                                <i class="bi bi-lock-fill"></i>
+                            <button id="btnAdmin" class="btn btn-outline-primary btn-sm rounded-pill" aria-label="Iniciar sesión">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Ingresar
                             </button>
                         </li>
                     </ul>
-                    
                 </div>
             </div>
         </nav>
     </header>
 
-    <main class="container my-5 layout fade-in">
-        <div class="row g-4">
+    <main id="contenido" class="container my-5 layout fade-in">
+        <!-- Aviso para visitantes sin sesión docente -->
+        <section id="vistaSinAcceso" class="text-center py-5" style="display: none;" aria-labelledby="tituloSinAcceso">
+            <i class="bi bi-shield-lock-fill text-primary" style="font-size: 3.5rem;" aria-hidden="true"></i>
+            <h2 id="tituloSinAcceso" class="fw-bold mt-3">Soporte Técnico Docente</h2>
+            <p class="text-muted lead mx-auto" style="max-width: 560px;">Esta mesa de ayuda es exclusiva para docentes y administración. Inicia sesión con tu correo institucional para reportar fallas en salas, laboratorios o equipos.</p>
+            <button type="button" class="btn btn-primary px-4 mt-2" onclick="abrirLogin()"><i class="bi bi-box-arrow-in-right me-2"></i>Iniciar sesión</button>
+            <p class="small text-muted mt-4 mb-0">¿Eres apoderado o visitante? Escríbenos desde <a href="contacto.html">Contacto</a>.</p>
+        </section>
+
+        <div id="vistaSoporte" class="row g-4" style="display: none;">
             <section id="listado" class="col-lg-8">
-                
+
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 border-bottom pb-3" style="border-color: var(--glass-border) !important;">
                     <h2 class="fw-bold m-0 mb-3 mb-md-0" style="background: var(--primary-gradient); background-clip: text; -webkit-text-fill-color: transparent;">
                         <i class="bi bi-pc-display-horizontal me-2 text-primary"></i>Soporte Técnico Docente
@@ -140,9 +148,52 @@
         </div>
     </main>
 
-    <footer class="mt-5 pt-5 border-top" style="border-color: var(--glass-border) !important;">
-        <div class="container text-center pb-5">
-            <p class="text-muted mb-0"><i class="bi bi-c-circle me-2"></i>2026 Instituto John H. Watson | Plataforma Educativa Segura</p>
+    <footer class="footer-oficial">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <h2 class="fw-bold mb-3"><i class="bi bi-mortarboard-fill me-2" aria-hidden="true"></i>Instituto John H. Watson</h2>
+                    <p>Liceo técnico-profesional de San Joaquín. Desde 1998 formamos técnicos de nivel medio en programación, redes y soporte computacional.</p>
+                    <div class="redes mt-3">
+                        <a href="#" aria-label="Facebook del instituto"><i class="bi bi-facebook"></i></a>
+                        <a href="#" aria-label="Instagram del instituto"><i class="bi bi-instagram"></i></a>
+                        <a href="#" aria-label="YouTube del instituto"><i class="bi bi-youtube"></i></a>
+                        <a href="#" aria-label="LinkedIn del instituto"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+                <nav class="col-6 col-lg-2" aria-label="Institución">
+                    <h3>Institución</h3>
+                    <ul>
+                        <li><a href="informacion.html">Quiénes somos</a></li>
+                        <li><a href="profesores.html">Docentes</a></li>
+                        <li><a href="materias.html">Asignaturas</a></li>
+                        <li><a href="horarios.html">Agenda semanal</a></li>
+                    </ul>
+                </nav>
+                <nav class="col-6 col-lg-2" aria-label="Servicios">
+                    <h3>Servicios</h3>
+                    <ul>
+                        <li><a href="solicitudes.html">Admisión</a></li>
+                        <li><a href="aulaVirtual.html">Aula Virtual</a></li>
+                        <li><a href="aulaVirtualAlumnos.html">Portal de alumnos</a></li>
+                        <li><a href="solicitudesProfesores.html">Soporte docente</a></li>
+                    </ul>
+                </nav>
+                <div class="col-lg-4">
+                    <h3>Contacto</h3>
+                    <ul>
+                        <li><i class="bi bi-geo-alt-fill me-2"></i>San Joaquín, Región Metropolitana, Chile</li>
+                        <li><i class="bi bi-telephone-fill me-2"></i><a href="tel:+56223456789">+56 2 2345 6789</a></li>
+                        <li><i class="bi bi-envelope-fill me-2"></i><a href="mailto:contacto@institutojohnhwatson.cl">contacto@institutojohnhwatson.cl</a></li>
+                        <li><i class="bi bi-clock-fill me-2"></i>Lunes a viernes, 08:00 a 17:30</li>
+                    </ul>
+                    <a href="contacto.html" class="btn btn-outline-light btn-sm rounded-pill mt-2"><i class="bi bi-chat-dots me-1"></i>Escríbenos</a>
+                </div>
+            </div>
+            <div class="footer-legal d-flex flex-column flex-md-row justify-content-between gap-2">
+                <span>&copy; <span class="anio-actual">2026</span> Instituto John H. Watson. Todos los derechos reservados.</span>
+                <span>Educación Técnico-Profesional · San Joaquín, Chile</span>
+            </div>
         </div>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     const API_URL = '/api';
-    const SESSION_KEY = 'aulaAlumnosJHW';
 
     const vistaLogin = document.getElementById('vistaLogin');
     const vistaDashboard = document.getElementById('vistaDashboard');
@@ -64,9 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            sesion = data;
-            sessionStorage.setItem(SESSION_KEY, JSON.stringify(sesion));
-            await mostrarDashboard();
+            // Recargar para que el menú y todos los permisos usen la nueva sesión
+            location.reload();
         } catch (error) {
             loginError.textContent = 'No se pudo conectar con el servidor. Verifica que esté corriendo.';
             loginError.style.display = 'block';
@@ -79,27 +77,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // =====================================================
     // 3. CERRAR SESIÓN
     // =====================================================
-    btnCerrarSesion?.addEventListener('click', () => {
-        sessionStorage.removeItem(SESSION_KEY);
-        sesion = null;
-        asignaturaProfesorActiva = null;
-        vistaDashboard.style.display = 'none';
-        vistaLogin.style.display = 'block';
-        formLogin.reset();
-    });
+    btnCerrarSesion?.addEventListener('click', () => cerrarSesion());
 
     // =====================================================
-    // 4. RESTAURAR SESIÓN EXISTENTE
+    // 4. RESTAURAR SESIÓN EXISTENTE (validada por el servidor)
     // =====================================================
-    const sesionGuardada = sessionStorage.getItem(SESSION_KEY);
-    if (sesionGuardada) {
-        try {
-            sesion = JSON.parse(sesionGuardada);
+    obtenerSesion().then(datos => {
+        if (datos.rol) {
+            sesion = datos;
             mostrarDashboard();
-        } catch (e) {
-            sessionStorage.removeItem(SESSION_KEY);
         }
-    }
+    });
 
     // =====================================================
     // 5. RENDER DEL DASHBOARD
@@ -164,11 +152,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="col-md-6 mb-3">
                     <div class="card anuncio-card p-3 h-100">
                         <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="badge badge-primary"><i class="bi bi-person-badge me-1"></i>${a.autor}</span>
-                            <small class="text-muted"><i class="bi bi-calendar-event me-1"></i>${a.fecha}</small>
+                            <span class="badge badge-primary"><i class="bi bi-person-badge me-1"></i>${escaparHTML(a.autor)}</span>
+                            <small class="text-muted"><i class="bi bi-calendar-event me-1"></i>${escaparHTML(a.fecha)}</small>
                         </div>
-                        <h5 class="fw-bold mb-1">${a.titulo}</h5>
-                        <p class="text-muted mb-0 small">${a.contenido}</p>
+                        <h5 class="fw-bold mb-1">${escaparHTML(a.titulo)}</h5>
+                        <p class="text-muted mb-0 small">${escaparHTML(a.contenido)}</p>
                     </div>
                 </div>
             `).join('');
@@ -190,15 +178,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="col-md-6 col-lg-4">
                         <div class="card materia-card p-3 h-100" style="border-top-color: var(--accent-${asig.color});">
                             <span class="materia-codigo">Código: ${asig.codigo}</span>
-                            <h5 class="materia-nombre" title="${asig.nombre}">${asig.nombre}</h5>
+                            <h5 class="materia-nombre" title="${escaparHTML(asig.nombre)}">${escaparHTML(asig.nombre)}</h5>
                             <p class="materia-profesor mb-3">
                                 <i class="bi bi-person-fill"></i>${profesor ? profesor.nombre : 'Sin asignar'}
                             </p>
                             <div class="d-flex gap-2 mt-auto">
-                                <button class="btn btn-sm btn-outline-primary rounded-pill flex-grow-1" data-ver-recursos="${asig.id}" data-nombre-asig="${asig.nombre}">
+                                <button class="btn btn-sm btn-outline-primary rounded-pill flex-grow-1" data-ver-recursos="${asig.id}" data-nombre-asig="${escaparHTML(asig.nombre)}">
                                     <i class="bi bi-collection-fill me-1"></i>Materiales
                                 </button>
-                                <button class="btn btn-sm btn-outline-warning rounded-pill flex-grow-1" data-ver-notas="${asig.id}" data-nombre-asig="${asig.nombre}">
+                                <button class="btn btn-sm btn-outline-warning rounded-pill flex-grow-1" data-ver-notas="${asig.id}" data-nombre-asig="${escaparHTML(asig.nombre)}">
                                     <i class="bi bi-mortarboard-fill me-1"></i>Notas
                                 </button>
                             </div>
@@ -229,16 +217,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="d-flex align-items-start gap-3 p-2 mb-2 rounded" style="background: var(--bg-tertiary);">
                         <i class="bi ${ICONOS_TIPO[r.tipo] || 'bi-file-earmark'} fs-4 text-primary"></i>
                         <div class="flex-grow-1">
-                            <strong class="d-block">${r.titulo}</strong>
-                            <small class="text-muted d-block mb-1">${NOMBRES_TIPO[r.tipo] || r.tipo} · ${r.fecha || ''}</small>
-                            ${r.descripcion ? `<p class="small mb-1">${r.descripcion}</p>` : ''}
-                            ${r.url ? `<a href="${r.url}" target="_blank" rel="noopener noreferrer" class="small fw-semibold">Abrir <i class="bi bi-box-arrow-up-right ms-1"></i></a>` : ''}
+                            <strong class="d-block">${escaparHTML(r.titulo)}</strong>
+                            <small class="text-muted d-block mb-1">${NOMBRES_TIPO[r.tipo] || r.tipo} · ${escaparHTML(r.fecha)}</small>
+                            ${r.descripcion ? `<p class="small mb-1">${escaparHTML(r.descripcion)}</p>` : ''}
+                            ${r.url ? `<a href="${escaparHTML(r.url)}" target="_blank" rel="noopener noreferrer" class="small fw-semibold">Abrir <i class="bi bi-box-arrow-up-right ms-1"></i></a>` : ''}
                         </div>
                     </div>
                 `).join('')}</div>`;
 
             Swal.fire({
-                title: nombreAsignatura,
+                title: escaparHTML(nombreAsignatura),
                 html,
                 width: '600px',
                 confirmButtonText: 'Cerrar',
@@ -262,15 +250,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 : `<div class="text-start">${notas.map(n => `
                     <div class="d-flex justify-content-between align-items-center p-2 mb-2 rounded" style="background: var(--bg-tertiary);">
                         <div>
-                            <strong class="d-block">${n.evaluacion}</strong>
-                            <small class="text-muted">${n.fecha || ''}</small>
+                            <strong class="d-block">${escaparHTML(n.evaluacion)}</strong>
+                            <small class="text-muted">${escaparHTML(n.fecha)}</small>
                         </div>
                         <span class="badge ${Number(n.nota) >= 4 ? 'badge-primary' : 'badge-danger'} fs-6">${Number(n.nota).toFixed(1)}</span>
                     </div>
                 `).join('')}</div>`;
 
             Swal.fire({
-                title: `Notas · ${nombreAsignatura}`,
+                title: `Notas · ${escaparHTML(nombreAsignatura)}`,
                 html,
                 width: '500px',
                 confirmButtonText: 'Cerrar',
@@ -302,15 +290,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const respuesta = await fetch(`${API_URL}/estudiantes`);
                 estudiantesCache = await respuesta.json();
                 const select = document.getElementById('notaEstudiante');
-                select.innerHTML = estudiantesCache.map(e => `<option value="${e.id}">${e.nombre} (${e.curso || 's/c'})</option>`).join('');
+                select.innerHTML = estudiantesCache.map(e => `<option value="${e.id}">${escaparHTML(e.nombre)} (${escaparHTML(e.curso || 's/c')})</option>`).join('');
             } catch (error) {
                 estudiantesCache = [];
             }
         }
 
         selector.innerHTML = asignaturas.map((a, i) => `
-            <button class="btn btn-sm ${i === 0 ? 'btn-primary' : 'btn-outline-primary'} rounded-pill" data-asig-id="${a.id}" data-asig-nombre="${a.nombre}">
-                ${a.nombre}
+            <button class="btn btn-sm ${i === 0 ? 'btn-primary' : 'btn-outline-primary'} rounded-pill" data-asig-id="${a.id}" data-asig-nombre="${escaparHTML(a.nombre)}">
+                ${escaparHTML(a.nombre)}
             </button>
         `).join('');
 
@@ -339,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const recursos = await respuesta.json();
 
             if (!recursos || recursos.length === 0) {
-                lista.innerHTML = `<div class="empty-state"><i class="bi bi-inbox"></i><p>Aún no has publicado material en ${asignaturaProfesorActiva.nombre}.</p></div>`;
+                lista.innerHTML = `<div class="empty-state"><i class="bi bi-inbox"></i><p>Aún no has publicado material en ${escaparHTML(asignaturaProfesorActiva.nombre)}.</p></div>`;
                 return;
             }
 
@@ -347,10 +335,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="card p-3 mb-2 d-flex flex-row align-items-start gap-3">
                     <i class="bi ${ICONOS_TIPO[r.tipo] || 'bi-file-earmark'} fs-4 text-primary"></i>
                     <div class="flex-grow-1">
-                        <strong class="d-block">${r.titulo}</strong>
-                        <small class="text-muted d-block mb-1">${NOMBRES_TIPO[r.tipo] || r.tipo} · ${r.fecha || ''}</small>
-                        ${r.descripcion ? `<p class="small mb-1">${r.descripcion}</p>` : ''}
-                        ${r.url ? `<a href="${r.url}" target="_blank" rel="noopener noreferrer" class="small fw-semibold">Ver enlace <i class="bi bi-box-arrow-up-right ms-1"></i></a>` : ''}
+                        <strong class="d-block">${escaparHTML(r.titulo)}</strong>
+                        <small class="text-muted d-block mb-1">${NOMBRES_TIPO[r.tipo] || r.tipo} · ${escaparHTML(r.fecha)}</small>
+                        ${r.descripcion ? `<p class="small mb-1">${escaparHTML(r.descripcion)}</p>` : ''}
+                        ${r.url ? `<a href="${escaparHTML(r.url)}" target="_blank" rel="noopener noreferrer" class="small fw-semibold">Ver enlace <i class="bi bi-box-arrow-up-right ms-1"></i></a>` : ''}
                     </div>
                     <div class="d-flex flex-column gap-1">
                         <button class="btn btn-sm btn-outline-primary" data-editar-recurso="${r.id}" title="Modificar">
@@ -386,9 +374,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <option value="enlace" ${recurso.tipo === 'enlace' ? 'selected' : ''}>Enlace</option>
                     <option value="tarea" ${recurso.tipo === 'tarea' ? 'selected' : ''}>Tarea</option>
                 </select>
-                <input id="swalTitulo" class="swal2-input" placeholder="Título" value="${recurso.titulo.replace(/"/g, '&quot;')}">
-                <textarea id="swalDescripcion" class="swal2-textarea" placeholder="Descripción">${recurso.descripcion || ''}</textarea>
-                <input id="swalUrl" class="swal2-input" placeholder="Enlace (opcional)" value="${recurso.url || ''}">
+                <input id="swalTitulo" class="swal2-input" placeholder="Título" value="${escaparHTML(recurso.titulo)}">
+                <textarea id="swalDescripcion" class="swal2-textarea" placeholder="Descripción">${escaparHTML(recurso.descripcion)}</textarea>
+                <input id="swalUrl" class="swal2-input" placeholder="Enlace (opcional)" value="${escaparHTML(recurso.url)}">
             `,
             focusConfirm: false,
             showCancelButton: true,
@@ -494,7 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const notas = await respuesta.json();
 
             if (!notas || notas.length === 0) {
-                lista.innerHTML = `<div class="empty-state"><i class="bi bi-mortarboard"></i><p>Aún no hay notas registradas en ${asignaturaProfesorActiva.nombre}.</p></div>`;
+                lista.innerHTML = `<div class="empty-state"><i class="bi bi-mortarboard"></i><p>Aún no hay notas registradas en ${escaparHTML(asignaturaProfesorActiva.nombre)}.</p></div>`;
                 return;
             }
 
@@ -505,11 +493,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         <tbody>
                             ${notas.map(n => `
                                 <tr>
-                                    <td>${n.estudiante_nombre}</td>
-                                    <td>${n.evaluacion}<br><small class="text-muted">${n.fecha || ''}</small></td>
+                                    <td>${escaparHTML(n.estudiante_nombre)}</td>
+                                    <td>${escaparHTML(n.evaluacion)}<br><small class="text-muted">${escaparHTML(n.fecha)}</small></td>
                                     <td><span class="badge ${Number(n.nota) >= 4 ? 'badge-primary' : 'badge-danger'}">${Number(n.nota).toFixed(1)}</span></td>
                                     <td class="text-end">
-                                        <button class="btn btn-sm btn-outline-primary me-1" data-editar-nota="${n.id}" data-eval="${n.evaluacion}" data-nota="${n.nota}" title="Modificar">
+                                        <button class="btn btn-sm btn-outline-primary me-1" data-editar-nota="${n.id}" data-eval="${escaparHTML(n.evaluacion)}" data-nota="${n.nota}" title="Modificar">
                                             <i class="bi bi-pencil-fill"></i>
                                         </button>
                                         <button class="btn btn-sm btn-outline-danger" data-eliminar-nota="${n.id}" title="Eliminar">
@@ -570,7 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const { value: formValues } = await Swal.fire({
             title: 'Modificar nota',
             html: `
-                <input id="swalEvaluacion" class="swal2-input" placeholder="Evaluación" value="${evaluacionActual.replace(/"/g, '&quot;')}">
+                <input id="swalEvaluacion" class="swal2-input" placeholder="Evaluación" value="${escaparHTML(evaluacionActual)}">
                 <input id="swalNota" type="number" min="1" max="7" step="0.1" class="swal2-input" placeholder="Nota" value="${notaActual}">
             `,
             focusConfirm: false,
