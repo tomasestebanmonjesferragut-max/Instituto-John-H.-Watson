@@ -14,12 +14,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 2. MODO CLARO (por defecto) / OSCURO
+    // 2. MODO OSCURO (por defecto) / CLARO
     const btnTheme = document.getElementById('btnTheme');
     const themeIcon = btnTheme?.querySelector('i');
 
-    // Revisar si ya había elegido modo oscuro antes
-    if (localStorage.getItem('temaJHW') === 'dark') {
+    // Siempre parte oscuro; solo queda claro si se eligió con el botón en esta visita
+    if (sessionStorage.getItem('temaJHW') !== 'light') {
         document.body.classList.add('dark-mode');
     }
     if (themeIcon) {
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnTheme?.addEventListener('click', () => {
         document.body.classList.toggle('dark-mode');
         const esOscuro = document.body.classList.contains('dark-mode');
-        localStorage.setItem('temaJHW', esOscuro ? 'dark' : 'light');
+        sessionStorage.setItem('temaJHW', esOscuro ? 'dark' : 'light');
         if (themeIcon) themeIcon.className = esOscuro ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill';
     });
 

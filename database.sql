@@ -240,5 +240,3 @@ INSERT INTO calificaciones (id, estudiante_id, asignatura_id, evaluacion, nota, 
 ('CAL-001', 'EST-001', 'A101', 'Prueba: Análisis de textos', 6.2, '20/03/2026'),
 ('CAL-002', 'EST-001', 'A102', 'Control N°1', 5.5, '18/03/2026'),
 ('CAL-003', 'EST-002', 'A101', 'Prueba: Análisis de textos', 5.8, '20/03/2026');
-
-select * from notas;

@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
+    "db": "node crearBaseDatos.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -30,9 +31,6 @@
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "mysql2": "^3.22.5"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.1"
   },
   "engines": {
     "node": ">=16.0.0",

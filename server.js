@@ -14,6 +14,9 @@ const mysql = require('mysql2/promise');
 const cors = require('cors');
 const path = require('path');
 
+// Cargar variables de entorno desde .env (si existe)
+try { process.loadEnvFile(path.join(__dirname, '.env')); } catch (error) { /* sin .env se usan los valores por defecto */ }
+
 // =============================================
 // INICIALIZACIÓN DE EXPRESS
 // =============================================
@@ -34,7 +37,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const dbConfig = {
     host: process.env.DB_HOST || 'localhost',
     user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || 'root',
+    password: process.env.DB_PASSWORD ?? 'root',
     database: process.env.DB_NAME || 'instituto_watson',
     waitForConnections: true,
     connectionLimit: 10,
@@ -276,16 +279,16 @@ app.put('/api/profesores/:id', async (req, res) => {
 app.post('/api/asignaturas', async (req, res) => {
     const { id, codigo, nombre, profesor_id, color } = req.body;
     
-    if (!id || !codigo || !nombre || !profesor_id) {
+    if (!id || !codigo || !nombre) {
         return res.status(400).json({ error: 'Faltan campos requeridos' });
     }
-    
+
     let connection;
     try {
         connection = await pool.getConnection();
         await connection.query(
             'INSERT INTO asignaturas (id, codigo, nombre, profesor_id, color) VALUES (?, ?, ?, ?, ?)',
-            [id, codigo, nombre, profesor_id, color || 'primary']
+            [id, codigo, nombre, profesor_id || null, color || 'primary']
         );
         
         res.status(201).json({ 
@@ -307,16 +310,16 @@ app.put('/api/asignaturas/:id', async (req, res) => {
     const { codigo, nombre, profesor_id, color } = req.body;
     const { id } = req.params;
     
-    if (!codigo || !nombre || !profesor_id) {
+    if (!codigo || !nombre) {
         return res.status(400).json({ error: 'Faltan campos requeridos' });
     }
-    
+
     let connection;
     try {
         connection = await pool.getConnection();
         const result = await connection.query(
             'UPDATE asignaturas SET codigo = ?, nombre = ?, profesor_id = ?, color = ? WHERE id = ?',
-            [codigo, nombre, profesor_id, color || 'primary', id]
+            [codigo, nombre, profesor_id || null, color || 'primary', id]
         );
         
         if (result[0].affectedRows === 0) {
@@ -326,6 +329,44 @@ app.put('/api/asignaturas/:id', async (req, res) => {
         res.json({ message: 'Asignatura actualizada correctamente' });
     } catch (error) {
         console.error('❌ Error en PUT /api/asignaturas:', error.message);
+        res.status(500).json({ error: error.message });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// =============================================
+// CRUD: HORARIOS
+// =============================================
+/**
+ * PUT /api/horarios - Asigna (o deja libre) una celda del horario según bloque y día
+ */
+app.put('/api/horarios', async (req, res) => {
+    const { bloque, dia, asignatura_id, aula } = req.body;
+
+    if (!bloque || !dia) {
+        return res.status(400).json({ error: 'Bloque y día son requeridos' });
+    }
+
+    let connection;
+    try {
+        connection = await pool.getConnection();
+        const result = await connection.query(
+            'UPDATE horarios SET asignatura_id = ?, aula = ? WHERE bloque = ? AND dia = ?',
+            [asignatura_id || null, aula || '', bloque, dia]
+        );
+
+        // Si la celda aún no existe en la tabla, se crea
+        if (result[0].affectedRows === 0) {
+            await connection.query(
+                'INSERT INTO horarios (bloque, dia, asignatura_id, aula) VALUES (?, ?, ?, ?)',
+                [bloque, dia, asignatura_id || null, aula || '']
+            );
+        }
+
+        res.json({ message: 'Horario actualizado correctamente' });
+    } catch (error) {
+        console.error('❌ Error en PUT /api/horarios:', error.message);
         res.status(500).json({ error: error.message });
     } finally {
         if (connection) connection.release();
@@ -969,6 +1010,11 @@ app.listen(PORT, () => {
     console.log(`📁 Base de datos: ${dbConfig.database}`);
     console.log(`📊 Host: ${dbConfig.host}`);
     console.log(`👤 Usuario: ${dbConfig.user}`);
+
+    // Comprobar la conexión con MySQL al iniciar
+    pool.query('SELECT 1')
+        .then(() => console.log('✅ Conexión con MySQL establecida'))
+        .catch(error => console.error(`❌ No se pudo conectar con MySQL: ${error.message}\n   Revisa los datos del archivo .env y crea la base con "npm run db".`));
 });
 
 // Manejo de cierre graceful
