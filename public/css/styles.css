@@ -1,0 +1,1279 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   INSTITUTO JOHN H. WATSON - HOJA DE ESTILOS INSTITUCIONAL
+   Versión: 3.0.0 | Tema: Institucional (claro por defecto) | Responsive: 100%
+═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   1. VARIABLES RAÍZ - PALETA INSTITUCIONAL
+═══════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+    /* Fondos - Tema Claro Institucional */
+    --bg-primary: #f2f4f7;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #e7eaef;
+    --bg-quaternary: #d7dce3;
+    --bg-header: #142744;
+
+    /* Colores de Marca - Paleta Institucional (Azul Marino / Burdeos) */
+    --color-primary: #1c3a63;
+    --color-primary-dark: #102544;
+    --color-secondary: #2c5a86;
+    --color-accent: #7a2231;
+    --color-success: #2e6b4c;
+    --color-warning: #96650f;
+    --color-danger: #963337;
+    --color-info: #2c5a86;
+
+    /* Paneles y bordes */
+    --panel-bg: #ffffff;
+    --panel-border: #dde1e8;
+    --panel-shadow: 0 1px 3px rgba(16, 24, 40, 0.08);
+    --panel-shadow-hover: 0 4px 10px rgba(16, 24, 40, 0.1);
+
+    /* Tipografía */
+    --text-primary: #16212f;
+    --text-secondary: #3d4855;
+    --text-muted: #667080;
+    --text-subtle: #8792a0;
+    --text-on-dark: #f2f4f7;
+
+    /* Espaciado y Bordes */
+    --radius-xs: 2px;
+    --radius-sm: 3px;
+    --radius-md: 4px;
+    --radius-lg: 6px;
+    --radius-xl: 8px;
+    --radius-2xl: 10px;
+
+    /* Sombras */
+    --shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.06);
+    --shadow-sm: 0 1px 3px rgba(16, 24, 40, 0.08);
+    --shadow-md: 0 2px 6px rgba(16, 24, 40, 0.1);
+    --shadow-lg: 0 4px 12px rgba(16, 24, 40, 0.12);
+    --shadow-xl: 0 8px 20px rgba(16, 24, 40, 0.14);
+
+    /* Transiciones */
+    --transition-fast: 0.12s ease;
+    --transition-base: 0.2s ease;
+    --transition-slow: 0.35s ease;
+
+    /* Z-Index */
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-modal: 1060;
+    --z-tooltip: 1070;
+
+    /* Compatibilidad con marcado existente */
+    --glass-panel: var(--panel-bg);
+    --glass-border: var(--panel-border);
+    --glass-shadow: var(--panel-shadow);
+    --glass-inset: none;
+    --gradient-primary: var(--color-primary);
+    --gradient-secondary: var(--color-secondary);
+    --gradient-accent: var(--color-accent);
+    --gradient-success: var(--color-success);
+    --primary-gradient: var(--color-secondary);
+
+    /* Paleta dinámica usada por materias.js / profesores.js / aulaVirtual.js */
+    --accent-primary: var(--color-primary);
+    --accent-secondary: var(--color-secondary);
+    --accent-success: var(--color-success);
+    --accent-warning: var(--color-warning);
+    --accent-danger: var(--color-danger);
+    --accent-info: var(--color-info);
+    --accent-dark: var(--color-primary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   2. RESET Y ESTILOS GLOBALES
+═══════════════════════════════════════════════════════════════════════════════ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    scrollbar-gutter: stable;
+}
+
+body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-secondary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   3. TIPOGRAFÍA
+═══════════════════════════════════════════════════════════════════════════════ */
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 1rem;
+}
+
+h1 {
+    font-size: clamp(1.6rem, 4vw, 2.1rem);
+}
+
+h2 {
+    font-size: clamp(1.4rem, 3vw, 1.75rem);
+}
+
+h3 {
+    font-size: 1.35rem;
+}
+
+h4 {
+    font-size: 1.15rem;
+}
+
+h5 {
+    font-size: 1.05rem;
+}
+
+h6 {
+    font-size: 0.95rem;
+}
+
+p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+a {
+    color: var(--color-secondary);
+    text-decoration: none;
+    transition: color var(--transition-base);
+}
+
+a:hover {
+    color: var(--color-primary);
+    text-decoration: underline;
+}
+
+strong, .fw-bold {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+small, .text-muted, .text-secondary {
+    color: var(--text-muted) !important;
+}
+
+em {
+    color: var(--color-secondary);
+    font-style: italic;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   4. HEADER Y NAVEGACIÓN
+═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Cabecera compacta: el nombre del instituto y la navegación van en una sola
+   fila (en vez de apiladas) para reducir el bloque azul superior. */
+header {
+    background: var(--bg-header);
+    border-bottom: 3px solid var(--color-accent);
+    padding: 0.65rem 1rem;
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.5rem;
+}
+
+header > .container-fluid {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.5rem;
+    width: 100%;
+    padding: 0;
+}
+
+header h1 {
+    color: var(--text-on-dark);
+    margin: 0;
+    font-size: 1.05rem;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+header nav.navbar {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.navbar {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+.navbar-brand {
+    color: var(--text-on-dark) !important;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.navbar-brand:hover {
+    color: #ffffff !important;
+}
+
+.navbar-nav .nav-link {
+    color: rgba(242, 244, 247, 0.8) !important;
+    font-weight: 600;
+    padding: 0.6rem 1rem !important;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-base);
+    position: relative;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.navbar-nav .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 2px;
+    background: var(--color-accent);
+}
+
+.navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.navbar-toggler:focus {
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.2) !important;
+}
+
+.dropdown-menu {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    box-shadow: var(--shadow-lg);
+    border-radius: var(--radius-md);
+}
+
+.dropdown-item {
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: all var(--transition-base);
+}
+
+.dropdown-item:hover,
+.dropdown-item.active {
+    background: var(--bg-tertiary);
+    color: var(--color-primary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   5. CONTENEDOR PRINCIPAL
+═══════════════════════════════════════════════════════════════════════════════ */
+
+.container, .container-fluid {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+/* En monitores grandes el contenedor de Bootstrap llega a 1320px, lo que hace
+   que el texto y las imágenes se vean desproporcionados. Se limita un poco más
+   para que la lectura sea más cómoda. */
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1180px;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   6. TARJETAS Y PANELES
+═══════════════════════════════════════════════════════════════════════════════ */
+
+.card, .panel-glass {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--panel-shadow);
+    transition: box-shadow var(--transition-base), border-color var(--transition-base);
+}
+
+.card:hover, .panel-glass:hover {
+    border-color: var(--color-secondary);
+    box-shadow: var(--panel-shadow-hover);
+}
+
+.card-header {
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--panel-border);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.card-body {
+    padding: 1.75rem;
+}
+
+.card-footer {
+    background: var(--bg-tertiary);
+    border-top: 1px solid var(--panel-border);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   7. SECCIÓN DE ANUNCIOS (AULA VIRTUAL)
+═══════════════════════════════════════════════════════════════════════════════ */
+
+#contenedorAnuncios {
+    margin-bottom: 3rem;
+}
+
+.anuncio-card {
+    border-left: 3px solid var(--color-primary);
+}
+
+.anuncio-titulo {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.anuncio-autor {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.anuncio-fecha {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.anuncio-contenido {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin: 1.5rem 0;
+    white-space: pre-line;
+    word-wrap: break-word;
+}
+
+.anuncio-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.anuncio-acciones {
+    display: flex;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--panel-border);
+    margin-top: 1rem;
+}
+
+.btn-like {
+    transition: transform var(--transition-fast);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   8. SECCIÓN DE ASIGNATURAS (MATERIAS)
+═══════════════════════════════════════════════════════════════════════════════ */
+
+#contenedorMateriasAula {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.materia-card {
+    padding: 1.25rem !important;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border-top: 3px solid var(--color-primary);
+}
+
+.materia-codigo {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--color-secondary);
+}
+
+.materia-nombre {
+    font-size: 1.05rem !important;
+    margin: 0.5rem 0 !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.materia-profesor {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   9. SECCIÓN DE PROFESORES (DIRECTORIO)
+═══════════════════════════════════════════════════════════════════════════════ */
+
+#contenedorProfesoresContacto {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.profesor-card {
+    position: relative;
+}
+
+.profesor-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: white;
+    font-size: 1.35rem;
+    margin-bottom: 1rem;
+    background: var(--color-primary);
+}
+
+.profesor-nombre {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.profesor-departamento {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.profesor-contacto {
+    list-style: none;
+    margin: 1rem 0;
+}
+
+.profesor-contacto li {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   10. BOTONES
+═══════════════════════════════════════════════════════════════════════════════ */
+
+.btn {
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    padding: 0.55rem 1.4rem;
+    transition: all var(--transition-base);
+    cursor: pointer;
+}
+
+.btn:focus {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
+}
+
+.btn-primary {
+    background: var(--color-primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--color-primary-dark);
+}
+
+.btn-secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--panel-border);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-quaternary);
+    border-color: var(--color-secondary);
+}
+
+.btn-success {
+    background: var(--color-success);
+    color: white;
+}
+
+.btn-success:hover {
+    background: #245b40;
+}
+
+.btn-warning {
+    background: var(--color-warning);
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #7d5309;
+}
+
+.btn-danger {
+    background: var(--color-danger);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #7c2a2d;
+}
+
+.btn-outline-primary {
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+    background: transparent;
+}
+
+.btn-outline-primary:hover {
+    background: var(--color-primary);
+    color: white;
+}
+
+.btn-outline-danger {
+    color: var(--color-danger);
+    border: 1px solid var(--color-danger);
+    background: transparent;
+}
+
+.btn-outline-danger:hover {
+    background: var(--color-danger);
+    color: white;
+}
+
+.btn-link {
+    text-decoration: none;
+}
+
+.btn-sm {
+    padding: 0.4rem 1rem;
+    font-size: 0.9rem;
+}
+
+.btn-lg {
+    padding: 0.75rem 1.9rem;
+    font-size: 1.05rem;
+}
+
+.btn-rounded-pill {
+    border-radius: 50px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   11. FORMULARIOS Y INPUTS
+═══════════════════════════════════════════════════════════════════════════════ */
+
+.form-control,
+.form-select,
+textarea.form-control {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    color: var(--text-secondary);
+    border-radius: var(--radius-md);
+    padding: 0.65rem 0.9rem;
+    transition: all var(--transition-base);
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.form-control::placeholder {
+    color: var(--text-muted);
+}
+
+.form-control:focus,
+.form-select:focus {
+    background: var(--panel-bg);
+    border-color: var(--color-secondary);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 3px rgba(44, 90, 134, 0.15);
+    outline: none;
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-select:focus ~ label {
+    color: var(--color-secondary);
+}
+
+.form-floating > label {
+    color: var(--text-muted);
+    padding: 1rem 0.75rem;
+}
+
+.input-group-text {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--panel-border);
+    color: var(--text-secondary);
+}
+
+.form-check-input {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+}
+
+.form-check-input:checked {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.form-check-input:focus {
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 0 0.2rem rgba(44, 90, 134, 0.2);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   12. BADGES Y ETIQUETAS
+═══════════════════════════════════════════════════════════════════════════════ */
+
+.badge {
+    font-weight: 600;
+    padding: 0.4rem 0.85rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    display: inline-block;
+}
+
+.badge-primary,
+.badge-id {
+    background: var(--color-primary);
+    color: white;
+}
+
+.badge-secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.badge-success {
+    background: var(--color-success);
+    color: white;
+}
+
+.badge-warning {
+    background: var(--color-warning);
+    color: white;
+}
+
+.badge-danger {
+    background: var(--color-danger);
+    color: white;
+}
+
+.badge-info {
+    background: var(--color-info);
+    color: white;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   13. TABLAS
+═══════════════════════════════════════════════════════════════════════════════ */
+
+.table {
+    /* Bootstrap pinta el fondo real de cada celda con --bs-table-bg (por defecto
+       blanco fijo, sin relación con el tema). Se redefine aquí para que siga el
+       tema claro/oscuro igual que el resto de la tabla. */
+    --bs-table-bg: var(--panel-bg);
+    --bs-table-color: var(--text-secondary);
+    --bs-table-border-color: var(--panel-border);
+    color: var(--text-secondary);
+    border-collapse: separate;
+    border-spacing: 0 6px;
+}
+
+.table thead th {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+    padding: 0.85rem 1rem !important;
+}
+
+.table tbody tr {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    box-shadow: var(--shadow-xs);
+    border-radius: var(--radius-md);
+}
+
+.table tbody tr:hover {
+    --bs-table-bg: var(--bg-tertiary);
+    background: var(--bg-tertiary);
+    border-color: var(--color-secondary);
+}
+
+.table td {
+    border: none !important;
+    padding: 0.85rem 1rem !important;
+    color: var(--text-secondary);
+    background-color: var(--bs-table-bg);
+}
+
+.table td:first-child {
+    border-top-left-radius: var(--radius-md);
+    border-bottom-left-radius: var(--radius-md);
+}
+
+.table td:last-child {
+    border-top-right-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
+}
+
+.table tbody tr td strong {
+    color: var(--text-primary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   14. PROGRESO Y BARRAS
+═══════════════════════════════════════════════════════════════════════════════ */
+
+.progress {
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    height: 6px;
+}
+
+.progress-bar {
+    background: var(--color-primary);
+    border-radius: var(--radius-md);
+    transition: width var(--transition-slow);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   15. MODALES Y ALERTAS
+═══════════════════════════════════════════════════════════════════════════════ */
+
+.modal-content {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    box-shadow: var(--shadow-xl);
+    border-radius: var(--radius-lg);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--panel-border);
+    background: var(--bg-tertiary);
+}
+
+.modal-body {
+    color: var(--text-secondary);
+}
+
+.modal-footer {
+    border-top: 1px solid var(--panel-border);
+}
+
+.alert {
+    border: 1px solid var(--panel-border);
+    border-left-width: 4px;
+    border-radius: var(--radius-md);
+    padding: 1rem 1.5rem;
+}
+
+.alert-primary {
+    background: #eaf0f7;
+    color: var(--color-primary);
+    border-left-color: var(--color-primary);
+}
+
+.alert-success {
+    background: #eaf3ee;
+    color: var(--color-success);
+    border-left-color: var(--color-success);
+}
+
+.alert-warning {
+    background: #f8f0e2;
+    color: var(--color-warning);
+    border-left-color: var(--color-warning);
+}
+
+.alert-danger {
+    background: #f7eaea;
+    color: var(--color-danger);
+    border-left-color: var(--color-danger);
+}
+
+.alert-info {
+    background: #e8f0f4;
+    color: var(--color-info);
+    border-left-color: var(--color-info);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   15b. CLASES DE BOOTSTRAP (compatibilidad con la paleta institucional)
+   El marcado de las páginas usa utilidades nativas de Bootstrap (text-primary,
+   bg-danger, text-bg-*, btn-outline-*, etc.). Se redefinen aquí para que sigan
+   la paleta institucional en vez de los colores por defecto de Bootstrap.
+═══════════════════════════════════════════════════════════════════════════════ */
+
+.text-primary { color: var(--color-primary) !important; }
+.text-secondary { color: var(--text-muted) !important; }
+.text-success { color: var(--color-success) !important; }
+.text-warning { color: var(--color-warning) !important; }
+.text-danger { color: var(--color-danger) !important; }
+.text-info { color: var(--color-info) !important; }
+.text-dark { color: var(--text-primary) !important; }
+
+.bg-primary { background-color: var(--color-primary) !important; color: #fff; }
+.bg-success { background-color: var(--color-success) !important; color: #fff; }
+.bg-warning { background-color: var(--color-warning) !important; color: #fff; }
+.bg-danger { background-color: var(--color-danger) !important; color: #fff; }
+.bg-info { background-color: var(--color-info) !important; color: #fff; }
+.bg-secondary { background-color: var(--bg-tertiary) !important; color: var(--text-primary); }
+.bg-warning.text-dark,
+.bg-info.text-dark { color: #fff !important; }
+
+.text-bg-primary { background-color: var(--color-primary) !important; color: #fff !important; }
+.text-bg-success { background-color: var(--color-success) !important; color: #fff !important; }
+.text-bg-warning { background-color: var(--color-warning) !important; color: #fff !important; }
+.text-bg-danger { background-color: var(--color-danger) !important; color: #fff !important; }
+.text-bg-info { background-color: var(--color-info) !important; color: #fff !important; }
+.text-bg-secondary { background-color: var(--bg-tertiary) !important; color: var(--text-primary) !important; }
+
+.btn-outline-success { color: var(--color-success); border: 1px solid var(--color-success); background: transparent; }
+.btn-outline-success:hover { background: var(--color-success); color: #fff; }
+.btn-outline-warning { color: var(--color-warning); border: 1px solid var(--color-warning); background: transparent; }
+.btn-outline-warning:hover { background: var(--color-warning); color: #fff; }
+.btn-outline-info { color: var(--color-info); border: 1px solid var(--color-info); background: transparent; }
+.btn-outline-info:hover { background: var(--color-info); color: #fff; }
+.btn-outline-secondary { color: var(--text-secondary); border: 1px solid var(--panel-border); background: transparent; }
+.btn-outline-secondary:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+.btn-outline-dark { color: var(--text-primary); border: 1px solid var(--panel-border); background: transparent; }
+.btn-outline-dark:hover { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+
+.nav-pills {
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    padding: 0.25rem;
+    gap: 0.25rem;
+}
+
+.nav-pills .nav-link {
+    color: var(--text-secondary);
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+}
+
+.nav-pills .nav-link.active {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   16. FOOTER
+═══════════════════════════════════════════════════════════════════════════════ */
+
+footer {
+    background: var(--bg-header);
+    border-top: 3px solid var(--color-accent);
+    margin-top: 4rem;
+    padding: 2rem 0;
+    color: rgba(242, 244, 247, 0.75);
+}
+
+footer p {
+    margin-bottom: 0.5rem;
+}
+
+footer a {
+    color: rgba(242, 244, 247, 0.9);
+}
+
+footer a:hover {
+    color: #ffffff;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   17. ICONOS
+═══════════════════════════════════════════════════════════════════════════════ */
+
+.bi {
+    display: inline-block;
+}
+
+button .bi,
+a .bi {
+    margin-right: 0.5rem;
+}
+
+.bi-heart-fill {
+    color: var(--color-danger);
+}
+
+.bi-star-fill {
+    color: var(--color-warning);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   18. DIVISORES Y BORDES
+═══════════════════════════════════════════════════════════════════════════════ */
+
+.border-bottom,
+.border-top {
+    border-color: var(--panel-border) !important;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid var(--panel-border);
+    margin: 2rem 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   19. ESTADO VACÍO
+═══════════════════════════════════════════════════════════════════════════════ */
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-muted);
+}
+
+.empty-state i {
+    font-size: 2.5rem;
+    color: var(--text-subtle);
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    font-size: 1.05rem;
+    margin-top: 1rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   20. SKELETON LOADING
+═══════════════════════════════════════════════════════════════════════════════ */
+
+.skeleton {
+    background: linear-gradient(90deg,
+        var(--bg-tertiary) 25%,
+        var(--bg-quaternary) 50%,
+        var(--bg-tertiary) 75%);
+    background-size: 200% 100%;
+    animation: loading 1.4s infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   21. SCROLLBAR
+═══════════════════════════════════════════════════════════════════════════════ */
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-tertiary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--text-subtle);
+    border-radius: 5px;
+    border: 2px solid var(--bg-tertiary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-secondary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   22. CARRUSEL
+═══════════════════════════════════════════════════════════════════════════════ */
+
+.carousel-modern-wrapper {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--panel-shadow);
+    border: 1px solid var(--panel-border);
+}
+
+/* Se limita la altura de la imagen: sin esto, en pantallas grandes la foto
+   ocupaba casi toda la primera pantalla y el resto de la página se sentía
+   "gigante". object-fit: cover mantiene el encuadre al recortar. */
+.carousel-modern-wrapper .carousel-item img {
+    height: 420px;
+    object-fit: cover;
+}
+
+@media (max-width: 768px) {
+    .carousel-modern-wrapper .carousel-item img {
+        height: 240px;
+    }
+}
+
+.glass-caption {
+    background: rgba(20, 39, 68, 0.82);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.5rem;
+    left: 5%;
+    right: 5%;
+    bottom: 1.25rem;
+}
+
+.glass-caption h5 {
+    color: #ffffff;
+    margin-bottom: 0.35rem;
+}
+
+.glass-caption p {
+    color: rgba(242, 244, 247, 0.85);
+    margin-bottom: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   23. RESPONSIVE DESIGN
+═══════════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1200px) {
+    #contenedorMateriasAula,
+    #contenedorProfesoresContacto {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    header {
+        padding: 0.5rem 0.75rem;
+    }
+
+    header h1 {
+        font-size: 0.95rem;
+    }
+
+    .navbar-brand {
+        font-size: 1rem;
+    }
+
+    main {
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+    }
+
+    .card-body {
+        padding: 1.25rem;
+    }
+
+    .table {
+        font-size: 0.9rem;
+    }
+
+    .table td, .table th {
+        padding: 0.65rem !important;
+    }
+
+    #contenedorMateriasAula,
+    #contenedorProfesoresContacto {
+        grid-template-columns: 1fr;
+    }
+
+    .btn {
+        padding: 0.5rem 1.2rem;
+        font-size: 0.95rem;
+    }
+
+    .anuncio-acciones {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    header {
+        padding: 0.5rem;
+    }
+
+    main {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .btn {
+        padding: 0.4rem 1rem;
+        font-size: 0.9rem;
+        width: 100%;
+    }
+
+    .container, .container-fluid {
+        padding: 1rem;
+    }
+
+    .navbar-nav .nav-link {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.95rem;
+    }
+
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.35rem 0.75rem;
+    }
+
+    .empty-state {
+        padding: 2rem 1rem;
+    }
+
+    .empty-state i {
+        font-size: 2rem;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   24. ACCESIBILIDAD
+═══════════════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+*:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
+}
+
+@media (prefers-contrast: more) {
+    body {
+        --text-secondary: #222c38;
+        --text-muted: #4b5563;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   25. TEMA OSCURO (OPCIONAL)
+═══════════════════════════════════════════════════════════════════════════════ */
+
+body.dark-mode {
+    --bg-primary: #0f1720;
+    --bg-secondary: #17212c;
+    --bg-tertiary: #1f2a37;
+    --bg-quaternary: #293543;
+    --bg-header: #0b1420;
+
+    --panel-bg: #17212c;
+    --panel-border: #2a3546;
+    --panel-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --panel-shadow-hover: 0 4px 10px rgba(0, 0, 0, 0.45);
+
+    --text-primary: #e8ecf1;
+    --text-secondary: #b9c2cd;
+    --text-muted: #8592a1;
+    --text-subtle: #647082;
+
+    --color-secondary: #4f86b8;
+
+    /* Los alias de compatibilidad (--glass-panel, --primary-gradient, etc.) se
+       calculan una sola vez a partir de su valor en :root y ese resultado es lo
+       que heredan los elementos, así que si solo se redefine --panel-bg aquí no
+       se actualizan. Se recalculan explícitamente para el tema oscuro. */
+    --glass-panel: var(--panel-bg);
+    --glass-border: var(--panel-border);
+    --glass-shadow: var(--panel-shadow);
+    --primary-gradient: var(--color-secondary);
+    --gradient-secondary: var(--color-secondary);
+}
+
+body.dark-mode .table tbody tr:hover {
+    background: var(--bg-quaternary);
+}
+
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+    background: var(--bg-tertiary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   26. UTILIDADES
+═══════════════════════════════════════════════════════════════════════════════ */
+
+.text-center { text-align: center; }
+.text-start { text-align: start; }
+.text-end { text-align: end; }
+
+.mt-0 { margin-top: 0 !important; }
+.mb-0 { margin-bottom: 0 !important; }
+.mt-1 { margin-top: 0.5rem !important; }
+.mb-1 { margin-bottom: 0.5rem !important; }
+.mt-2 { margin-top: 1rem !important; }
+.mb-2 { margin-bottom: 1rem !important; }
+.mt-3 { margin-top: 1.5rem !important; }
+.mb-3 { margin-bottom: 1.5rem !important; }
+.mt-4 { margin-top: 2rem !important; }
+.mb-4 { margin-bottom: 2rem !important; }
+.mt-5 { margin-top: 3rem !important; }
+.mb-5 { margin-bottom: 3rem !important; }
+
+.p-0 { padding: 0 !important; }
+.p-1 { padding: 0.5rem !important; }
+.p-2 { padding: 1rem !important; }
+.p-3 { padding: 1.5rem !important; }
+.p-4 { padding: 2rem !important; }
+.p-5 { padding: 3rem !important; }
+
+.opacity-50 { opacity: 0.5; }
+.opacity-75 { opacity: 0.75; }
+.cursor-pointer { cursor: pointer; }
+
+.gap-1 { gap: 0.5rem !important; }
+.gap-2 { gap: 1rem !important; }
+.gap-3 { gap: 1.5rem !important; }
+.gap-4 { gap: 2rem !important; }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   FIN DEL STYLESHEET
+═══════════════════════════════════════════════════════════════════════════════ */

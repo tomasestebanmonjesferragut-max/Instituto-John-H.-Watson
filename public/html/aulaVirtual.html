@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Aula Virtual - Sistema de Gestión Educativa">
+    <meta name="author" content="Instituto John H. Watson">
+    <title>Aula Virtual Avanzada | Instituto John H. Watson</title>
+    <link rel="icon" type="image/svg+xml" href="../Image/favicon.svg">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="../css/styles.css">
+    
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container-fluid">
+            <h1><i class="bi bi-mortarboard-fill me-2"></i>Instituto John H. Watson</h1>
+            <nav class="navbar navbar-expand-lg">
+                <div class="container-fluid px-0">
+                    <a class="navbar-brand" href="index.html">
+                        <i class="bi bi-house-door-fill me-2"></i>Inicio
+                    </a>
+                    <button class="navbar-toggler btn-outline-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav ms-auto gap-1">
+                            <li class="nav-item">
+                                <a class="nav-link" href="solicitudes.html" aria-label="Ir a Admisión">
+                                    <i class="bi bi-person-lines-fill me-1"></i>Admisión
+                                </a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-tools me-1"></i>Servicios
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-dark">
+                                    <li><a class="dropdown-item" href="materias.html"><i class="bi bi-journal-bookmark-fill me-2"></i>Asignaturas</a></li>
+                                    <li><a class="dropdown-item" href="profesores.html"><i class="bi bi-person-video3 me-2"></i>Docentes</a></li>
+                                    <li><a class="dropdown-item" href="horarios.html"><i class="bi bi-calendar-week me-2"></i>Agenda Semanal</a></li>
+                                    <li><a class="dropdown-item active" href="aulaVirtual.html"><i class="bi bi-laptop me-2"></i>Aula Virtual</a></li>
+                                    <li><a class="dropdown-item" href="aulaVirtualAlumnos.html"><i class="bi bi-mortarboard me-2"></i>Aula Virtual (Alumnos)</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="solicitudesProfesores.html" aria-label="Ir a Soporte">
+                                    <i class="bi bi-pc-display me-1"></i>Soporte
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="informacion.html" aria-label="Ir a Directorio">
+                                    <i class="bi bi-info-circle-fill me-1"></i>Directorio
+                                </a>
+                            </li>
+                            <li class="nav-item ms-lg-3 d-flex align-items-center gap-2">
+                                <button id="btnTheme" class="btn btn-outline-primary btn-sm rounded-circle" aria-label="Cambiar tema" title="Cambiar tema">
+                                    <i class="bi bi-moon-stars-fill"></i>
+                                </button>
+                                <button id="btnAdmin" class="btn btn-outline-danger btn-sm rounded-pill" aria-label="Acceso Administrador" title="Acceso Administrador">
+                                    <i class="bi bi-lock-fill"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container-fluid fade-in">
+        <div class="container">
+            <!-- Section Header -->
+            <div class="row align-items-center mb-4 pb-3 border-bottom" style="border-color: var(--glass-border);">
+                <div class="col-md-6">
+                    <h2 class="fw-bold m-0">
+                        <i class="bi bi-laptop me-2 text-primary"></i>Aula Virtual
+                    </h2>
+                    <small class="text-muted">Gestión de anuncios y comunicación académica</small>
+                </div>
+                <div class="col-md-6 d-flex justify-content-md-end gap-2 mt-3 mt-md-0">
+                    <input 
+                        type="text" 
+                        id="buscadorAula" 
+                        class="form-control form-control-sm" 
+                        style="max-width: 200px;" 
+                        placeholder="Buscar anuncios..."
+                        aria-label="Buscar anuncios"
+                    >
+                    <button 
+                        id="btnPublicarAnuncio" 
+                        class="btn btn-sm btn-success rounded-pill" 
+                        style="display: none;"
+                        aria-label="Publicar nuevo anuncio"
+                        title="Solo visible para administradores"
+                    >
+                        <i class="bi bi-plus-lg me-1"></i> Publicar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Anuncios Section -->
+            <section class="mb-5" aria-labelledby="anuncios-title">
+                <h3 id="anuncios-title" class="fw-bold mb-4">
+                    <i class="bi bi-megaphone-fill me-2 text-warning"></i>Anuncios Recientes
+                </h3>
+                <div class="row" id="contenedorAnuncios">
+                    <div class="col-12 empty-state">
+                        <div class="skeleton" style="height: 200px; border-radius: 8px;"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Asignaturas Section -->
+            <section class="mb-5" aria-labelledby="asignaturas-title">
+                <h3 id="asignaturas-title" class="fw-bold mb-4">
+                    <i class="bi bi-journal-bookmark-fill me-2 text-primary"></i>Mis Asignaturas
+                </h3>
+                <div class="row g-3" id="contenedorMateriasAula">
+                    <div class="col-12 empty-state">
+                        <p class="text-muted">Cargando asignaturas...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Profesores Section -->
+            <section class="border-top pt-5" style="border-color: var(--glass-border);" aria-labelledby="profesores-title">
+                <h3 id="profesores-title" class="fw-bold mb-4">
+                    <i class="bi bi-people-fill me-2 text-success"></i>Directorio Docente
+                </h3>
+                <div class="row g-3" id="contenedorProfesoresContacto">
+                    <div class="col-12 empty-state">
+                        <p class="text-muted">Cargando docentes...</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container text-center pb-4">
+            <p class="text-muted mb-0">
+                <i class="bi bi-c-circle me-2"></i>2026 Instituto John H. Watson | Plataforma Educativa Segura
+            </p>
+            <small class="text-muted mt-2 d-block">
+                Versión 1.0.0 | Desarrollado con <i class="bi bi-heart-fill text-danger"></i> para la educación
+            </small>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom Scripts -->
+    <script src="../js/aulaVirtual.js"></script>
+    <script src="../js/script.js"></script>
+</body>
+</html>

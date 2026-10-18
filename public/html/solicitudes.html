@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Instituto John H. Watson - Proceso de Admisión">
+    <title>Admisión | Instituto John H. Watson</title>
+    <link rel="icon" type="image/svg+xml" href="../Image/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <header>
+        <h1><i class="bi bi-mortarboard-fill me-2"></i>Instituto John H. Watson</h1>
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="index.html"><i class="bi bi-house-door-fill me-2"></i>Inicio</a>
+                <button class="navbar-toggler btn-outline-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto gap-1">
+                        <li class="nav-item">
+                            <a class="nav-link" href="solicitudes.html">
+                                <i class="bi bi-person-lines-fill me-1"></i>Admisión
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-tools me-1"></i>Servicios
+                            </a>
+                             <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="materias.html"><i class="bi bi-journal-bookmark-fill me-2"></i>Asignaturas</a></li>
+                                <li><a class="dropdown-item" href="profesores.html"><i class="bi bi-person-video3 me-2"></i>Docentes</a></li>
+                                <li><a class="dropdown-item" href="horarios.html"><i class="bi bi-calendar-week me-2"></i>Agenda Semanal</a></li>
+                                <li><a class="dropdown-item" href="aulaVirtual.html"><i class="bi bi-laptop me-2"></i>Aula Virtual</a></li>
+                                <li><a class="dropdown-item" href="aulaVirtualAlumnos.html"><i class="bi bi-mortarboard me-2"></i>Aula Virtual (Alumnos)</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="solicitudesProfesores.html">
+                                <i class="bi bi-pc-display me-1"></i>Soporte
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="informacion.html">
+                                <i class="bi bi-info-circle-fill me-1"></i>Directorio
+                            </a>
+                        </li>
+
+                        <!-- Botón Tema y Login -->
+                        <li class="nav-item ms-lg-3 d-flex align-items-center">
+                            <button id="btnTheme" class="btn btn-outline-primary btn-sm rounded-circle me-2" aria-label="Cambiar tema">
+                                <i class="bi bi-moon-stars-fill"></i>
+                            </button>
+                            <button id="btnAdmin" class="btn btn-outline-danger btn-sm rounded-pill" aria-label="Login">
+                                <i class="bi bi-lock-fill"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container my-5 layout fade-in">
+        <div class="row g-4">
+            <section id="listado" class="col-lg-8">
+                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3" style="border-color: var(--glass-border) !important;">
+                    <h2 class="fw-bold m-0" style="background: var(--primary-gradient); background-clip: text; -webkit-text-fill-color: transparent;">
+                        <i class="bi bi-person-vcard me-2 text-primary"></i>Postulaciones Nuevas
+                    </h2>
+                    <div class="input-group" style="width: 280px; box-shadow: var(--shadow-sm); border-radius: var(--radius-md); overflow: hidden;">
+                        <span class="input-group-text bg-white border-0"><i class="bi bi-search text-primary"></i></span>
+                        <input type="text" id="buscador" class="form-control border-0 bg-white shadow-none ps-0" placeholder="Buscar postulante...">
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Folio</th>
+                                <th>Estudiante</th>
+                                <th>Año que postula</th>
+                                <th>Estado</th>
+                                <th>Fecha Inscripción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaSolicitudes"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="col-lg-4">
+                <div id="panel" class="d-flex flex-column h-100">
+                    <div class="panel-buttons mb-4">
+                        <button class="btn btn-secondary w-100 mb-3 text-start fw-bold" id="btnRegistrar">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary rounded-circle p-1 text-white d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px;"><i class="bi bi-plus-lg"></i></div>
+                                Ingresar Postulación
+                            </div>
+                        </button>
+                        <button class="btn btn-secondary w-100 mb-3 text-start fw-bold" id="btnModificar">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-warning rounded-circle p-1 text-dark d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px;"><i class="bi bi-arrow-repeat"></i></div>
+                                Actualizar Estado
+                            </div>
+                        </button>
+                        <button class="btn btn-secondary w-100 text-start fw-bold" id="btnEliminar">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-danger rounded-circle p-1 text-white d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px;"><i class="bi bi-trash-fill"></i></div>
+                                Anular Postulación
+                            </div>
+                        </button>
+                    </div>
+                    <div id="panelContenido" class="flex-grow-1 p-3 rounded-3" style="background: var(--bg-tertiary); border: 1px dashed var(--glass-border);">
+                        <div class="text-center text-muted mt-4 fade-in">
+                            <i class="bi bi-terminal-fill fs-1 d-block mb-3 text-primary opacity-50"></i>
+                            <span class="fw-medium">Seleccione una acción del menú para gestionar postulaciones.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="mt-5 pt-5 border-top" style="border-color: var(--glass-border) !important;">
+        <div class="container text-center pb-5">
+            <p class="text-muted mb-0"><i class="bi bi-c-circle me-2"></i>2026 Instituto John H. Watson | Plataforma Educativa Segura</p>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/solicitudes.js"></script>
+    <script src="../js/script.js"></script>
+</body>
+</html>
