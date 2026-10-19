@@ -42,12 +42,12 @@
         <div id="franjaRol" class="franja-rol" hidden></div>
     </header>
 
-    <main id="contenido" class="container my-5">
+    <main id="contenido" class="container my-5" data-vista-inicial="inicio" data-vista-sesion="miPanel">
         <!-- MI PANEL: lo primero que ve cada rol al iniciar sesión -->
-        <section id="miPanel" class="mb-5" hidden aria-label="Mi panel"></section>
+        <section data-vista="miPanel" hidden aria-label="Mi panel"></section>
 
-        <!-- CARRUSEL (solo visitantes) -->
-        <section class="carousel-modern-wrapper mb-5" aria-label="Fotografías del instituto" data-roles="visitante">
+        <!-- INICIO (visitantes): carrusel, servicios y noticias -->
+        <section class="carousel-modern-wrapper mb-5" aria-label="Fotografías del instituto" data-vista="inicio">
             <div id="carouselExamples" class="carousel slide fade-in" data-bs-ride="carousel">
                 <div class="carousel-indicators">
                     <button type="button" data-bs-target="#carouselExamples" data-bs-slide-to="0" class="active" aria-label="Campus"></button>
@@ -87,7 +87,7 @@
         </section>
 
         <!-- QUIÉNES SOMOS Y CIFRAS -->
-        <section id="nosotros" class="mb-5" aria-labelledby="tituloQuienes">
+        <section data-vista="nosotros" aria-labelledby="tituloQuienes">
             <div class="row g-4 align-items-center">
                 <div class="col-lg-6">
                     <span class="badge text-bg-danger mb-2">Desde 1998 en San Joaquín</span>
@@ -129,7 +129,7 @@
         </section>
 
         <!-- SERVICIOS -->
-        <section class="mb-5" aria-labelledby="tituloServicios">
+        <section class="mb-5" data-vista="inicio" aria-labelledby="tituloServicios">
             <div class="text-center mb-4">
                 <h2 id="tituloServicios" class="fw-bold mb-2">Portal de Servicios Académicos</h2>
                 <p class="text-muted">Tu trayectoria estudiantil y docente desde un solo lugar</p>
@@ -145,7 +145,7 @@
         </section>
 
         <!-- NOTICIAS Y AVISOS (desde la base de datos) -->
-        <section class="mb-5" aria-labelledby="tituloNoticias">
+        <section data-vista="inicio" aria-labelledby="tituloNoticias">
             <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
                 <div>
                     <h2 id="tituloNoticias" class="fw-bold mb-1">Noticias y avisos</h2>
@@ -157,7 +157,7 @@
         </section>
 
         <!-- CONTACTO -->
-        <section id="contacto" aria-labelledby="tituloContacto">
+        <section data-vista="contacto" aria-labelledby="tituloContacto">
             <div class="text-center mb-4">
                 <h2 id="tituloContacto" class="fw-bold mb-2">Contáctanos</h2>
                 <p class="text-muted">Escríbenos y te responderemos dentro de 2 días hábiles.</p>
@@ -188,12 +188,13 @@
                     </div>
                 </div>
             </div>
+        </section>
 
-            <!-- Bandeja de mensajes (directiva) -->
-            <section id="mensajes" class="mt-5" data-roles="director secretaria" hidden aria-label="Mensajes recibidos">
-                <h3 class="h4 fw-bold mb-3"><i class="bi bi-inbox-fill me-2 text-primary"></i>Mensajes recibidos</h3>
-                <div id="listaMensajes"></div>
-            </section>
+        <!-- MENSAJES DE CONTACTO (directiva) -->
+        <section data-vista="mensajes" data-roles="director secretaria" hidden aria-labelledby="tituloMensajes">
+            <h2 id="tituloMensajes" class="fw-bold mb-1"><i class="bi bi-inbox-fill me-2 text-primary"></i>Mensajes recibidos</h2>
+            <p class="text-muted mb-4">Consultas enviadas desde el formulario de contacto. Respóndelas por correo y elimínalas cuando estén atendidas.</p>
+            <div id="listaMensajes"></div>
         </section>
     </main>
 

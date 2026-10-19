@@ -200,21 +200,24 @@ app.get('/api/asignaturas', async (req, res) => {
 
 /**
  * GET /api/docentes - Docentes y sus asignaturas
- * Alumnos y apoderados: nombre y correo institucional. Docentes y directiva: ficha completa.
+ * Todos los usuarios con sesión ven nombre, asignaturas y correo institucional.
+ * La directiva ve la ficha completa de todos; cada profesor, solo la suya.
  */
 app.get('/api/docentes', requiereSesion(), async (req, res) => {
-    const fichaCompleta = [...DIRECTIVA, 'profesor'].includes(req.session.usuario.rol);
-    const campos = fichaCompleta
-        ? 'p.id, p.nombre, p.departamento, p.correo, p.rut, p.telefono, p.correo_personal, p.horario_trabajo, p.curriculum'
-        : 'p.id, p.nombre, p.correo';
-
+    const usuario = req.session.usuario;
     const [docentes] = await pool.query(`
-        SELECT ${campos}, GROUP_CONCAT(a.nombre ORDER BY a.codigo SEPARATOR '||') AS asignaturas
+        SELECT p.id, p.nombre, p.departamento, p.correo, p.rut, p.telefono, p.correo_personal, p.horario_trabajo, p.curriculum,
+               GROUP_CONCAT(a.nombre ORDER BY a.codigo SEPARATOR '||') AS asignaturas
         FROM profesores p LEFT JOIN asignaturas a ON a.profesor_id = p.id
         GROUP BY p.id ORDER BY p.nombre`);
 
-    docentes.forEach(d => { d.asignaturas = d.asignaturas ? d.asignaturas.split('||') : []; });
-    res.json(docentes);
+    res.json(docentes.map(d => {
+        const asignaturas = d.asignaturas ? d.asignaturas.split('||') : [];
+        const fichaCompleta = DIRECTIVA.includes(usuario.rol) || (usuario.rol === 'profesor' && d.id === usuario.id);
+        return fichaCompleta
+            ? { ...d, asignaturas }
+            : { id: d.id, nombre: d.nombre, correo: d.correo, asignaturas };
+    }));
 });
 
 /**

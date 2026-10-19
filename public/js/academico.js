@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const sesion = await obtenerSesion();
     const gestiona = esDirectiva(sesion);               // dirección y secretaría organizan asignaturas y horario
     const esDirector = sesion.rol === 'director';       // solo el director crea y edita docentes
-    const fichaCompleta = gestiona || sesion.rol === 'profesor';
+    const veAlumnos = gestiona || sesion.rol === 'profesor';
     const esMia = (a) => sesion.rol === 'profesor' && a.profesor_id === sesion.profesor.id;
     const esc = escaparHTML;
 
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             api('asignaturas'),
             sesion.rol ? api('docentes') : [],
             sesion.rol ? api('horario') : horario,
-            fichaCompleta ? api('estudiantes') : []
+            veAlumnos ? api('estudiantes') : []
         ]);
         mostrarAsignaturas();
         mostrarDocentes();
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>`;
         listaAsignaturas.hidden = true;
         detalleAsignatura.hidden = false;
-        document.getElementById('asignaturas').scrollIntoView({ block: 'start' });
+        window.scrollTo(0, 0);
     }
 
     async function guardarAsignatura(a) {
@@ -126,25 +126,29 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        contenedor.innerHTML = `<div class="row g-4">${docentes.map(d => `
-            <div class="col-md-6 col-lg-4">
-                <article class="card p-4 h-100">
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <span class="avatar-docente" aria-hidden="true"><i class="bi bi-person-fill"></i></span>
-                        <div>
-                            <h3 class="h6 fw-bold mb-0">${esc(d.nombre)}</h3>
-                            ${d.departamento ? `<small class="text-muted">${esc(d.departamento)}</small>` : ''}
-                        </div>
-                    </div>
-                    <p class="small mb-2"><i class="bi bi-journal-bookmark me-2 text-primary"></i>${esc(d.asignaturas.join(', ') || 'Sin asignaturas a cargo')}</p>
-                    <p class="small mb-0"><i class="bi bi-envelope me-2 text-primary"></i>${d.correo ? `<a href="mailto:${esc(d.correo)}">${esc(d.correo)}</a>` : 'Sin correo institucional'}</p>
-                    ${fichaCompleta ? `
-                        <div class="d-flex gap-2 mt-3 pt-3 border-top">
-                            <button type="button" class="btn btn-sm btn-outline-primary" data-accion="ver-ficha" data-id="${d.id}"><i class="bi bi-person-vcard me-1"></i>Ver ficha</button>
-                            ${esDirector ? `<button type="button" class="btn btn-sm btn-outline-warning" data-accion="editar-docente" data-id="${d.id}"><i class="bi bi-pencil-fill me-1"></i>Editar</button>` : ''}
-                        </div>` : ''}
-                </article>
-            </div>`).join('')}</div>`;
+        // Lista de docentes; el profesor aparece primero y solo ve su propia ficha completa
+        const esPropio = (d) => sesion.rol === 'profesor' && d.id === sesion.profesor.id;
+        const lista = [...docentes].sort((a, b) => esPropio(b) - esPropio(a));
+        const conAcciones = lista.some(d => 'curriculum' in d);
+
+        contenedor.innerHTML = `
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead><tr><th>Docente</th><th>Asignaturas</th><th>Correo institucional</th>${conAcciones ? '<th></th>' : ''}</tr></thead>
+                    <tbody>${lista.map(d => `
+                        <tr>
+                            <td><strong>${esc(d.nombre)}</strong>${esPropio(d) ? ' <span class="badge text-bg-primary">Tú</span>' : ''}
+                                ${d.departamento ? `<br><small class="text-muted">${esc(d.departamento)}</small>` : ''}</td>
+                            <td class="small">${esc(d.asignaturas.join(', ') || 'Sin asignaturas a cargo')}</td>
+                            <td class="small">${d.correo ? `<a href="mailto:${esc(d.correo)}">${esc(d.correo)}</a>` : '—'}</td>
+                            ${conAcciones ? `<td class="text-end text-nowrap">
+                                ${'curriculum' in d ? `<button type="button" class="btn btn-sm btn-outline-primary" data-accion="ver-ficha" data-id="${d.id}"><i class="bi bi-person-vcard me-1"></i>${esPropio(d) ? 'Ver mi ficha' : 'Ver ficha'}</button>` : ''}
+                                ${esDirector ? `<button type="button" class="btn btn-sm btn-outline-warning" data-accion="editar-docente" data-id="${d.id}"><i class="bi bi-pencil-fill me-1"></i>Editar</button>` : ''}
+                            </td>` : ''}
+                        </tr>`).join('')}
+                    </tbody>
+                </table>
+            </div>`;
     }
 
     function verFicha(d) {
@@ -263,7 +267,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // =====================================================
     function mostrarAlumnos() {
         const contenedor = document.getElementById('listaAlumnos');
-        if (!fichaCompleta) {
+        if (!veAlumnos) {
             contenedor.innerHTML = '<p class="text-muted text-center py-4">La información de los alumnos es exclusiva para docentes y directiva.</p>';
             return;
         }
@@ -291,6 +295,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>`;
     }
     document.getElementById('buscarAlumno').addEventListener('input', mostrarAlumnos);
+    if (sesion.rol === 'profesor') document.getElementById('tituloAlumnos').lastChild.textContent = 'Mis alumnos';
 
     async function editarDescripcion(a) {
         const datos = await formularioModal(`Qué se enseña en ${a.nombre}`, [{ name: 'descripcion', label: 'Contenidos de la asignatura', type: 'textarea', required: true }], a);

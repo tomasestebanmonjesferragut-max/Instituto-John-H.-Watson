@@ -218,7 +218,7 @@ http://localhost:3000/api
 ```http
 GET /resumen        Cifras públicas (asignaturas y docentes)
 GET /asignaturas    Materias; con sesión incluye el docente a cargo
-GET /docentes       Con sesión: nombre y correo; docentes y directiva ven la ficha completa
+GET /docentes       Con sesión: nombre, asignaturas y correo; la directiva ve la ficha completa y cada profesor solo la suya
 GET /horario        Agenda semanal y avisos (con sesión)
 ```
 

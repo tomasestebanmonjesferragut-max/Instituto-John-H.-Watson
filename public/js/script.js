@@ -131,33 +131,37 @@ window.cerrarSesion = async () => {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. ILUMINAR MENÚ ACTIVO (página actual y, si corresponde, su sección)
+    let vistaActual = '';
+
+    // 1. ILUMINAR MENÚ ACTIVO (página y vista actual)
     const marcarMenu = () => {
         const pagina = location.pathname.split('/').pop() || 'index.html';
-        document.querySelectorAll('header .nav-link, header .dropdown-item').forEach(link => {
+        document.querySelectorAll('header .nav-link').forEach(link => {
             const [archivo, ancla] = (link.getAttribute('href') || '').split('#');
-            const activo = archivo === pagina && (ancla ? `#${ancla}` === location.hash : !location.hash || link.classList.contains('dropdown-toggle'));
+            const activo = archivo === pagina && (!ancla || ancla === vistaActual);
             link.classList.toggle('active', activo);
             if (activo) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
-            if (archivo === pagina && link.classList.contains('dropdown-item')) {
-                link.closest('.dropdown')?.querySelector('.dropdown-toggle').classList.add('active');
-            }
         });
     };
 
-    // 2. PESTAÑAS ENLAZADAS CON LA DIRECCIÓN (#asignaturas, #agenda, #soporte...)
-    const abrirPestanaDesdeHash = () => {
-        if (/^#[\w-]+$/.test(location.hash)) {
-            const boton = document.querySelector(`[data-bs-toggle="tab"][data-bs-target="${location.hash}"]`);
-            if (boton) bootstrap.Tab.getOrCreateInstance(boton).show();
+    // 2. VISTAS: cada opción del menú abre solo su sección (pagina.html#vista).
+    //    Sin #vista se abre la de <main data-vista-inicial> (o data-vista-sesion si hay sesión).
+    const vistas = [...document.querySelectorAll('main [data-vista]')];
+    const mostrarVista = async () => {
+        if (vistas.length) {
+            const sesion = await obtenerSesion();
+            const main = document.querySelector('main');
+            const pedida = location.hash.slice(1);
+            vistaActual = vistas.some(v => v.dataset.vista === pedida)
+                ? pedida
+                : (sesion.rol && main.dataset.vistaSesion) || main.dataset.vistaInicial || vistas[0].dataset.vista;
+            vistas.forEach(v => v.classList.toggle('d-none', v.dataset.vista !== vistaActual));
+            window.scrollTo(0, 0);
         }
         marcarMenu();
     };
-    document.querySelectorAll('[data-bs-toggle="tab"]').forEach(boton => {
-        boton.addEventListener('shown.bs.tab', () => { history.replaceState(null, '', boton.dataset.bsTarget); marcarMenu(); });
-    });
-    window.addEventListener('hashchange', abrirPestanaDesdeHash);
-    abrirPestanaDesdeHash();
+    window.addEventListener('hashchange', mostrarVista);
+    mostrarVista();
 
     // 3. MODO OSCURO (por defecto) / CLARO
     const btnTheme = document.getElementById('btnTheme');

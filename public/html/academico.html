@@ -42,52 +42,58 @@
         <div id="franjaRol" class="franja-rol" hidden></div>
     </header>
 
-    <main id="contenido" class="container my-5">
-        <div class="text-center mb-4">
-            <h2 class="fw-bold display-6">Área Académica</h2>
-            <p class="text-muted lead">Asignaturas, docentes y agenda semanal del instituto</p>
-        </div>
-
-        <ul class="nav nav-pills justify-content-center mb-4" role="tablist">
-            <li class="nav-item" role="presentation"><button class="nav-link active" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#asignaturas"><i class="bi bi-journal-bookmark-fill me-1"></i>Asignaturas</button></li>
-            <li class="nav-item" role="presentation"><button class="nav-link" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#docentes"><i class="bi bi-person-video3 me-1"></i>Docentes</button></li>
-            <li class="nav-item" role="presentation" data-roles="alumno apoderado profesor director secretaria"><button class="nav-link" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#agenda"><i class="bi bi-calendar-week me-1"></i>Agenda semanal</button></li>
-            <li class="nav-item" role="presentation" data-roles="profesor director secretaria" hidden><button class="nav-link" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#alumnos"><i class="bi bi-people-fill me-1"></i>Alumnos</button></li>
-        </ul>
-
-        <div class="tab-content">
-            <!-- ASIGNATURAS: lista y detalle de cada materia -->
-            <section id="asignaturas" class="tab-pane fade show active" role="tabpanel" aria-label="Asignaturas">
-                <div class="text-end mb-2" data-roles="director secretaria" hidden>
-                    <button type="button" class="btn btn-primary btn-sm" data-accion="nueva-asignatura"><i class="bi bi-plus-lg me-1"></i>Agregar asignatura</button>
+    <main id="contenido" class="container my-5" data-vista-inicial="asignaturas">
+        <!-- ASIGNATURAS: lista y detalle de cada materia -->
+        <section data-vista="asignaturas" aria-labelledby="tituloAsignaturas">
+            <div class="encabezado-vista">
+                <div>
+                    <h2 id="tituloAsignaturas" class="fw-bold mb-1"><i class="bi bi-journal-bookmark-fill me-2 text-primary"></i>Asignaturas</h2>
+                    <p class="text-muted mb-0">Plan común y módulos técnico-profesionales. Haz clic en una para ver qué se aprende.</p>
                 </div>
-                <div id="listaAsignaturas"></div>
-                <div id="detalleAsignatura" hidden></div>
-            </section>
+                <button type="button" class="btn btn-primary btn-sm" data-accion="nueva-asignatura" data-roles="director secretaria" hidden><i class="bi bi-plus-lg me-1"></i>Agregar asignatura</button>
+            </div>
+            <div id="listaAsignaturas"></div>
+            <div id="detalleAsignatura" hidden></div>
+        </section>
 
-            <!-- DOCENTES: la información visible depende del rol -->
-            <section id="docentes" class="tab-pane fade" role="tabpanel" aria-label="Docentes">
-                <div class="text-end mb-3" data-roles="director" hidden>
-                    <button type="button" class="btn btn-primary btn-sm" data-accion="nuevo-docente"><i class="bi bi-person-plus-fill me-1"></i>Agregar docente</button>
+        <!-- DOCENTES: la información visible depende del rol -->
+        <section data-vista="docentes" aria-labelledby="tituloDocentes">
+            <div class="encabezado-vista">
+                <div>
+                    <h2 id="tituloDocentes" class="fw-bold mb-1"><i class="bi bi-person-video3 me-2 text-primary"></i>Docentes</h2>
+                    <p class="text-muted mb-0">Cada asignatura está a cargo de un docente especialista.</p>
                 </div>
-                <div id="listaDocentes"></div>
-            </section>
+                <button type="button" class="btn btn-primary btn-sm" data-accion="nuevo-docente" data-roles="director" hidden><i class="bi bi-person-plus-fill me-1"></i>Agregar docente</button>
+            </div>
+            <div id="listaDocentes"></div>
+        </section>
 
-            <!-- AGENDA: solo para la comunidad con sesión -->
-            <section id="agenda" class="tab-pane fade" role="tabpanel" aria-label="Agenda semanal">
-                <div id="accionesAgenda" class="d-flex justify-content-end gap-2 mb-3" hidden>
+        <!-- HORARIO: solo para la comunidad con sesión -->
+        <section data-vista="agenda" aria-labelledby="tituloAgenda">
+            <div class="encabezado-vista">
+                <div>
+                    <h2 id="tituloAgenda" class="fw-bold mb-1"><i class="bi bi-calendar-week me-2 text-primary"></i>Horario semanal</h2>
+                    <p class="text-muted mb-0">Haz clic en una clase para ver su sala, su docente y lo que se aprende.</p>
+                </div>
+                <div id="accionesAgenda" class="d-flex gap-2" hidden>
                     <button type="button" class="btn btn-outline-primary btn-sm" data-accion="exportar-agenda"><i class="bi bi-printer me-1"></i>Exportar PDF</button>
                     <button type="button" class="btn btn-warning btn-sm" data-accion="editar-agenda" data-roles="director secretaria" hidden><i class="bi bi-arrow-left-right me-1"></i>Editar horario</button>
                 </div>
-                <div id="contenidoAgenda"></div>
-            </section>
+            </div>
+            <div id="contenidoAgenda"></div>
+        </section>
 
-            <!-- ALUMNOS: contacto para docentes; ficha completa para la directiva -->
-            <section id="alumnos" class="tab-pane fade" role="tabpanel" aria-label="Alumnos">
-                <input id="buscarAlumno" type="search" class="form-control mb-3" placeholder="Buscar por nombre o curso" aria-label="Buscar alumno">
-                <div id="listaAlumnos"></div>
-            </section>
-        </div>
+        <!-- ALUMNOS: contacto para docentes; ficha completa para la directiva -->
+        <section data-vista="alumnos" aria-labelledby="tituloAlumnos">
+            <div class="encabezado-vista">
+                <div>
+                    <h2 id="tituloAlumnos" class="fw-bold mb-1"><i class="bi bi-people-fill me-2 text-primary"></i>Alumnos</h2>
+                    <p class="text-muted mb-0">Datos de contacto de los alumnos y sus apoderados.</p>
+                </div>
+                <input id="buscarAlumno" type="search" class="form-control form-control-sm buscador-vista" placeholder="Buscar por nombre o curso" aria-label="Buscar alumno">
+            </div>
+            <div id="listaAlumnos"></div>
+        </section>
     </main>
 
     <footer class="footer-oficial">

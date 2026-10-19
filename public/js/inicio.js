@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function mostrarPanel(sesion) {
         if (!sesion.rol) return;
-        const panel = document.getElementById('miPanel');
+        const panel = document.querySelector('[data-vista="miPanel"]');
         const hoy = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'][new Date().getDay()];
         const lista = (items, vacio) => items.length ? `<ul class="list-unstyled small mb-0">${items.join('')}</ul>` : `<p class="small text-muted mb-0">${vacio}</p>`;
         const cifra = (n, texto) => `<p class="mb-1"><strong class="fs-4 me-2">${n}</strong>${texto}</p>`;
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const p = await api('panel');
             tarjetas = [
                 tarjeta('bi-person-vcard', 'Admisión', cifra(p.postulaciones, 'postulaciones en revisión'), 'tramites.html#admision', 'Gestionar postulaciones'),
-                tarjeta('bi-envelope', 'Mensajes', cifra(p.mensajes, 'mensajes de contacto'), '#contacto', 'Ver bandeja'),
+                tarjeta('bi-envelope', 'Mensajes', cifra(p.mensajes, 'mensajes de contacto'), '#mensajes', 'Ver bandeja'),
                 tarjeta('bi-pc-display', 'Soporte técnico', cifra(p.tickets, 'tickets abiertos'), 'tramites.html#soporte', 'Ver tickets'),
                 tarjeta('bi-calendar-week', 'Horario y asignaturas', cifra(p.sin_docente, 'asignaturas sin docente'), 'academico.html#agenda', 'Organizar el horario'),
                 tarjeta('bi-people', 'Comunidad', cifra(p.alumnos, 'alumnos') + cifra(p.docentes, 'docentes'), 'academico.html#alumnos', 'Ver fichas de alumnos'),

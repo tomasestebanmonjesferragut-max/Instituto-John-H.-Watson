@@ -1292,6 +1292,22 @@ body.dark-mode .form-select {
     color: #fff;
 }
 
+/* Encabezado de cada vista: título y descripción a la izquierda, acciones a la derecha */
+.encabezado-vista {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--panel-border);
+}
+
+.buscador-vista {
+    max-width: 280px;
+}
+
 /* Las secciones enlazadas desde el menú no quedan tapadas por la cabecera fija */
 section[id] {
     scroll-margin-top: 90px;
