@@ -3,29 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Portal oficial del Instituto John H. Watson, liceo técnico-profesional de San Joaquín: admisión, aula virtual, horarios y docentes.">
+    <meta name="description" content="Portal oficial del Instituto John H. Watson, liceo técnico-profesional de San Joaquín: quiénes somos, noticias y contacto.">
     <meta name="theme-color" content="#142744">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Instituto John H. Watson">
     <meta property="og:locale" content="es_CL">
     <meta property="og:title" content="Instituto John H. Watson | Portal Académico">
-    <meta property="og:description" content="Portal oficial del Instituto John H. Watson, liceo técnico-profesional de San Joaquín: admisión, aula virtual, horarios y docentes.">
+    <meta property="og:description" content="Portal oficial del Instituto John H. Watson, liceo técnico-profesional de San Joaquín: quiénes somos, noticias y contacto.">
     <meta property="og:image" content="https://www.institutojohnhwatson.cl/Image/Aula.png">
     <title>Instituto John H. Watson | Portal Académico</title>
     <link rel="icon" type="image/svg+xml" href="../Image/favicon.svg">
-    
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Estilos Profesionales -->
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
     <a href="#contenido" class="saltar-contenido">Saltar al contenido principal</a>
-    <!-- HEADER -->
     <header>
         <h1><i class="bi bi-mortarboard-fill me-2" aria-hidden="true"></i>Instituto John H. Watson</h1>
         <nav class="navbar navbar-expand-xl" aria-label="Navegación principal">
@@ -36,36 +30,22 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto gap-1">
-                        <li class="nav-item">
-                            <a class="nav-link" href="solicitudes.html"><i class="bi bi-person-lines-fill me-1"></i>Admisión</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" href="index.html#nosotros"><i class="bi bi-info-circle-fill me-1"></i>Nosotros</a></li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-tools me-1"></i>Servicios</a>
+                            <a class="nav-link dropdown-toggle" href="academico.html" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-journal-bookmark-fill me-1"></i>Académico</a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="materias.html"><i class="bi bi-journal-bookmark-fill me-2"></i>Asignaturas</a></li>
-                                <li><a class="dropdown-item" href="profesores.html"><i class="bi bi-person-video3 me-2"></i>Docentes</a></li>
-                                <li><a class="dropdown-item" href="horarios.html"><i class="bi bi-calendar-week me-2"></i>Agenda Semanal</a></li>
-                                <li><a class="dropdown-item" href="aulaVirtual.html"><i class="bi bi-laptop me-2"></i>Aula Virtual</a></li>
-                                <li><a class="dropdown-item" href="aulaVirtualAlumnos.html"><i class="bi bi-mortarboard me-2"></i>Aula Virtual (Alumnos)</a></li>
+                                <li><a class="dropdown-item" href="academico.html#asignaturas"><i class="bi bi-journal-bookmark-fill me-2"></i>Asignaturas</a></li>
+                                <li><a class="dropdown-item" href="academico.html#docentes"><i class="bi bi-person-video3 me-2"></i>Docentes</a></li>
+                                <li><a class="dropdown-item" href="academico.html#agenda"><i class="bi bi-calendar-week me-2"></i>Agenda semanal</a></li>
                             </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="solicitudesProfesores.html"><i class="bi bi-pc-display me-1"></i>Soporte</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="informacion.html"><i class="bi bi-info-circle-fill me-1"></i>Directorio</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="contacto.html"><i class="bi bi-envelope-fill me-1"></i>Contacto</a>
-                        </li>
-                        <!-- Botón Tema y Sesión -->
+                        <li class="nav-item"><a class="nav-link" href="aula.html"><i class="bi bi-laptop me-1"></i>Aula Virtual</a></li>
+                        <li class="nav-item"><a class="nav-link" href="tramites.html#admision"><i class="bi bi-person-lines-fill me-1"></i>Admisión</a></li>
+                        <li class="nav-item"><a class="nav-link" href="tramites.html#soporte"><i class="bi bi-pc-display me-1"></i>Soporte</a></li>
+                        <li class="nav-item"><a class="nav-link" href="index.html#contacto"><i class="bi bi-envelope-fill me-1"></i>Contacto</a></li>
                         <li class="nav-item ms-xl-3 d-flex align-items-center">
-                            <button id="btnTheme" class="btn btn-outline-primary btn-sm rounded-circle me-2" aria-label="Cambiar tema claro u oscuro">
-                                <i class="bi bi-sun-fill"></i>
-                            </button>
-                            <button id="btnAdmin" class="btn btn-outline-primary btn-sm rounded-pill" aria-label="Iniciar sesión">
-                                <i class="bi bi-box-arrow-in-right me-1"></i>Ingresar
-                            </button>
+                            <button id="btnTheme" class="btn btn-outline-primary btn-sm rounded-circle me-2" aria-label="Cambiar tema claro u oscuro"><i class="bi bi-sun-fill"></i></button>
+                            <button id="btnAdmin" class="btn btn-outline-primary btn-sm rounded-pill" aria-label="Iniciar sesión"><i class="bi bi-box-arrow-in-right me-1"></i>Ingresar</button>
                         </li>
                     </ul>
                 </div>
@@ -73,10 +53,9 @@
         </nav>
     </header>
 
-    <!-- CONTENIDO PRINCIPAL -->
     <main id="contenido" class="container my-5">
         <!-- CARRUSEL -->
-        <section class="carousel-modern-wrapper mb-5">
+        <section class="carousel-modern-wrapper mb-5" aria-label="Fotografías del instituto">
             <div id="carouselExamples" class="carousel slide fade-in" data-bs-ride="carousel">
                 <div class="carousel-indicators">
                     <button type="button" data-bs-target="#carouselExamples" data-bs-slide-to="0" class="active" aria-label="Campus"></button>
@@ -84,48 +63,48 @@
                     <button type="button" data-bs-target="#carouselExamples" data-bs-slide-to="2" aria-label="Comunidad"></button>
                 </div>
                 <div class="carousel-inner">
-                    <!-- Slide 1 -->
                     <div class="carousel-item active">
-                        <img src="../Image/Aula.png" class="d-block w-100" alt="Campus e instalaciones">
+                        <img src="../Image/Aula.png" class="d-block w-100" alt="Sala de clases del instituto">
                         <div class="carousel-caption d-none d-md-block glass-caption">
-                            <h5><i class="bi bi-building me-2"></i>Nuestro Campus</h5>
-                            <p>Infraestructura de vanguardia diseñada para potenciar tu desarrollo profesional.</p>
+                            <h2 class="h5"><i class="bi bi-building me-2"></i>Nuestro Campus</h2>
+                            <p>Salas y laboratorios equipados para aprender haciendo.</p>
                         </div>
                     </div>
                     <div class="carousel-item">
-                        <img src="../Image/Materia.jpg" class="d-block w-100" alt="Recursos tecnológicos">
+                        <img src="../Image/Materia.jpg" class="d-block w-100" alt="Estudiantes usando recursos tecnológicos">
                         <div class="carousel-caption d-none d-md-block glass-caption">
-                            <h5><i class="bi bi-laptop me-2"></i>Ecosistema Digital</h5>
-                            <p>Acceso 24/7 a bibliotecas virtuales, laboratorios y simuladores de última generación.</p>
+                            <h2 class="h5"><i class="bi bi-laptop me-2"></i>Aula Virtual</h2>
+                            <p>Material de estudio, notas y anuncios disponibles en línea.</p>
                         </div>
                     </div>
                     <div class="carousel-item">
-                        <img src="../Image/Profesores.jpg" class="d-block w-100" alt="Networking">
+                        <img src="../Image/Profesores.jpg" class="d-block w-100" alt="Docentes del instituto">
                         <div class="carousel-caption d-none d-md-block glass-caption">
-                            <h5><i class="bi bi-people-fill me-2"></i>Red de Expertos</h5>
-                            <p>Aprende de líderes de la industria y forma conexiones para tu futuro.</p>
+                            <h2 class="h5"><i class="bi bi-people-fill me-2"></i>Docentes especialistas</h2>
+                            <p>Cada asignatura cuenta con un profesor a cargo.</p>
                         </div>
                     </div>
                 </div>
                 <button class="carousel-control-prev" type="button" data-bs-target="#carouselExamples" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon"></span>
-                    <span class="visually-hidden">Anterior</span>
+                    <span class="carousel-control-prev-icon"></span><span class="visually-hidden">Anterior</span>
                 </button>
                 <button class="carousel-control-next" type="button" data-bs-target="#carouselExamples" data-bs-slide="next">
-                    <span class="carousel-control-next-icon"></span>
-                    <span class="visually-hidden">Siguiente</span>
+                    <span class="carousel-control-next-icon"></span><span class="visually-hidden">Siguiente</span>
                 </button>
             </div>
         </section>
 
         <!-- QUIÉNES SOMOS Y CIFRAS -->
-        <section class="mb-5" aria-labelledby="tituloQuienes">
+        <section id="nosotros" class="mb-5" aria-labelledby="tituloQuienes">
             <div class="row g-4 align-items-center">
                 <div class="col-lg-6">
                     <span class="badge text-bg-danger mb-2">Desde 1998 en San Joaquín</span>
                     <h2 id="tituloQuienes" class="fw-bold mb-3">Educación técnica con identidad</h2>
                     <p class="text-muted">El Instituto John H. Watson es un liceo técnico-profesional que combina la formación general con módulos de especialidad en programación, redes y soporte computacional. Nuestros estudiantes aprenden en laboratorios equipados y egresan preparados para continuar estudios superiores o ingresar al mundo laboral.</p>
-                    <a href="informacion.html" class="btn btn-outline-primary rounded-pill px-4 mt-2">Conoce nuestra historia <i class="bi bi-arrow-right ms-1"></i></a>
+                    <div class="row g-3 mt-1">
+                        <div class="col-sm-6"><h3 class="h6 fw-bold text-primary"><i class="bi bi-bullseye me-2"></i>Misión</h3><p class="small text-muted mb-0">Formar técnicos de excelencia con una educación integral, apoyada en tecnología actual y en el compromiso con su comunidad.</p></div>
+                        <div class="col-sm-6"><h3 class="h6 fw-bold text-success"><i class="bi bi-eye me-2"></i>Visión</h3><p class="small text-muted mb-0">Ser un referente de la educación técnico-profesional, reconocido por la calidad y empleabilidad de sus egresados.</p></div>
+                    </div>
                 </div>
                 <div class="col-lg-6">
                     <div class="row g-3">
@@ -136,125 +115,40 @@
                     </div>
                 </div>
             </div>
+
+            <h3 class="fw-bold mt-5 mb-4"><i class="bi bi-clock-history me-2 text-primary"></i>Nuestra historia</h3>
+            <div class="row g-3">
+                <div class="col-md-6 col-lg-3"><div class="cifra text-start"><strong>1998</strong><span>Abrimos nuestras puertas en San Joaquín como liceo técnico con la especialidad de Electricidad.</span></div></div>
+                <div class="col-md-6 col-lg-3"><div class="cifra text-start"><strong>2008</strong><span>Incorporamos Conectividad y Redes e inauguramos nuestro primer laboratorio Cisco.</span></div></div>
+                <div class="col-md-6 col-lg-3"><div class="cifra text-start"><strong>2016</strong><span>Nace la especialidad de Programación y renovamos los laboratorios de computación.</span></div></div>
+                <div class="col-md-6 col-lg-3"><div class="cifra text-start"><strong>2024</strong><span>Lanzamos el Aula Virtual para alumnos, apoderados y docentes.</span></div></div>
+            </div>
+
+            <h3 class="fw-bold mt-5 mb-4"><i class="bi bi-stars me-2 text-primary"></i>Valores y especialidades</h3>
+            <div class="row g-3">
+                <div class="col-md-6 col-lg-3"><div class="card p-4 h-100"><h4 class="h6 fw-bold"><i class="bi bi-people-fill text-primary me-2"></i>Respeto</h4><p class="small text-muted mb-0">Convivimos en un ambiente seguro, donde cada persona es valorada.</p></div></div>
+                <div class="col-md-6 col-lg-3"><div class="card p-4 h-100"><h4 class="h6 fw-bold"><i class="bi bi-check2-square text-success me-2"></i>Responsabilidad</h4><p class="small text-muted mb-0">Cumplimos nuestros compromisos y valoramos el trabajo bien hecho.</p></div></div>
+                <div class="col-md-6 col-lg-3"><div class="card p-4 h-100"><h4 class="h6 fw-bold"><i class="bi bi-lightbulb-fill text-warning me-2"></i>Innovación</h4><p class="small text-muted mb-0">Aprendemos haciendo, con tecnología actual y proyectos reales.</p></div></div>
+                <div class="col-md-6 col-lg-3"><div class="card p-4 h-100"><h4 class="h6 fw-bold"><i class="bi bi-universal-access text-danger me-2"></i>Inclusión</h4><p class="small text-muted mb-0">Abrimos oportunidades para que cada estudiante desarrolle su talento.</p></div></div>
+                <div class="col-md-4"><div class="card p-4 h-100"><h4 class="h6 fw-bold"><i class="bi bi-code-slash text-primary me-2"></i>Programación</h4><p class="small text-muted mb-0">Bases de datos, desarrollo web y programación orientada a objetos en Java.</p></div></div>
+                <div class="col-md-4"><div class="card p-4 h-100"><h4 class="h6 fw-bold"><i class="bi bi-diagram-3-fill text-primary me-2"></i>Conectividad y Redes</h4><p class="small text-muted mb-0">Redes Cisco, sistemas operativos Linux y Windows, y ciberseguridad básica.</p></div></div>
+                <div class="col-md-4"><div class="card p-4 h-100"><h4 class="h6 fw-bold"><i class="bi bi-cpu-fill text-primary me-2"></i>Soporte Computacional</h4><p class="small text-muted mb-0">Armado y mantención de equipos, diagnóstico de fallas y atención a usuarios.</p></div></div>
+            </div>
         </section>
 
-        <!-- CARACTERÍSTICAS PRINCIPALES -->
-        <section class="mb-5">
-            <div class="text-center mb-5">
-                <h2 class="fw-bold mb-3">Portal de Servicios Académicos</h2>
-                <p class="text-muted lead">Gestiona tu trayectoria estudiantil y docente desde un solo lugar</p>
+        <!-- SERVICIOS -->
+        <section class="mb-5" aria-labelledby="tituloServicios">
+            <div class="text-center mb-4">
+                <h2 id="tituloServicios" class="fw-bold mb-2">Portal de Servicios Académicos</h2>
+                <p class="text-muted">Tu trayectoria estudiantil y docente desde un solo lugar</p>
             </div>
-            
             <div class="row g-4">
-                <!-- Card 1: Materias -->
-                <div class="col-md-6 col-lg-4">
-                    <a href="materias.html" class="text-decoration-none">
-                        <div class="card p-4 h-100 text-center">
-                            <div class="d-flex justify-content-center mb-4">
-                                <div class="rounded-circle p-4" style="background: var(--bg-tertiary); border: 1px solid var(--panel-border);">
-                                    <i class="bi bi-journal-bookmark-fill fs-3" style="color: var(--color-primary);"></i>
-                                </div>
-                            </div>
-                            <h4 class="fw-bold mb-2">Asignaturas</h4>
-                            <p class="text-muted">Visualiza tu malla curricular, Módulos TP y material bibliográfico.</p>
-                            <div class="mt-3">
-                                <small class="fw-semibold" style="color: var(--color-primary);">Ingresar <i class="bi bi-arrow-right ms-1"></i></small>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Card 2: Profesores -->
-                <div class="col-md-6 col-lg-4">
-                    <a href="profesores.html" class="text-decoration-none">
-                        <div class="card p-4 h-100 text-center">
-                            <div class="d-flex justify-content-center mb-4">
-                                <div class="rounded-circle p-4" style="background: var(--bg-tertiary); border: 1px solid var(--panel-border);">
-                                    <i class="bi bi-person-video3 fs-3" style="color: var(--color-primary);"></i>
-                                </div>
-                            </div>
-                            <h4 class="fw-bold mb-2">Cuerpo Docente</h4>
-                            <p class="text-muted">Consulta los perfiles, departamentos y contacto de tus profesores.</p>
-                            <div class="mt-3">
-                                <small class="fw-semibold" style="color: var(--color-primary);">Ingresar <i class="bi bi-arrow-right ms-1"></i></small>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Card 3: Horarios -->
-                <div class="col-md-6 col-lg-4">
-                    <a href="horarios.html" class="text-decoration-none">
-                        <div class="card p-4 h-100 text-center">
-                            <div class="d-flex justify-content-center mb-4">
-                                <div class="rounded-circle p-4" style="background: var(--bg-tertiary); border: 1px solid var(--panel-border);">
-                                    <i class="bi bi-calendar-week fs-3" style="color: var(--color-primary);"></i>
-                                </div>
-                            </div>
-                            <h4 class="fw-bold mb-2">Agenda Semanal</h4>
-                            <p class="text-muted">Organiza tu semana, revisa eventos y la distribución de laboratorios.</p>
-                            <div class="mt-3">
-                                <small class="fw-semibold" style="color: var(--color-primary);">Ingresar <i class="bi bi-arrow-right ms-1"></i></small>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Card 4: Admisión -->
-                <div class="col-md-6 col-lg-4">
-                    <a href="solicitudes.html" class="text-decoration-none">
-                        <div class="card p-4 h-100 text-center">
-                            <div class="d-flex justify-content-center mb-4">
-                                <div class="rounded-circle p-4" style="background: var(--bg-tertiary); border: 1px solid var(--panel-border);">
-                                    <i class="bi bi-person-vcard fs-3" style="color: var(--color-accent);"></i>
-                                </div>
-                            </div>
-                            <h4 class="fw-bold mb-2">Admisión</h4>
-                            <p class="text-muted">Inscribe o gestiona las postulaciones de nuevos estudiantes al liceo.</p>
-                            <div class="mt-3">
-                                <small class="fw-semibold" style="color: var(--color-accent);">Ingresar <i class="bi bi-arrow-right ms-1"></i></small>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Card 5: Soporte Técnico -->
-                <div class="col-md-6 col-lg-4">
-                    <a href="solicitudesProfesores.html" class="text-decoration-none">
-                        <div class="card p-4 h-100 text-center">
-                            <div class="d-flex justify-content-center mb-4">
-                                <div class="rounded-circle p-4" style="background: var(--bg-tertiary); border: 1px solid var(--panel-border);">
-                                    <i class="bi bi-pc-display-horizontal fs-3" style="color: var(--color-accent);"></i>
-                                </div>
-                            </div>
-                            <h4 class="fw-bold mb-2">Soporte Técnico</h4>
-                            <p class="text-muted">Plataforma exclusiva para docentes: reporta fallas en laboratorios o equipos.</p>
-                            <div class="mt-3">
-                                <small class="fw-semibold" style="color: var(--color-accent);">Ingresar <i class="bi bi-arrow-right ms-1"></i></small>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Card 6: Información -->
-                <div class="col-md-6 col-lg-4">
-                    <a href="informacion.html" class="text-decoration-none">
-                        <div class="card p-4 h-100 text-center">
-                            <div class="d-flex justify-content-center mb-4">
-                                <div class="rounded-circle p-4" style="background: var(--bg-tertiary); border: 1px solid var(--panel-border);">
-                                    <i class="bi bi-info-circle-fill fs-3" style="color: var(--color-primary);"></i>
-                                </div>
-                            </div>
-                            <h4 class="fw-bold mb-2">Directorio Institucional</h4>
-                            <p class="text-muted">Accede a normativas, reglamentos y medios de contacto oficiales.</p>
-                            <div class="mt-3">
-                                <small class="fw-semibold" style="color: var(--color-primary);">Ingresar <i class="bi bi-arrow-right ms-1"></i></small>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-
+                <div class="col-md-6 col-lg-4"><a href="academico.html#asignaturas" class="card servicio p-4 h-100"><i class="bi bi-journal-bookmark-fill"></i><h3 class="h5 fw-bold">Asignaturas</h3><p class="text-muted small mb-0">Plan común y módulos técnico-profesionales.</p></a></div>
+                <div class="col-md-6 col-lg-4"><a href="academico.html#docentes" class="card servicio p-4 h-100"><i class="bi bi-person-video3"></i><h3 class="h5 fw-bold">Docentes</h3><p class="text-muted small mb-0">Un profesor especialista a cargo de cada asignatura.</p></a></div>
+                <div class="col-md-6 col-lg-4"><a href="academico.html#agenda" class="card servicio p-4 h-100"><i class="bi bi-calendar-week"></i><h3 class="h5 fw-bold">Agenda semanal</h3><p class="text-muted small mb-0">Horario de clases, salas y laboratorios.</p></a></div>
+                <div class="col-md-6 col-lg-4"><a href="aula.html" class="card servicio p-4 h-100"><i class="bi bi-laptop"></i><h3 class="h5 fw-bold">Aula Virtual</h3><p class="text-muted small mb-0">Material de estudio, notas y anuncios.</p></a></div>
+                <div class="col-md-6 col-lg-4"><a href="tramites.html#admision" class="card servicio p-4 h-100"><i class="bi bi-person-vcard"></i><h3 class="h5 fw-bold">Admisión</h3><p class="text-muted small mb-0">Postula en línea y consulta tu estado.</p></a></div>
+                <div class="col-md-6 col-lg-4"><a href="tramites.html#soporte" class="card servicio p-4 h-100"><i class="bi bi-pc-display-horizontal"></i><h3 class="h5 fw-bold">Soporte docente</h3><p class="text-muted small mb-0">Reporta fallas en salas, laboratorios o equipos.</p></a></div>
             </div>
         </section>
 
@@ -265,26 +159,52 @@
                     <h2 id="tituloNoticias" class="fw-bold mb-1">Noticias y avisos</h2>
                     <p class="text-muted mb-0">Lo último publicado por el instituto</p>
                 </div>
-                <a href="aulaVirtual.html" class="fw-semibold">Ver todas <i class="bi bi-arrow-right ms-1"></i></a>
+                <a href="aula.html" class="fw-semibold">Ver todas en el Aula Virtual <i class="bi bi-arrow-right ms-1"></i></a>
             </div>
-            <div id="contenedorNoticias" class="row g-4" aria-live="polite">
-                <div class="col-12"><div class="skeleton" style="height: 140px; border-radius: 8px;"></div></div>
-            </div>
+            <div id="contenedorNoticias" class="row g-4" aria-live="polite"></div>
         </section>
 
-        <!-- CALL TO ACTION -->
-        <section class="mt-5 p-5 rounded-lg" style="background: var(--bg-header);">
-            <div class="text-center">
-                <h3 class="fw-bold mb-3" style="color: #ffffff;">¿Requieres asistencia técnica inmediata?</h3>
-                <p class="mb-4" style="color: rgba(242, 244, 247, 0.8);">Nuestro equipo de soporte interno está disponible para resolver cualquier inconveniente con los laboratorios y el portal.</p>
-                <a href="solicitudesProfesores.html" class="btn btn-primary px-5 py-3 fw-bold">
-                    <i class="bi bi-headset me-2"></i>Abrir Ticket de Soporte
-                </a>
+        <!-- CONTACTO -->
+        <section id="contacto" aria-labelledby="tituloContacto">
+            <div class="text-center mb-4">
+                <h2 id="tituloContacto" class="fw-bold mb-2">Contáctanos</h2>
+                <p class="text-muted">Escríbenos y te responderemos dentro de 2 días hábiles.</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    <form id="formContacto" class="card p-4 h-100">
+                        <div class="row g-3">
+                            <div class="col-md-6"><div class="form-floating"><input name="nombre" id="contactoNombre" class="form-control" placeholder=" " maxlength="100" autocomplete="name" required><label for="contactoNombre">Nombre completo</label></div></div>
+                            <div class="col-md-6"><div class="form-floating"><input name="correo" id="contactoCorreo" type="email" class="form-control" placeholder=" " maxlength="100" autocomplete="email" required><label for="contactoCorreo">Correo electrónico</label></div></div>
+                            <div class="col-12"><div class="form-floating"><input name="asunto" id="contactoAsunto" class="form-control" placeholder=" " maxlength="150" required><label for="contactoAsunto">Asunto</label></div></div>
+                            <div class="col-12"><div class="form-floating"><textarea name="mensaje" id="contactoMensaje" class="form-control" placeholder=" " style="height: 150px" maxlength="2000" required></textarea><label for="contactoMensaje">Mensaje</label></div></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-4 px-4 align-self-start"><i class="bi bi-send-fill me-2"></i>Enviar mensaje</button>
+                    </form>
+                </div>
+                <div class="col-lg-5">
+                    <div class="card p-4 h-100">
+                        <h3 class="h5 fw-bold mb-3"><i class="bi bi-building me-2 text-primary"></i>Secretaría</h3>
+                        <ul class="list-unstyled mb-3">
+                            <li class="mb-2"><i class="bi bi-geo-alt-fill text-danger me-2"></i>San Joaquín, Región Metropolitana, Chile</li>
+                            <li class="mb-2"><i class="bi bi-telephone-fill text-success me-2"></i><a href="tel:+56223456789">+56 2 2345 6789</a></li>
+                            <li class="mb-2"><i class="bi bi-envelope-fill text-primary me-2"></i><a href="mailto:contacto@institutojohnhwatson.cl">contacto@institutojohnhwatson.cl</a></li>
+                            <li><i class="bi bi-clock-fill text-warning me-2"></i>Lunes a viernes, 08:00 a 17:30</li>
+                        </ul>
+                        <iframe class="mapa-contacto" title="Mapa de ubicación del instituto en San Joaquín" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+                            src="https://maps.google.com/maps?q=San%20Joaqu%C3%ADn%2C%20Regi%C3%B3n%20Metropolitana%2C%20Chile&z=14&output=embed"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bandeja de mensajes (solo administración) -->
+            <div class="solo-admin mt-5" hidden>
+                <h3 class="h4 fw-bold mb-3"><i class="bi bi-inbox-fill me-2 text-primary"></i>Mensajes recibidos</h3>
+                <div id="listaMensajes"></div>
             </div>
         </section>
     </main>
 
-    <!-- FOOTER -->
     <footer class="footer-oficial">
         <div class="container">
             <div class="row g-4">
@@ -301,19 +221,19 @@
                 <nav class="col-6 col-lg-2" aria-label="Institución">
                     <h3>Institución</h3>
                     <ul>
-                        <li><a href="informacion.html">Quiénes somos</a></li>
-                        <li><a href="profesores.html">Docentes</a></li>
-                        <li><a href="materias.html">Asignaturas</a></li>
-                        <li><a href="horarios.html">Agenda semanal</a></li>
+                        <li><a href="index.html#nosotros">Quiénes somos</a></li>
+                        <li><a href="academico.html#asignaturas">Asignaturas</a></li>
+                        <li><a href="academico.html#docentes">Docentes</a></li>
+                        <li><a href="academico.html#agenda">Agenda semanal</a></li>
                     </ul>
                 </nav>
                 <nav class="col-6 col-lg-2" aria-label="Servicios">
                     <h3>Servicios</h3>
                     <ul>
-                        <li><a href="solicitudes.html">Admisión</a></li>
-                        <li><a href="aulaVirtual.html">Aula Virtual</a></li>
-                        <li><a href="aulaVirtualAlumnos.html">Portal de alumnos</a></li>
-                        <li><a href="solicitudesProfesores.html">Soporte docente</a></li>
+                        <li><a href="tramites.html#admision">Admisión</a></li>
+                        <li><a href="aula.html">Aula Virtual</a></li>
+                        <li><a href="tramites.html#soporte">Soporte docente</a></li>
+                        <li><a href="index.html#contacto">Contacto</a></li>
                     </ul>
                 </nav>
                 <div class="col-lg-4">
@@ -324,7 +244,6 @@
                         <li><i class="bi bi-envelope-fill me-2"></i><a href="mailto:contacto@institutojohnhwatson.cl">contacto@institutojohnhwatson.cl</a></li>
                         <li><i class="bi bi-clock-fill me-2"></i>Lunes a viernes, 08:00 a 17:30</li>
                     </ul>
-                    <a href="contacto.html" class="btn btn-outline-light btn-sm rounded-pill mt-2"><i class="bi bi-chat-dots me-1"></i>Escríbenos</a>
                 </div>
             </div>
             <div class="footer-legal d-flex flex-column flex-md-row justify-content-between gap-2">
@@ -333,10 +252,8 @@
             </div>
         </div>
     </footer>
-
-    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../js/inicio.js"></script>
     <script src="../js/script.js"></script>
+    <script src="../js/inicio.js"></script>
 </body>
 </html>

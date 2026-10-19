@@ -29,7 +29,13 @@ CREATE TABLE profesores (
     nombre VARCHAR(100) NOT NULL,
     departamento VARCHAR(100) NOT NULL,
     correo VARCHAR(100) UNIQUE,
-    contrasena VARCHAR(100)
+    contrasena VARCHAR(100),
+    -- Ficha del docente: solo la ven otros docentes y la directiva
+    rut VARCHAR(12),
+    telefono VARCHAR(20),
+    correo_personal VARCHAR(100),
+    horario_trabajo VARCHAR(150),
+    curriculum TEXT
 );
 
 -- Tabla de Asignaturas (Se relaciona con profesores)
@@ -37,6 +43,7 @@ CREATE TABLE asignaturas (
     id VARCHAR(20) PRIMARY KEY,
     codigo VARCHAR(20) NOT NULL,
     nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT,
     profesor_id VARCHAR(20),
     color VARCHAR(20),
     FOREIGN KEY (profesor_id) REFERENCES profesores(id)
@@ -154,33 +161,33 @@ CREATE TABLE mensajes_contacto (
 -- Insertar Profesores
 -- (correo/contrasena de demostración: mismo formato para todos, clave "profe123")
 -- Las contraseñas se guardan cifradas con bcrypt
-INSERT INTO profesores (id, nombre, departamento, correo, contrasena) VALUES
-('P001', 'Dr. Roberto Salazar', 'Soporte Computacional', 'roberto.salazar@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS'),
-('P002', 'MSc. Elena Valdés', 'Matemática y Ciencias', 'elena.valdes@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS'),
-('P003', 'Ing. Marcos Rivas', 'Conectividad y Redes', 'marcos.rivas@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS'),
-('P004', 'Lic. Carmen Rojas', 'Lenguaje y Comunicación', 'carmen.rojas@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS'),
-('P005', 'Lic. Andrés Bello', 'Historia y Educación Ciudadana', 'andres.bello@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS'),
-('P006', 'Prof. Jorge Silva', 'Educación Física', 'jorge.silva@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS'),
-('P007', 'Ing. Daniela Torres', 'Desarrollo de Software', 'daniela.torres@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS'),
-('P008', 'Mg. Carlos Mendoza', 'Programación y Bases de Datos', 'carlos.mendoza@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS'),
-('P009', 'Teacher Sarah Connor', 'Inglés', 'sarah.connor@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS');
+INSERT INTO profesores (id, nombre, departamento, correo, contrasena, rut, telefono, correo_personal, horario_trabajo, curriculum) VALUES
+('P001', 'Dr. Roberto Salazar', 'Soporte Computacional', 'roberto.salazar@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS', '12.345.678-5', '+56 9 8123 4501', 'r.salazar.docente@gmail.com', 'Lunes a viernes, 08:00 a 16:30', 'Doctor en Ingeniería Informática. 18 años de experiencia en soporte de infraestructura TI; docente del instituto desde 2009.'),
+('P002', 'MSc. Elena Valdés', 'Matemática y Ciencias', 'elena.valdes@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS', '13.456.789-2', '+56 9 8123 4502', 'elena.valdes.mat@gmail.com', 'Lunes a jueves, 08:00 a 17:00', 'Magíster en Didáctica de la Matemática. Profesora de Matemática y Ciencias con 12 años de experiencia en enseñanza media.'),
+('P003', 'Ing. Marcos Rivas', 'Conectividad y Redes', 'marcos.rivas@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS', '14.567.890-1', '+56 9 8123 4503', 'marcos.rivas.redes@gmail.com', 'Martes a viernes, 09:00 a 17:30', 'Ingeniero en Redes con certificación Cisco CCNA. Trabajó 8 años como administrador de redes antes de dedicarse a la docencia.'),
+('P004', 'Lic. Carmen Rojas', 'Lenguaje y Comunicación', 'carmen.rojas@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS', '15.678.901-0', '+56 9 8123 4504', 'carmen.rojas.letras@gmail.com', 'Lunes a viernes, 08:00 a 14:00', 'Licenciada en Letras y Profesora de Lenguaje. Coordina el plan lector del instituto desde 2015.'),
+('P005', 'Lic. Andrés Bello', 'Historia y Educación Ciudadana', 'andres.bello@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS', '16.789.012-3', '+56 9 8123 4505', 'andres.bello.hist@gmail.com', 'Lunes a viernes, 08:00 a 15:30', 'Licenciado en Historia y Profesor de Historia y Formación Ciudadana. Guía el módulo de Emprendimiento y Empleabilidad.'),
+('P006', 'Prof. Jorge Silva', 'Educación Física', 'jorge.silva@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS', '17.890.123-4', '+56 9 8123 4506', 'jorge.silva.edf@gmail.com', 'Lunes, miércoles y viernes, 08:00 a 18:00', 'Profesor de Educación Física y entrenador de la selección de fútbol del instituto.'),
+('P007', 'Ing. Daniela Torres', 'Desarrollo de Software', 'daniela.torres@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS', '18.901.234-6', '+56 9 8123 4507', 'daniela.torres.dev@gmail.com', 'Lunes a viernes, 09:00 a 17:00', 'Ingeniera de Software. 6 años como desarrolladora web full stack; enseña desarrollo web y programación en Java.'),
+('P008', 'Mg. Carlos Mendoza', 'Programación y Bases de Datos', 'carlos.mendoza@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS', '11.234.567-8', '+56 9 8123 4508', 'carlos.mendoza.bd@gmail.com', 'Martes a viernes, 08:00 a 16:00', 'Magíster en Tecnologías de la Información. Especialista en bases de datos relacionales y SQL.'),
+('P009', 'Teacher Sarah Connor', 'Inglés', 'sarah.connor@jhwatson.cl', '$2b$10$wRDM47YJ/c3pCfspETLsnemmTqUCOHdj/wSw/rXgBumIYsTZuoIRS', '19.012.345-7', '+56 9 8123 4509', 'sarah.connor.eng@gmail.com', 'Lunes a jueves, 08:00 a 15:00', 'Profesora de Inglés con certificación CELTA. Experiencia en preparación de exámenes TOEIC.');
 
 -- Insertar Asignaturas
-INSERT INTO asignaturas (id, codigo, nombre, profesor_id, color) VALUES
-('A101', 'PLC-101', 'Lenguaje y Literatura', 'P004', 'primary'),
-('A102', 'PLC-201', 'Matemática', 'P002', 'success'),
-('A103', 'PLC-301', 'Historia y Geografía', 'P005', 'warning'),
-('A104', 'PLC-401', 'Inglés Común', 'P009', 'info'),
-('A105', 'PLC-501', 'Ciencias para la Ciudadanía', 'P002', 'success'),
-('A106', 'PLC-601', 'Educación Física y Salud', 'P006', 'danger'),
-('A107', 'MOD-001', 'Módulo: Programación y BBDD', 'P008', 'dark'),
-('A108', 'MOD-002', 'Módulo: Desarrollo Aplicaciones Web', 'P007', 'info'),
-('A109', 'MOD-003', 'Módulo: Prog. Orientada a Objetos (Java)', 'P007', 'danger'),
-('A110', 'MOD-004', 'Módulo: Armado y Mantención de Equipos', 'P001', 'secondary'),
-('A111', 'MOD-005', 'Módulo: Sistemas Operativos (Linux/Win)', 'P001', 'primary'),
-('A112', 'MOD-006', 'Módulo: Instalación de Redes (Cisco)', 'P003', 'warning'),
-('A113', 'MOD-007', 'Módulo: Ciberseguridad Básica', 'P003', 'dark'),
-('A114', 'MOD-008', 'Módulo: Emprendimiento y Empleabilidad', 'P005', 'success');
+INSERT INTO asignaturas (id, codigo, nombre, descripcion, profesor_id, color) VALUES
+('A101', 'PLC-101', 'Lenguaje y Literatura', 'Comprensión lectora, análisis de textos literarios y no literarios, y escritura de textos argumentativos.', 'P004', 'primary'),
+('A102', 'PLC-201', 'Matemática', 'Álgebra, funciones, geometría y probabilidades aplicadas a la resolución de problemas.', 'P002', 'success'),
+('A103', 'PLC-301', 'Historia y Geografía', 'Historia de Chile y del mundo contemporáneo, formación ciudadana y geografía regional.', 'P005', 'warning'),
+('A104', 'PLC-401', 'Inglés Común', 'Comprensión auditiva y lectora, vocabulario técnico y conversación en inglés.', 'P009', 'info'),
+('A105', 'PLC-501', 'Ciencias para la Ciudadanía', 'Ciencia aplicada a la vida diaria: salud, medio ambiente, tecnología y bienestar.', 'P002', 'success'),
+('A106', 'PLC-601', 'Educación Física y Salud', 'Condición física, deportes colectivos y hábitos de vida saludable.', 'P006', 'danger'),
+('A107', 'MOD-001', 'Módulo: Programación y BBDD', 'Modelado de datos, lenguaje SQL y programación de aplicaciones conectadas a bases de datos.', 'P008', 'dark'),
+('A108', 'MOD-002', 'Módulo: Desarrollo Aplicaciones Web', 'HTML, CSS y JavaScript para crear sitios web conectados a un servidor.', 'P007', 'info'),
+('A109', 'MOD-003', 'Módulo: Prog. Orientada a Objetos (Java)', 'Clases, objetos, herencia y desarrollo de aplicaciones en Java.', 'P007', 'danger'),
+('A110', 'MOD-004', 'Módulo: Armado y Mantención de Equipos', 'Ensamblaje de computadores, diagnóstico de fallas y mantención preventiva.', 'P001', 'secondary'),
+('A111', 'MOD-005', 'Módulo: Sistemas Operativos (Linux/Win)', 'Instalación y administración de Linux y Windows: usuarios, permisos y servicios.', 'P001', 'primary'),
+('A112', 'MOD-006', 'Módulo: Instalación de Redes (Cisco)', 'Cableado estructurado, configuración de routers y switches Cisco y direccionamiento IP.', 'P003', 'warning'),
+('A113', 'MOD-007', 'Módulo: Ciberseguridad Básica', 'Buenas prácticas de seguridad, contraseñas seguras, respaldos y amenazas comunes.', 'P003', 'dark'),
+('A114', 'MOD-008', 'Módulo: Emprendimiento y Empleabilidad', 'Formulación de proyectos, preparación para entrevistas laborales y trabajo en equipo.', 'P005', 'success');
 
 -- Insertar Horarios
 INSERT INTO horarios (bloque, dia, asignatura_id, aula) VALUES

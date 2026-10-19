@@ -146,28 +146,81 @@ app.get('/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Direcciones antiguas del portal (antes de unir las páginas en cuatro)
+const RUTAS_ANTIGUAS = {
+    'materias.html': 'academico.html#asignaturas',
+    'profesores.html': 'academico.html#docentes',
+    'horarios.html': 'academico.html#agenda',
+    'aulaVirtual.html': 'aula.html',
+    'aulaVirtualAlumnos.html': 'aula.html',
+    'solicitudes.html': 'tramites.html#admision',
+    'solicitudesProfesores.html': 'tramites.html#soporte',
+    'informacion.html': 'index.html#nosotros',
+    'contacto.html': 'index.html#contacto'
+};
+
+app.get('/html/:pagina', (req, res, next) => {
+    const destino = RUTAS_ANTIGUAS[req.params.pagina];
+    destino ? res.redirect(301, `/html/${destino}`) : next();
+});
+
 // =============================================
-// API: LECTURA PÚBLICA DE LA BASE DE DATOS
+// API: INFORMACIÓN ACADÉMICA (según el rol)
 // =============================================
 /**
- * GET /api/db - Datos públicos del portal
- * Retorna: profesores, asignaturas, horarios, anuncios y avisos (sin datos personales)
+ * GET /api/resumen - Cifras públicas del instituto
  */
-app.get('/api/db', async (req, res) => {
-    const [profesores] = await pool.query('SELECT id, nombre, departamento FROM profesores');
-    const [asignaturas] = await pool.query('SELECT id, codigo, nombre, profesor_id, color FROM asignaturas');
-    const [horarios] = await pool.query('SELECT * FROM horarios');
-    const [anuncios_aula] = await pool.query('SELECT id, titulo, contenido, autor, fecha FROM anuncios_aula ORDER BY creado_en DESC');
-    const [notasRows] = await pool.query('SELECT descripcion FROM notas');
+app.get('/api/resumen', async (req, res) => {
+    const [[cifras]] = await pool.query(
+        'SELECT (SELECT COUNT(*) FROM asignaturas) AS asignaturas, (SELECT COUNT(*) FROM profesores) AS docentes'
+    );
+    res.json(cifras);
+});
 
-    res.json({
-        profesores,
-        asignaturas,
-        horarios,
-        anuncios_aula,
-        notas: notasRows.map(n => n.descripcion),
-        timestamp: new Date().toISOString()
-    });
+/**
+ * GET /api/asignaturas - Asignaturas que imparte el instituto
+ * Los visitantes solo ven la materia; con sesión también se ve el docente a cargo.
+ */
+app.get('/api/asignaturas', async (req, res) => {
+    const [asignaturas] = await pool.query(`
+        SELECT a.id, a.codigo, a.nombre, a.descripcion, a.color, a.profesor_id IS NOT NULL AS tiene_docente,
+               (SELECT COUNT(*) FROM horarios h WHERE h.asignatura_id = a.id) AS bloques,
+               a.profesor_id, p.nombre AS profesor_nombre, p.correo AS profesor_correo
+        FROM asignaturas a LEFT JOIN profesores p ON p.id = a.profesor_id
+        ORDER BY a.codigo`);
+
+    if (!req.session.usuario) {
+        asignaturas.forEach(a => { delete a.profesor_id; delete a.profesor_nombre; delete a.profesor_correo; });
+    }
+    res.json(asignaturas);
+});
+
+/**
+ * GET /api/docentes - Docentes y sus asignaturas
+ * Alumnos y apoderados: nombre y correo institucional. Docentes y directiva: ficha completa.
+ */
+app.get('/api/docentes', requiereSesion(), async (req, res) => {
+    const fichaCompleta = ['admin', 'profesor'].includes(req.session.usuario.rol);
+    const campos = fichaCompleta
+        ? 'p.id, p.nombre, p.departamento, p.correo, p.rut, p.telefono, p.correo_personal, p.horario_trabajo, p.curriculum'
+        : 'p.id, p.nombre, p.correo';
+
+    const [docentes] = await pool.query(`
+        SELECT ${campos}, GROUP_CONCAT(a.nombre ORDER BY a.codigo SEPARATOR '||') AS asignaturas
+        FROM profesores p LEFT JOIN asignaturas a ON a.profesor_id = p.id
+        GROUP BY p.id ORDER BY p.nombre`);
+
+    docentes.forEach(d => { d.asignaturas = d.asignaturas ? d.asignaturas.split('||') : []; });
+    res.json(docentes);
+});
+
+/**
+ * GET /api/horario - Agenda semanal y avisos (solo comunidad con sesión)
+ */
+app.get('/api/horario', requiereSesion(), async (req, res) => {
+    const [bloques] = await pool.query('SELECT bloque, dia, asignatura_id, aula FROM horarios ORDER BY bloque');
+    const [avisos] = await pool.query('SELECT descripcion FROM notas');
+    res.json({ bloques, avisos: avisos.map(a => a.descripcion) });
 });
 
 // =============================================
@@ -339,6 +392,13 @@ app.delete('/api/solicitudes_estudiantes/:id', requiereSesion('admin'), async (r
 // =============================================
 // CRUD: PROFESORES (solo admin)
 // =============================================
+// Campos opcionales de la ficha del docente
+const CAMPOS_FICHA = ['rut', 'telefono', 'correo_personal', 'horario_trabajo', 'curriculum'];
+const valoresFicha = (body) => CAMPOS_FICHA.map(campo => {
+    const valor = typeof body[campo] === 'string' ? body[campo].trim() : '';
+    return valor ? valor.slice(0, campo === 'curriculum' ? 2000 : 150) : null;
+});
+
 /**
  * POST /api/profesores - Crear profesor (con acceso al Aula Virtual si se indica correo)
  */
@@ -357,8 +417,8 @@ app.post('/api/profesores', requiereSesion('admin'), async (req, res) => {
 
     try {
         await pool.query(
-            'INSERT INTO profesores (id, nombre, departamento, correo, contrasena) VALUES (?, ?, ?, ?, ?)',
-            [id, nombre.trim(), departamento.trim(), correo ? correo.trim().toLowerCase() : null, hash]
+            'INSERT INTO profesores (id, nombre, departamento, correo, contrasena, rut, telefono, correo_personal, horario_trabajo, curriculum) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [id, nombre.trim(), departamento.trim(), correo ? correo.trim().toLowerCase() : null, hash, ...valoresFicha(req.body)]
         );
     } catch (error) {
         if (error.code === 'ER_DUP_ENTRY') {
@@ -380,8 +440,8 @@ app.put('/api/profesores/:id', requiereSesion('admin'), async (req, res) => {
     }
 
     const [result] = await pool.query(
-        'UPDATE profesores SET nombre = ?, departamento = ? WHERE id = ?',
-        [nombre.trim(), departamento.trim(), req.params.id]
+        'UPDATE profesores SET nombre = ?, departamento = ?, rut = ?, telefono = ?, correo_personal = ?, horario_trabajo = ?, curriculum = ? WHERE id = ?',
+        [nombre.trim(), departamento.trim(), ...valoresFicha(req.body), req.params.id]
     );
     if (result.affectedRows === 0) {
         return res.status(404).json({ error: 'Profesor no encontrado' });
@@ -396,15 +456,15 @@ app.put('/api/profesores/:id', requiereSesion('admin'), async (req, res) => {
  * POST /api/asignaturas - Crear nueva asignatura
  */
 app.post('/api/asignaturas', requiereSesion('admin'), async (req, res) => {
-    const { codigo, nombre, profesor_id, color } = req.body;
+    const { codigo, nombre, descripcion, profesor_id, color } = req.body;
     if (!textoValido(codigo, 20) || !textoValido(nombre, 100)) {
         return res.status(400).json({ error: 'Faltan campos requeridos' });
     }
 
     const id = nuevoId('A');
     await pool.query(
-        'INSERT INTO asignaturas (id, codigo, nombre, profesor_id, color) VALUES (?, ?, ?, ?, ?)',
-        [id, codigo.trim(), nombre.trim(), profesor_id || null, color || 'primary']
+        'INSERT INTO asignaturas (id, codigo, nombre, descripcion, profesor_id, color) VALUES (?, ?, ?, ?, ?, ?)',
+        [id, codigo.trim(), nombre.trim(), (descripcion || '').trim().slice(0, 1000), profesor_id || null, color || 'primary']
     );
     res.status(201).json({ message: 'Asignatura creada correctamente', id });
 });
@@ -413,14 +473,14 @@ app.post('/api/asignaturas', requiereSesion('admin'), async (req, res) => {
  * PUT /api/asignaturas/:id - Actualizar asignatura
  */
 app.put('/api/asignaturas/:id', requiereSesion('admin'), async (req, res) => {
-    const { codigo, nombre, profesor_id, color } = req.body;
+    const { codigo, nombre, descripcion, profesor_id, color } = req.body;
     if (!textoValido(codigo, 20) || !textoValido(nombre, 100)) {
         return res.status(400).json({ error: 'Faltan campos requeridos' });
     }
 
     const [result] = await pool.query(
-        'UPDATE asignaturas SET codigo = ?, nombre = ?, profesor_id = ?, color = ? WHERE id = ?',
-        [codigo.trim(), nombre.trim(), profesor_id || null, color || 'primary', req.params.id]
+        'UPDATE asignaturas SET codigo = ?, nombre = ?, descripcion = ?, profesor_id = ?, color = ? WHERE id = ?',
+        [codigo.trim(), nombre.trim(), (descripcion || '').trim().slice(0, 1000), profesor_id || null, color || 'primary', req.params.id]
     );
     if (result.affectedRows === 0) {
         return res.status(404).json({ error: 'Asignatura no encontrada' });
@@ -807,12 +867,33 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Ruta 404: JSON para la API y página propia para el resto
+// Ruta 404: JSON para la API y una página simple para el resto
+const PAGINA_404 = `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>Página no encontrada | Instituto John H. Watson</title>
+    <link rel="icon" type="image/svg+xml" href="/Image/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="dark-mode">
+    <main class="container pagina-404">
+        <div class="codigo" aria-hidden="true">404</div>
+        <h1 class="h3 fw-bold mt-3">Página no encontrada</h1>
+        <p class="text-muted mb-4">La dirección que buscas no existe o fue cambiada.</p>
+        <a href="/html/index.html" class="btn btn-primary px-4">Volver al inicio</a>
+    </main>
+</body>
+</html>`;
+
 app.use((req, res) => {
     if (req.path.startsWith('/api/')) {
         return res.status(404).json({ error: 'Ruta no encontrada', path: req.path });
     }
-    res.status(404).sendFile(path.join(__dirname, 'public', 'html', '404.html'));
+    res.status(404).send(PAGINA_404);
 });
 
 // =============================================

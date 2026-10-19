@@ -168,15 +168,16 @@ app.use((req, res, next) => {
 SolicitudesAcad-micas-EVA.4/
 ├── public/
 │   ├── html/
-│   │   ├── index.html
-│   │   ├── aulaVirtual.html         ⭐ Interfaz principal
-│   │   ├── materias.html
-│   │   ├── profesores.html
-│   │   └── ...
+│   │   ├── index.html               Inicio, quiénes somos y contacto
+│   │   ├── academico.html           Asignaturas, docentes y agenda
+│   │   ├── aula.html                ⭐ Aula Virtual (alumnos y docentes)
+│   │   └── tramites.html            Admisión y soporte docente
 │   ├── js/
-│   │   ├── aulaVirtual.js           ⭐ Lógica principal
-│   │   ├── script.js
-│   │   └── ...
+│   │   ├── script.js                Funciones comunes (sesión, menú, tema)
+│   │   ├── inicio.js
+│   │   ├── academico.js
+│   │   ├── aula.js                  ⭐ Lógica del Aula Virtual
+│   │   └── tramites.js
 │   ├── css/
 │   │   └── styles.css
 │   └── Image/
@@ -212,22 +213,12 @@ http://localhost:3000/api
 
 ### Endpoints Disponibles
 
-#### 1️⃣ Obtener Todos los Datos
+#### 1️⃣ Información Académica (según el rol)
 ```http
-GET /db
-```
-
-**Respuesta:**
-```json
-{
-    "profesores": [...],
-    "asignaturas": [...],
-    "horarios": [...],
-    "solicitudes_estudiantes": [...],
-    "solicitudes_profesores": [...],
-    "anuncios_aula": [...],
-    "notas": [...]
-}
+GET /resumen        Cifras públicas (asignaturas y docentes)
+GET /asignaturas    Materias; con sesión incluye el docente a cargo
+GET /docentes       Con sesión: nombre y correo; docentes y directiva ven la ficha completa
+GET /horario        Agenda semanal y avisos (con sesión)
 ```
 
 #### 2️⃣ Anuncios del Aula Virtual
@@ -381,7 +372,7 @@ GROUP BY p.id, p.nombre;
 ### Para Estudiantes:
 
 1. **Acceder al Aula Virtual:**
-   - Navega a `http://localhost:3000/html/aulaVirtual.html`
+   - Navega a `http://localhost:3000/html/aula.html` e inicia sesión con tu correo institucional
 
 2. **Ver Anuncios:**
    - Los anuncios se cargan automáticamente

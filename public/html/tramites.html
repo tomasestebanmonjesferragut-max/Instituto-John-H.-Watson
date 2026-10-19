@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Admisión en línea y soporte técnico docente del Instituto John H. Watson.">
+    <meta name="theme-color" content="#142744">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Instituto John H. Watson">
+    <meta property="og:locale" content="es_CL">
+    <meta property="og:title" content="Trámites | Instituto John H. Watson">
+    <meta property="og:description" content="Admisión en línea y soporte técnico docente del Instituto John H. Watson.">
+    <meta property="og:image" content="https://www.institutojohnhwatson.cl/Image/Aula.png">
+    <title>Trámites | Instituto John H. Watson</title>
+    <link rel="icon" type="image/svg+xml" href="../Image/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <a href="#contenido" class="saltar-contenido">Saltar al contenido principal</a>
+    <header>
+        <h1><i class="bi bi-mortarboard-fill me-2" aria-hidden="true"></i>Instituto John H. Watson</h1>
+        <nav class="navbar navbar-expand-xl" aria-label="Navegación principal">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="index.html"><i class="bi bi-house-door-fill me-2"></i>Inicio</a>
+                <button class="navbar-toggler btn-outline-light" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Abrir menú">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto gap-1">
+                        <li class="nav-item"><a class="nav-link" href="index.html#nosotros"><i class="bi bi-info-circle-fill me-1"></i>Nosotros</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="academico.html" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-journal-bookmark-fill me-1"></i>Académico</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="academico.html#asignaturas"><i class="bi bi-journal-bookmark-fill me-2"></i>Asignaturas</a></li>
+                                <li><a class="dropdown-item" href="academico.html#docentes"><i class="bi bi-person-video3 me-2"></i>Docentes</a></li>
+                                <li><a class="dropdown-item" href="academico.html#agenda"><i class="bi bi-calendar-week me-2"></i>Agenda semanal</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item"><a class="nav-link" href="aula.html"><i class="bi bi-laptop me-1"></i>Aula Virtual</a></li>
+                        <li class="nav-item"><a class="nav-link" href="tramites.html#admision"><i class="bi bi-person-lines-fill me-1"></i>Admisión</a></li>
+                        <li class="nav-item"><a class="nav-link" href="tramites.html#soporte"><i class="bi bi-pc-display me-1"></i>Soporte</a></li>
+                        <li class="nav-item"><a class="nav-link" href="index.html#contacto"><i class="bi bi-envelope-fill me-1"></i>Contacto</a></li>
+                        <li class="nav-item ms-xl-3 d-flex align-items-center">
+                            <button id="btnTheme" class="btn btn-outline-primary btn-sm rounded-circle me-2" aria-label="Cambiar tema claro u oscuro"><i class="bi bi-sun-fill"></i></button>
+                            <button id="btnAdmin" class="btn btn-outline-primary btn-sm rounded-pill" aria-label="Iniciar sesión"><i class="bi bi-box-arrow-in-right me-1"></i>Ingresar</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main id="contenido" class="container my-5">
+        <ul class="nav nav-pills justify-content-center mb-4" role="tablist">
+            <li class="nav-item" role="presentation"><button class="nav-link active" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#admision"><i class="bi bi-person-vcard me-1"></i>Admisión</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#soporte"><i class="bi bi-pc-display-horizontal me-1"></i>Soporte docente</button></li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- ADMISIÓN -->
+            <section id="admision" class="tab-pane fade show active" role="tabpanel" aria-label="Admisión">
+                <!-- Vista pública: postular y consultar estado -->
+                <div id="admisionPublica">
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold display-6">Admisión 2027</h2>
+                        <p class="text-muted lead">Completa el formulario para postular. Recibirás un folio para seguir tu postulación en línea.</p>
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-lg-7">
+                            <form id="formPostulacion" class="card p-4 h-100">
+                                <h3 class="h5 fw-bold mb-4"><i class="bi bi-pencil-square me-2 text-primary"></i>Formulario de postulación</h3>
+                                <div class="row g-3">
+                                    <div class="col-12"><div class="form-floating"><input name="nombre" id="postNombre" class="form-control" placeholder=" " maxlength="100" autocomplete="name" required><label for="postNombre">Nombre completo del estudiante</label></div></div>
+                                    <div class="col-md-6"><div class="form-floating"><input name="fecha_nacimiento" id="postFechaNac" type="date" class="form-control" required><label for="postFechaNac">Fecha de nacimiento</label></div></div>
+                                    <div class="col-md-6"><div class="form-floating"><select name="anio_postulacion" id="postAnio" class="form-select"><option>1° Medio</option><option>2° Medio</option><option>3° Medio</option><option>4° Medio</option></select><label for="postAnio">Curso al que postula</label></div></div>
+                                    <div class="col-12"><div class="form-floating"><input name="correo" id="postCorreo" type="email" class="form-control" placeholder=" " maxlength="100" autocomplete="email" required><label for="postCorreo">Correo de contacto</label></div></div>
+                                    <div class="col-12"><div class="form-floating"><textarea name="motivacion" id="postMotivo" class="form-control" placeholder=" " style="height: 120px" maxlength="1000" required></textarea><label for="postMotivo">¿Por qué quieres estudiar en el instituto?</label></div></div>
+                                    <div class="col-12 form-check ms-1"><input class="form-check-input" type="checkbox" id="postAutorizo" required><label class="form-check-label small text-muted" for="postAutorizo">Autorizo el uso de estos datos solo para el proceso de admisión del instituto.</label></div>
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-4 px-4 align-self-start"><i class="bi bi-send-fill me-2"></i>Enviar postulación</button>
+                            </form>
+                        </div>
+                        <div class="col-lg-5 d-flex flex-column gap-4">
+                            <form id="formConsulta" class="card p-4">
+                                <h3 class="h5 fw-bold mb-3"><i class="bi bi-search me-2 text-primary"></i>Consulta tu postulación</h3>
+                                <div class="form-floating mb-3"><input name="folio" id="consultaFolio" class="form-control" placeholder=" " maxlength="20" required><label for="consultaFolio">Folio (Ej: ADM-1234567)</label></div>
+                                <div class="form-floating mb-3"><input name="correo" id="consultaCorreo" type="email" class="form-control" placeholder=" " maxlength="100" required><label for="consultaCorreo">Correo con que postulaste</label></div>
+                                <button type="submit" class="btn btn-outline-primary w-100">Consultar estado</button>
+                                <div id="resultadoConsulta" class="mt-3" aria-live="polite"></div>
+                            </form>
+                            <div class="card p-4">
+                                <h3 class="h5 fw-bold mb-3"><i class="bi bi-list-ol me-2 text-primary"></i>Proceso de admisión</h3>
+                                <ol class="mb-0 ps-3 text-muted">
+                                    <li class="mb-2">Envía tu postulación y guarda el folio.</li>
+                                    <li class="mb-2">Revisamos los antecedentes en un plazo de 10 días hábiles.</li>
+                                    <li class="mb-2">Te informamos el resultado por correo y en esta página.</li>
+                                    <li>Si eres aceptado, formaliza la matrícula en secretaría.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vista administración: gestión de postulaciones -->
+                <div id="admisionGestion" hidden>
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <h2 class="fw-bold mb-0"><i class="bi bi-person-vcard me-2 text-primary"></i>Postulaciones</h2>
+                        <div class="d-flex gap-2">
+                            <input id="buscarPostulante" type="search" class="form-control form-control-sm" placeholder="Buscar por nombre o folio" aria-label="Buscar postulante">
+                            <button type="button" class="btn btn-primary btn-sm text-nowrap" data-accion="nueva-postulacion"><i class="bi bi-plus-lg me-1"></i>Ingresar</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead><tr><th>Folio</th><th>Postulante</th><th>Curso</th><th>Estado</th><th>Fecha</th><th></th></tr></thead>
+                            <tbody id="tablaPostulaciones"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SOPORTE DOCENTE -->
+            <section id="soporte" class="tab-pane fade" role="tabpanel" aria-label="Soporte docente">
+                <div id="soporteSinAcceso"></div>
+                <div id="soporteVista" class="row g-4" hidden>
+                    <div class="col-lg-4">
+                        <form id="formTicket" class="card p-4">
+                            <h3 class="h5 fw-bold mb-3"><i class="bi bi-exclamation-triangle me-2 text-primary"></i>Reportar incidencia</h3>
+                            <div class="form-floating mb-3"><select name="profesor" id="ticketProfesor" class="form-select"></select><label for="ticketProfesor">Profesor</label></div>
+                            <div class="form-floating mb-3"><input name="ubicacion" id="ticketUbicacion" class="form-control" placeholder=" " maxlength="100" required><label for="ticketUbicacion">Ubicación (Ej: Lab 3)</label></div>
+                            <div class="form-floating mb-3"><textarea name="problema" id="ticketProblema" class="form-control" placeholder=" " style="height: 100px" maxlength="1000" required></textarea><label for="ticketProblema">Problema</label></div>
+                            <div class="form-floating mb-3"><select name="prioridad" id="ticketPrioridad" class="form-select"><option>Baja</option><option selected>Media</option><option>Alta</option></select><label for="ticketPrioridad">Urgencia</label></div>
+                            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-send-fill me-2"></i>Enviar reporte</button>
+                        </form>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                            <h2 id="tituloTickets" class="h4 fw-bold mb-0">Reportes abiertos</h2>
+                            <select id="filtroPrioridad" class="form-select form-select-sm w-auto" aria-label="Filtrar por prioridad">
+                                <option value="">Todas las prioridades</option><option>Alta</option><option>Media</option><option>Baja</option>
+                            </select>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead><tr><th>Ticket</th><th>Profesor y ubicación</th><th>Problema</th><th>Prioridad</th><th>Fecha</th><th></th></tr></thead>
+                                <tbody id="tablaTickets"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer-oficial">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <h2 class="fw-bold mb-3"><i class="bi bi-mortarboard-fill me-2" aria-hidden="true"></i>Instituto John H. Watson</h2>
+                    <p>Liceo técnico-profesional de San Joaquín. Desde 1998 formamos técnicos de nivel medio en programación, redes y soporte computacional.</p>
+                    <div class="redes mt-3">
+                        <a href="#" aria-label="Facebook del instituto"><i class="bi bi-facebook"></i></a>
+                        <a href="#" aria-label="Instagram del instituto"><i class="bi bi-instagram"></i></a>
+                        <a href="#" aria-label="YouTube del instituto"><i class="bi bi-youtube"></i></a>
+                        <a href="#" aria-label="LinkedIn del instituto"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+                <nav class="col-6 col-lg-2" aria-label="Institución">
+                    <h3>Institución</h3>
+                    <ul>
+                        <li><a href="index.html#nosotros">Quiénes somos</a></li>
+                        <li><a href="academico.html#asignaturas">Asignaturas</a></li>
+                        <li><a href="academico.html#docentes">Docentes</a></li>
+                        <li><a href="academico.html#agenda">Agenda semanal</a></li>
+                    </ul>
+                </nav>
+                <nav class="col-6 col-lg-2" aria-label="Servicios">
+                    <h3>Servicios</h3>
+                    <ul>
+                        <li><a href="tramites.html#admision">Admisión</a></li>
+                        <li><a href="aula.html">Aula Virtual</a></li>
+                        <li><a href="tramites.html#soporte">Soporte docente</a></li>
+                        <li><a href="index.html#contacto">Contacto</a></li>
+                    </ul>
+                </nav>
+                <div class="col-lg-4">
+                    <h3>Contacto</h3>
+                    <ul>
+                        <li><i class="bi bi-geo-alt-fill me-2"></i>San Joaquín, Región Metropolitana, Chile</li>
+                        <li><i class="bi bi-telephone-fill me-2"></i><a href="tel:+56223456789">+56 2 2345 6789</a></li>
+                        <li><i class="bi bi-envelope-fill me-2"></i><a href="mailto:contacto@institutojohnhwatson.cl">contacto@institutojohnhwatson.cl</a></li>
+                        <li><i class="bi bi-clock-fill me-2"></i>Lunes a viernes, 08:00 a 17:30</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-legal d-flex flex-column flex-md-row justify-content-between gap-2">
+                <span>&copy; <span class="anio-actual">2026</span> Instituto John H. Watson. Todos los derechos reservados.</span>
+                <span>Educación Técnico-Profesional · San Joaquín, Chile</span>
+            </div>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/script.js"></script>
+    <script src="../js/tramites.js"></script>
+</body>
+</html>

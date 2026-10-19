@@ -1278,10 +1278,123 @@ body.dark-mode .form-select {
    27. PORTAL OFICIAL (sesión, accesibilidad, footer y secciones institucionales)
 ═══════════════════════════════════════════════════════════════════════════════ */
 
-/* Botones de edición: ocultos hasta confirmar la sesión de administración */
-#btnModificar, #btnEliminar, #btnEditarMateria, #btnEditarProf,
-#btnMoverHorario, #btnAgregarMateria, #btnAgregarProf, #btnPublicarAnuncio {
-    display: none;
+/* Las secciones enlazadas desde el menú no quedan tapadas por la cabecera fija */
+section[id] {
+    scroll-margin-top: 90px;
+}
+
+/* Listas, pestañas y tarjetas de Bootstrap con los colores del tema */
+.list-group {
+    --bs-list-group-bg: var(--panel-bg);
+    --bs-list-group-color: var(--text-secondary);
+    --bs-list-group-border-color: var(--panel-border);
+    --bs-list-group-action-hover-bg: var(--bg-tertiary);
+    --bs-list-group-action-hover-color: var(--text-primary);
+    --bs-list-group-action-active-bg: var(--bg-quaternary);
+}
+
+.nav-tabs {
+    --bs-nav-tabs-border-color: var(--panel-border);
+    --bs-nav-tabs-link-active-bg: var(--panel-bg);
+    --bs-nav-tabs-link-active-color: var(--text-primary);
+    --bs-nav-tabs-link-active-border-color: var(--panel-border) var(--panel-border) var(--panel-bg);
+    --bs-nav-tabs-link-hover-border-color: var(--panel-border);
+    --bs-nav-link-color: var(--text-muted);
+    --bs-nav-link-hover-color: var(--text-primary);
+}
+
+/* Tarjetas de servicios del inicio */
+.servicio {
+    text-align: center;
+    text-decoration: none !important;
+}
+
+.servicio > i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1rem;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    color: var(--color-secondary);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--panel-border);
+}
+
+/* Aula Virtual: pestañas por clase con desplazamiento horizontal */
+.pestanas-aula {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+}
+
+.pestanas-aula .nav-link {
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.contenido-aula {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-top: 0;
+    min-height: 320px;
+}
+
+.fondo-suave {
+    background: var(--bg-tertiary);
+}
+
+/* Docentes: avatar y ficha */
+.avatar-docente {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    font-size: 1.3rem;
+    color: var(--color-secondary);
+    background: var(--bg-tertiary);
+}
+
+.ficha-docente dt {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+}
+
+.ficha-docente dd {
+    margin-bottom: 0.75rem;
+}
+
+/* Agenda: cada clase se puede abrir para ver su información */
+.celda-clase {
+    width: 100%;
+    background: none;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    padding: 0.35rem;
+    color: inherit;
+}
+
+.celda-clase:hover,
+.celda-clase:focus-visible {
+    background: var(--bg-tertiary);
+    border-color: var(--panel-border);
+}
+
+.fila-pausa td {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-muted);
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 0.8rem;
 }
 
 /* Enlace para saltar directo al contenido (teclado y lectores de pantalla) */
