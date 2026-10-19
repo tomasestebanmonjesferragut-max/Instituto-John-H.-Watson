@@ -30,19 +30,7 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto gap-1">
-                        <li class="nav-item"><a class="nav-link" href="index.html#nosotros"><i class="bi bi-info-circle-fill me-1"></i>Nosotros</a></li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="academico.html" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-journal-bookmark-fill me-1"></i>Académico</a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="academico.html#asignaturas"><i class="bi bi-journal-bookmark-fill me-2"></i>Asignaturas</a></li>
-                                <li><a class="dropdown-item" href="academico.html#docentes"><i class="bi bi-person-video3 me-2"></i>Docentes</a></li>
-                                <li><a class="dropdown-item" href="academico.html#agenda"><i class="bi bi-calendar-week me-2"></i>Agenda semanal</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="aula.html"><i class="bi bi-laptop me-1"></i>Aula Virtual</a></li>
-                        <li class="nav-item"><a class="nav-link" href="tramites.html#admision"><i class="bi bi-person-lines-fill me-1"></i>Admisión</a></li>
-                        <li class="nav-item"><a class="nav-link" href="tramites.html#soporte"><i class="bi bi-pc-display me-1"></i>Soporte</a></li>
-                        <li class="nav-item"><a class="nav-link" href="index.html#contacto"><i class="bi bi-envelope-fill me-1"></i>Contacto</a></li>
+                        <!-- Opciones del menú: las agrega script.js según el rol de la sesión -->
                         <li class="nav-item ms-xl-3 d-flex align-items-center">
                             <button id="btnTheme" class="btn btn-outline-primary btn-sm rounded-circle me-2" aria-label="Cambiar tema claro u oscuro"><i class="bi bi-sun-fill"></i></button>
                             <button id="btnAdmin" class="btn btn-outline-primary btn-sm rounded-pill" aria-label="Iniciar sesión"><i class="bi bi-box-arrow-in-right me-1"></i>Ingresar</button>
@@ -51,6 +39,7 @@
                 </div>
             </div>
         </nav>
+        <div id="franjaRol" class="franja-rol" hidden></div>
     </header>
 
     <main id="contenido" class="container my-5">

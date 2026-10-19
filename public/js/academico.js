@@ -1,7 +1,9 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const sesion = await obtenerSesion();
-    const esAdmin = sesion.rol === 'admin';
-    const fichaCompleta = esAdmin || sesion.rol === 'profesor';
+    const gestiona = esDirectiva(sesion);               // dirección y secretaría organizan asignaturas y horario
+    const esDirector = sesion.rol === 'director';       // solo el director crea y edita docentes
+    const fichaCompleta = gestiona || sesion.rol === 'profesor';
+    const esMia = (a) => sesion.rol === 'profesor' && a.profesor_id === sesion.profesor.id;
     const esc = escaparHTML;
 
     const listaAsignaturas = document.getElementById('listaAsignaturas');
@@ -12,16 +14,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     let asignaturas = [];
     let docentes = [];
     let horario = { bloques: [], avisos: [] };
+    let alumnos = [];
 
     async function recargar() {
-        [asignaturas, docentes, horario] = await Promise.all([
+        [asignaturas, docentes, horario, alumnos] = await Promise.all([
             api('asignaturas'),
             sesion.rol ? api('docentes') : [],
-            sesion.rol ? api('horario') : horario
+            sesion.rol ? api('horario') : horario,
+            fichaCompleta ? api('estudiantes') : []
         ]);
         mostrarAsignaturas();
         mostrarDocentes();
         mostrarAgenda();
+        mostrarAlumnos();
     }
 
     // =====================================================
@@ -61,7 +66,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <h4 class="h6 fw-bold mt-3">Qué aprenderás</h4>
                         <p class="text-muted">${esc(a.descripcion || 'Pronto publicaremos el detalle de esta asignatura.')}</p>
                         <p class="text-muted small mb-0"><i class="bi bi-clock me-1"></i>Carga semanal: ${a.bloques} ${a.bloques === 1 ? 'bloque' : 'bloques'} de 90 minutos</p>
-                        ${esAdmin ? `<button type="button" class="btn btn-outline-warning btn-sm align-self-start mt-3" data-accion="editar-asignatura" data-id="${a.id}"><i class="bi bi-pencil-fill me-1"></i>Editar asignatura</button>` : ''}
+                        ${gestiona ? `<button type="button" class="btn btn-outline-warning btn-sm align-self-start mt-3" data-accion="editar-asignatura" data-id="${a.id}"><i class="bi bi-pencil-fill me-1"></i>Editar asignatura</button>` : ''}
+                        ${esMia(a) ? `<button type="button" class="btn btn-outline-warning btn-sm align-self-start mt-3" data-accion="editar-descripcion" data-id="${a.id}"><i class="bi bi-pencil-fill me-1"></i>Editar lo que se enseña</button>` : ''}
                     </article>
                 </div>
                 <div class="col-lg-4">
@@ -135,7 +141,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ${fichaCompleta ? `
                         <div class="d-flex gap-2 mt-3 pt-3 border-top">
                             <button type="button" class="btn btn-sm btn-outline-primary" data-accion="ver-ficha" data-id="${d.id}"><i class="bi bi-person-vcard me-1"></i>Ver ficha</button>
-                            ${esAdmin ? `<button type="button" class="btn btn-sm btn-outline-warning" data-accion="editar-docente" data-id="${d.id}"><i class="bi bi-pencil-fill me-1"></i>Editar</button>` : ''}
+                            ${esDirector ? `<button type="button" class="btn btn-sm btn-outline-warning" data-accion="editar-docente" data-id="${d.id}"><i class="bi bi-pencil-fill me-1"></i>Editar</button>` : ''}
                         </div>` : ''}
                 </article>
             </div>`).join('')}</div>`;
@@ -253,7 +259,54 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // =====================================================
-    // 4. ACCIONES (un solo manejador para toda la página)
+    // 4. ALUMNOS: contacto para docentes; ficha completa para la directiva
+    // =====================================================
+    function mostrarAlumnos() {
+        const contenedor = document.getElementById('listaAlumnos');
+        if (!fichaCompleta) {
+            contenedor.innerHTML = '<p class="text-muted text-center py-4">La información de los alumnos es exclusiva para docentes y directiva.</p>';
+            return;
+        }
+        const filtro = document.getElementById('buscarAlumno').value.toLowerCase();
+        const lista = alumnos.filter(a => `${a.nombre} ${a.curso}`.toLowerCase().includes(filtro));
+        const conFicha = gestiona;
+        const fecha = (f) => f ? f.split('-').reverse().join('/') : '—';
+
+        contenedor.innerHTML = `
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead><tr><th>Alumno</th><th>Curso</th>${conFicha ? '<th>RUT</th><th>Nacimiento</th>' : ''}<th>Correo del alumno</th><th>Apoderado</th></tr></thead>
+                    <tbody>${lista.map(a => `
+                        <tr>
+                            <td><strong>${esc(a.nombre)}</strong></td>
+                            <td>${esc(a.curso)}</td>
+                            ${conFicha ? `<td class="small">${esc(a.rut || '—')}</td><td class="small">${fecha(a.fecha_nacimiento)}</td>` : ''}
+                            <td class="small"><a href="mailto:${esc(a.correo_alumno)}">${esc(a.correo_alumno)}</a></td>
+                            <td class="small">${esc(a.apoderado_nombre || '—')}<br>
+                                ${a.correo_apoderado ? `<a href="mailto:${esc(a.correo_apoderado)}">${esc(a.correo_apoderado)}</a>` : ''}
+                                ${conFicha && a.telefono_apoderado ? `<br><span class="text-muted">${esc(a.telefono_apoderado)}</span>` : ''}</td>
+                        </tr>`).join('') || '<tr><td colspan="6" class="text-center text-muted py-4">No hay alumnos con ese nombre o curso.</td></tr>'}
+                    </tbody>
+                </table>
+            </div>`;
+    }
+    document.getElementById('buscarAlumno').addEventListener('input', mostrarAlumnos);
+
+    async function editarDescripcion(a) {
+        const datos = await formularioModal(`Qué se enseña en ${a.nombre}`, [{ name: 'descripcion', label: 'Contenidos de la asignatura', type: 'textarea', required: true }], a);
+        if (!datos) return;
+        try {
+            await api(`asignaturas/${a.id}/descripcion`, 'PUT', datos);
+            aviso('Descripción actualizada');
+            await recargar();
+            verAsignatura(a.id);
+        } catch (error) {
+            mostrarError(error);
+        }
+    }
+
+    // =====================================================
+    // 5. ACCIONES (un solo manejador para toda la página)
     // =====================================================
     document.querySelector('main').addEventListener('click', (e) => {
         const item = e.target.closest('[data-asignatura]');
@@ -269,6 +322,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             'volver': () => { detalleAsignatura.hidden = true; listaAsignaturas.hidden = false; },
             'nueva-asignatura': () => guardarAsignatura(),
             'editar-asignatura': () => guardarAsignatura(asignaturas.find(a => a.id === id)),
+            'editar-descripcion': () => editarDescripcion(asignaturas.find(a => a.id === id)),
             'nuevo-docente': () => guardarDocente(),
             'editar-docente': () => guardarDocente(docentes.find(d => d.id === id)),
             'ver-ficha': () => verFicha(docentes.find(d => d.id === id)),

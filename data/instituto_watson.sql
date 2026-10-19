@@ -107,7 +107,11 @@ CREATE TABLE estudiantes (
     contrasena_alumno VARCHAR(100) NOT NULL,
     apoderado_nombre VARCHAR(100),
     correo_apoderado VARCHAR(100) UNIQUE,
-    contrasena_apoderado VARCHAR(100)
+    contrasena_apoderado VARCHAR(100),
+    -- Ficha del alumno: la ven la dirección y la secretaría
+    rut VARCHAR(12),
+    fecha_nacimiento DATE,
+    telefono_apoderado VARCHAR(20)
 );
 
 -- Tabla de Administradores (acceso de edición al portal completo)
@@ -115,7 +119,9 @@ CREATE TABLE administradores (
     id VARCHAR(20) PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     correo VARCHAR(100) UNIQUE NOT NULL,
-    contrasena VARCHAR(100) NOT NULL
+    contrasena VARCHAR(100) NOT NULL,
+    -- director: ve y gestiona todo | secretaria: admisión, mensajes, anuncios, horario, asignaturas y soporte
+    cargo VARCHAR(20) NOT NULL DEFAULT 'director'
 );
 
 -- Tabla de Recursos del Aula Virtual (materiales, libros digitales, enlaces,
@@ -240,14 +246,19 @@ INSERT INTO anuncios_aula (id, titulo, contenido, autor, fecha, creado_en) VALUE
 ('AV-104', 'Importante: reunión de apoderados', 'La reunión de apoderados del segundo semestre será el jueves 29 de octubre a las 19:00 en cada sala de curso. La asistencia es obligatoria.', 'Inspectoría General', '12/10/2026', '2026-10-12 12:00:00');
 
 -- Insertar Administrador (acceso de edición al portal)
-INSERT INTO administradores (id, nombre, correo, contrasena) VALUES
-('ADM-001', 'Administración JHW', 'admin@jhwatson.cl', '$2b$10$q4Jth7lIkL0nF7/1hhUT1.qf1otbqKab4FE6AOVCyEssyK8Z8tAKe');
+INSERT INTO administradores (id, nombre, correo, contrasena, cargo) VALUES
+('ADM-001', 'Mg. Patricio Lagos', 'admin@jhwatson.cl', '$2b$10$q4Jth7lIkL0nF7/1hhUT1.qf1otbqKab4FE6AOVCyEssyK8Z8tAKe', 'director'),
+('ADM-002', 'Claudia Muñoz', 'secretaria@jhwatson.cl', '$2b$10$q4Jth7lIkL0nF7/1hhUT1.qf1otbqKab4FE6AOVCyEssyK8Z8tAKe', 'secretaria');
 
 -- Insertar Estudiantes matriculados (portal de alumno/apoderado)
 -- (contraseñas de demostración: alumno123 / apoderado123)
-INSERT INTO estudiantes (id, nombre, curso, correo_alumno, contrasena_alumno, apoderado_nombre, correo_apoderado, contrasena_apoderado) VALUES
-('EST-001', 'Valentina Rojas', '3° Medio', 'valentina.rojas@alumnos.jhwatson.cl', '$2b$10$aYbCeXIy/MI5MKsQQ99M7.L7wQUUZzy1Ehf7dGXVuu1wsw/4U/A/q', 'Marcela Fuentes', 'marcela.fuentes@apoderados.jhwatson.cl', '$2b$10$12cg07p7TcRM/ONo1Nap8epeXChayJuOLsqlc.r8neClS7/1p6h.2'),
-('EST-002', 'Lucas San Martín', '1° Medio', 'lucas.sanmartin@alumnos.jhwatson.cl', '$2b$10$aYbCeXIy/MI5MKsQQ99M7.L7wQUUZzy1Ehf7dGXVuu1wsw/4U/A/q', 'Pedro San Martín', 'pedro.sanmartin@apoderados.jhwatson.cl', '$2b$10$12cg07p7TcRM/ONo1Nap8epeXChayJuOLsqlc.r8neClS7/1p6h.2');
+INSERT INTO estudiantes (id, nombre, curso, correo_alumno, contrasena_alumno, apoderado_nombre, correo_apoderado, contrasena_apoderado, rut, fecha_nacimiento, telefono_apoderado) VALUES
+('EST-001', 'Valentina Rojas', '3° Medio', 'valentina.rojas@alumnos.jhwatson.cl', '$2b$10$aYbCeXIy/MI5MKsQQ99M7.L7wQUUZzy1Ehf7dGXVuu1wsw/4U/A/q', 'Marcela Fuentes', 'marcela.fuentes@apoderados.jhwatson.cl', '$2b$10$12cg07p7TcRM/ONo1Nap8epeXChayJuOLsqlc.r8neClS7/1p6h.2', '22.345.678-9', '2009-04-12', '+56 9 7111 2201'),
+('EST-002', 'Lucas San Martín', '1° Medio', 'lucas.sanmartin@alumnos.jhwatson.cl', '$2b$10$aYbCeXIy/MI5MKsQQ99M7.L7wQUUZzy1Ehf7dGXVuu1wsw/4U/A/q', 'Pedro San Martín', 'pedro.sanmartin@apoderados.jhwatson.cl', '$2b$10$12cg07p7TcRM/ONo1Nap8epeXChayJuOLsqlc.r8neClS7/1p6h.2', '23.456.789-0', '2011-08-03', '+56 9 7111 2202'),
+('EST-003', 'Sofía Muñoz', '2° Medio', 'sofia.munoz@alumnos.jhwatson.cl', '$2b$10$aYbCeXIy/MI5MKsQQ99M7.L7wQUUZzy1Ehf7dGXVuu1wsw/4U/A/q', 'Andrea Pérez', 'andrea.perez@apoderados.jhwatson.cl', '$2b$10$12cg07p7TcRM/ONo1Nap8epeXChayJuOLsqlc.r8neClS7/1p6h.2', '22.987.654-3', '2010-02-21', '+56 9 7111 2203'),
+('EST-004', 'Matías González', '4° Medio', 'matias.gonzalez@alumnos.jhwatson.cl', '$2b$10$aYbCeXIy/MI5MKsQQ99M7.L7wQUUZzy1Ehf7dGXVuu1wsw/4U/A/q', 'Jorge González', 'jorge.gonzalez@apoderados.jhwatson.cl', '$2b$10$12cg07p7TcRM/ONo1Nap8epeXChayJuOLsqlc.r8neClS7/1p6h.2', '21.876.543-2', '2008-11-30', '+56 9 7111 2204'),
+('EST-005', 'Isidora Castro', '3° Medio', 'isidora.castro@alumnos.jhwatson.cl', '$2b$10$aYbCeXIy/MI5MKsQQ99M7.L7wQUUZzy1Ehf7dGXVuu1wsw/4U/A/q', 'Paula Reyes', 'paula.reyes@apoderados.jhwatson.cl', '$2b$10$12cg07p7TcRM/ONo1Nap8epeXChayJuOLsqlc.r8neClS7/1p6h.2', '22.765.432-1', '2009-07-15', '+56 9 7111 2205'),
+('EST-006', 'Benjamín Herrera', '1° Medio', 'benjamin.herrera@alumnos.jhwatson.cl', '$2b$10$aYbCeXIy/MI5MKsQQ99M7.L7wQUUZzy1Ehf7dGXVuu1wsw/4U/A/q', 'Rodrigo Herrera', 'rodrigo.herrera@apoderados.jhwatson.cl', '$2b$10$12cg07p7TcRM/ONo1Nap8epeXChayJuOLsqlc.r8neClS7/1p6h.2', '23.654.321-5', '2011-05-09', '+56 9 7111 2206');
 
 -- Insertar Recursos del Aula Virtual (libros digitales, guías, enlaces, tareas)
 INSERT INTO recursos_aula (id, asignatura_id, tipo, titulo, descripcion, url, fecha) VALUES

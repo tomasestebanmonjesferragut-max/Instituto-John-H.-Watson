@@ -30,19 +30,7 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto gap-1">
-                        <li class="nav-item"><a class="nav-link" href="index.html#nosotros"><i class="bi bi-info-circle-fill me-1"></i>Nosotros</a></li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="academico.html" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-journal-bookmark-fill me-1"></i>Académico</a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="academico.html#asignaturas"><i class="bi bi-journal-bookmark-fill me-2"></i>Asignaturas</a></li>
-                                <li><a class="dropdown-item" href="academico.html#docentes"><i class="bi bi-person-video3 me-2"></i>Docentes</a></li>
-                                <li><a class="dropdown-item" href="academico.html#agenda"><i class="bi bi-calendar-week me-2"></i>Agenda semanal</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="aula.html"><i class="bi bi-laptop me-1"></i>Aula Virtual</a></li>
-                        <li class="nav-item"><a class="nav-link" href="tramites.html#admision"><i class="bi bi-person-lines-fill me-1"></i>Admisión</a></li>
-                        <li class="nav-item"><a class="nav-link" href="tramites.html#soporte"><i class="bi bi-pc-display me-1"></i>Soporte</a></li>
-                        <li class="nav-item"><a class="nav-link" href="index.html#contacto"><i class="bi bi-envelope-fill me-1"></i>Contacto</a></li>
+                        <!-- Opciones del menú: las agrega script.js según el rol de la sesión -->
                         <li class="nav-item ms-xl-3 d-flex align-items-center">
                             <button id="btnTheme" class="btn btn-outline-primary btn-sm rounded-circle me-2" aria-label="Cambiar tema claro u oscuro"><i class="bi bi-sun-fill"></i></button>
                             <button id="btnAdmin" class="btn btn-outline-primary btn-sm rounded-pill" aria-label="Iniciar sesión"><i class="bi bi-box-arrow-in-right me-1"></i>Ingresar</button>
@@ -51,6 +39,7 @@
                 </div>
             </div>
         </nav>
+        <div id="franjaRol" class="franja-rol" hidden></div>
     </header>
 
     <main id="contenido" class="container my-5">
@@ -62,13 +51,14 @@
         <ul class="nav nav-pills justify-content-center mb-4" role="tablist">
             <li class="nav-item" role="presentation"><button class="nav-link active" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#asignaturas"><i class="bi bi-journal-bookmark-fill me-1"></i>Asignaturas</button></li>
             <li class="nav-item" role="presentation"><button class="nav-link" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#docentes"><i class="bi bi-person-video3 me-1"></i>Docentes</button></li>
-            <li class="nav-item" role="presentation"><button class="nav-link" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#agenda"><i class="bi bi-calendar-week me-1"></i>Agenda semanal</button></li>
+            <li class="nav-item" role="presentation" data-roles="alumno apoderado profesor director secretaria"><button class="nav-link" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#agenda"><i class="bi bi-calendar-week me-1"></i>Agenda semanal</button></li>
+            <li class="nav-item" role="presentation" data-roles="profesor director secretaria" hidden><button class="nav-link" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#alumnos"><i class="bi bi-people-fill me-1"></i>Alumnos</button></li>
         </ul>
 
         <div class="tab-content">
             <!-- ASIGNATURAS: lista y detalle de cada materia -->
             <section id="asignaturas" class="tab-pane fade show active" role="tabpanel" aria-label="Asignaturas">
-                <div class="text-end mb-2 solo-admin" hidden>
+                <div class="text-end mb-2" data-roles="director secretaria" hidden>
                     <button type="button" class="btn btn-primary btn-sm" data-accion="nueva-asignatura"><i class="bi bi-plus-lg me-1"></i>Agregar asignatura</button>
                 </div>
                 <div id="listaAsignaturas"></div>
@@ -77,7 +67,7 @@
 
             <!-- DOCENTES: la información visible depende del rol -->
             <section id="docentes" class="tab-pane fade" role="tabpanel" aria-label="Docentes">
-                <div class="text-end mb-3 solo-admin" hidden>
+                <div class="text-end mb-3" data-roles="director" hidden>
                     <button type="button" class="btn btn-primary btn-sm" data-accion="nuevo-docente"><i class="bi bi-person-plus-fill me-1"></i>Agregar docente</button>
                 </div>
                 <div id="listaDocentes"></div>
@@ -87,9 +77,15 @@
             <section id="agenda" class="tab-pane fade" role="tabpanel" aria-label="Agenda semanal">
                 <div id="accionesAgenda" class="d-flex justify-content-end gap-2 mb-3" hidden>
                     <button type="button" class="btn btn-outline-primary btn-sm" data-accion="exportar-agenda"><i class="bi bi-printer me-1"></i>Exportar PDF</button>
-                    <button type="button" class="btn btn-warning btn-sm solo-admin" data-accion="editar-agenda" hidden><i class="bi bi-arrow-left-right me-1"></i>Editar horario</button>
+                    <button type="button" class="btn btn-warning btn-sm" data-accion="editar-agenda" data-roles="director secretaria" hidden><i class="bi bi-arrow-left-right me-1"></i>Editar horario</button>
                 </div>
                 <div id="contenidoAgenda"></div>
+            </section>
+
+            <!-- ALUMNOS: contacto para docentes; ficha completa para la directiva -->
+            <section id="alumnos" class="tab-pane fade" role="tabpanel" aria-label="Alumnos">
+                <input id="buscarAlumno" type="search" class="form-control mb-3" placeholder="Buscar por nombre o curso" aria-label="Buscar alumno">
+                <div id="listaAlumnos"></div>
             </section>
         </div>
     </main>

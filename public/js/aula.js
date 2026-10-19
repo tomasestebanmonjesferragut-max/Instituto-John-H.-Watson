@@ -17,19 +17,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const esEstudiante = sesion.rol === 'alumno' || sesion.rol === 'apoderado';
     const TIPOS = { libro: ['bi-book-half', 'Libro digital'], documento: ['bi-file-earmark-text-fill', 'Documento / Guía'], video: ['bi-camera-video-fill', 'Video'], enlace: ['bi-link-45deg', 'Enlace'], tarea: ['bi-clipboard-check-fill', 'Tarea'] };
-    const ROLES = { alumno: 'Alumno/a', apoderado: 'Apoderado/a', profesor: 'Docente', admin: 'Administración' };
 
     document.getElementById('aulaSaludo').textContent = `Bienvenido/a, ${sesion.nombre}`;
     document.getElementById('aulaRol').textContent = sesion.rol === 'apoderado'
         ? `Apoderado/a de ${sesion.estudiante.nombre} · ${sesion.estudiante.curso || ''}`
-        : `${ROLES[sesion.rol]}${sesion.estudiante ? ` · ${sesion.estudiante.curso || ''}` : ''}`;
+        : `${NOMBRES_ROL[sesion.rol]}${sesion.estudiante ? ` · ${sesion.estudiante.curso || ''}` : ''}`;
     document.getElementById('aulaVista').hidden = false;
 
     const [todas, docentes] = await Promise.all([api('asignaturas'), api('docentes')]);
 
-    // El profesor trabaja en sus asignaturas; alumnos, apoderados y administración ven todas
+    // El profesor trabaja en sus asignaturas; alumnos, apoderados y directiva ven todas
     const clases = sesion.rol === 'profesor' ? todas.filter(a => a.profesor_id === sesion.profesor.id) : todas;
-    const puedeEditar = (a) => sesion.rol === 'admin' || (sesion.rol === 'profesor' && a.profesor_id === sesion.profesor.id);
+    // El aula la edita el profesor a cargo de la asignatura (y el director)
+    const puedeEditar = (a) => sesion.rol === 'director' || (sesion.rol === 'profesor' && a.profesor_id === sesion.profesor.id);
     const nombreCorto = (nombre) => nombre.replace(/^Módulo:\s*/, '');
     let activa = null;
     let estudiantes = null;
@@ -97,7 +97,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         contenido.innerHTML = `
             <span class="badge text-bg-secondary align-self-start">${esc(a.codigo)}</span>
             <h3 class="fw-bold mt-2 mb-1">${esc(a.nombre)}</h3>
-            <p class="text-muted">${esc(a.descripcion)}</p>
+            <p class="text-muted mb-1">${esc(a.descripcion)}</p>
+            ${editable ? '<button type="button" class="btn btn-link btn-sm px-0 align-self-start" data-accion="editar-descripcion"><i class="bi bi-pencil-fill me-1"></i>Editar lo que se enseña</button>' : ''}
             <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
                 <h4 class="h5 fw-bold mb-0"><i class="bi bi-collection-fill me-2 text-primary"></i>Material de estudio</h4>
                 ${editable ? '<button type="button" class="btn btn-sm btn-primary" data-accion="nuevo-recurso"><i class="bi bi-plus-lg me-1"></i>Agregar</button>' : ''}
@@ -154,20 +155,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // =====================================================
-    // 4. ANUNCIOS GENERALES (administración publica y elimina)
+    // 4. ANUNCIOS GENERALES (la directiva publica y elimina)
     // =====================================================
     async function mostrarAnuncios() {
         const anuncios = await api('anuncios_aula').catch(() => []);
         contenido.innerHTML = `
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h3 class="h5 fw-bold mb-0"><i class="bi bi-megaphone-fill me-2 text-warning"></i>Anuncios del instituto</h3>
-                ${sesion.rol === 'admin' ? '<button type="button" class="btn btn-sm btn-primary" data-accion="nuevo-anuncio"><i class="bi bi-plus-lg me-1"></i>Publicar</button>' : ''}
+                ${esDirectiva(sesion) ? '<button type="button" class="btn btn-sm btn-primary" data-accion="nuevo-anuncio"><i class="bi bi-plus-lg me-1"></i>Publicar</button>' : ''}
             </div>
             ${anuncios.map(n => `
                 <article class="p-3 mb-3 rounded fondo-suave">
                     <div class="d-flex justify-content-between gap-2">
                         <small class="text-muted"><i class="bi bi-person-circle me-1"></i>${esc(n.autor)} · ${esc(n.fecha)}</small>
-                        ${sesion.rol === 'admin' ? `<button type="button" class="btn btn-sm btn-outline-danger" data-accion="borrar-anuncio" data-id="${n.id}" aria-label="Eliminar anuncio"><i class="bi bi-trash"></i></button>` : ''}
+                        ${esDirectiva(sesion) ? `<button type="button" class="btn btn-sm btn-outline-danger" data-accion="borrar-anuncio" data-id="${n.id}" aria-label="Eliminar anuncio"><i class="bi bi-trash"></i></button>` : ''}
                     </div>
                     <h4 class="h6 fw-bold mt-2">${esc(n.titulo)}</h4>
                     <p class="text-muted small mb-0" style="white-space: pre-line;">${esc(n.contenido)}</p>
@@ -176,7 +177,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // =====================================================
-    // 5. ACCIONES DE EDICIÓN (docente de la asignatura o administración)
+    // 5. ACCIONES DE EDICIÓN (docente de la asignatura o director)
     // =====================================================
     const camposRecurso = [
         { name: 'tipo', label: 'Tipo', type: 'select', options: Object.entries(TIPOS).map(([k, [, t]]) => [k, t]) },
@@ -223,7 +224,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             { name: 'autor', label: 'Autor (Ej: Dirección)', required: true },
             { name: 'contenido', label: 'Contenido', type: 'textarea', required: true }
         ]), 'Anuncio publicado'),
-        'borrar-anuncio': (id) => borrar(`anuncios_aula/${id}`, '¿Eliminar este anuncio?')
+        'borrar-anuncio': (id) => borrar(`anuncios_aula/${id}`, '¿Eliminar este anuncio?'),
+        'editar-descripcion': async () => {
+            const datos = await formularioModal('Qué se enseña en esta asignatura', [{ name: 'descripcion', label: 'Contenidos', type: 'textarea', required: true }], activa);
+            if (!datos) return;
+            try {
+                await api(`asignaturas/${activa.id}/descripcion`, 'PUT', datos);
+                activa.descripcion = datos.descripcion;
+                aviso('Descripción actualizada');
+                mostrarClase();
+            } catch (error) {
+                mostrarError(error);
+            }
+        }
     };
 
     document.getElementById('aulaVista').addEventListener('click', (e) => {

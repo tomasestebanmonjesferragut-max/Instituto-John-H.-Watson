@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const sesion = await obtenerSesion();
-    const esAdmin = sesion.rol === 'admin';
+    const esAdmin = esDirectiva(sesion); // dirección y secretaría gestionan admisión y soporte
     const esc = escaparHTML;
 
     const ESTADOS = ['En Revisión', 'Aceptado', 'Lista de Espera', 'Rechazado'];
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // =====================================================
-    // 2. ADMISIÓN: GESTIÓN (solo administración)
+    // 2. ADMISIÓN: GESTIÓN (directiva)
     // =====================================================
     async function cargarPostulaciones() {
         postulaciones = await api('solicitudes_estudiantes');
@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // =====================================================
-    // 3. SOPORTE DOCENTE (docentes y administración)
+    // 3. SOPORTE DOCENTE (docentes y directiva)
     // =====================================================
     const formTicket = document.getElementById('formTicket');
 
@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('soporteVista').hidden = false;
         document.getElementById('tituloTickets').textContent = esAdmin ? 'Reportes abiertos' : 'Mis reportes';
 
-        // El profesor reporta a su nombre; administración elige al docente
+        // El profesor reporta a su nombre; la directiva elige al docente
         const nombres = esAdmin ? (await api('docentes')).map(d => d.nombre) : [sesion.nombre];
         formTicket.profesor.innerHTML = opciones(nombres);
         formTicket.profesor.disabled = !esAdmin;
@@ -154,8 +154,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         cargarTickets().catch(mostrarError);
     } else {
         document.getElementById('soporteSinAcceso').innerHTML = sesion.rol
-            ? '<p class="text-center text-muted lead py-5">La mesa de soporte técnico es exclusiva para docentes y administración. Si necesitas ayuda, escríbenos desde <a href="index.html#contacto">Contacto</a>.</p>'
-            : htmlInicioSesion('La mesa de soporte técnico es exclusiva para docentes y administración. Inicia sesión para reportar fallas en salas, laboratorios o equipos.');
+            ? '<p class="text-center text-muted lead py-5">La mesa de soporte técnico es exclusiva para docentes y directiva. Si necesitas ayuda, escríbenos desde <a href="index.html#contacto">Contacto</a>.</p>'
+            : htmlInicioSesion('La mesa de soporte técnico es exclusiva para docentes y directiva. Inicia sesión para reportar fallas en salas, laboratorios o equipos.');
     }
 
     // =====================================================

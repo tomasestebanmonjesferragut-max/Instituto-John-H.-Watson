@@ -199,10 +199,11 @@ La API usa sesión en el servidor (cookie `httpOnly`) y contraseñas cifradas co
 
 | Rol | Puede |
 |---|---|
-| Visitante | Ver datos públicos, postular, consultar su postulación y enviar mensajes de contacto |
-| Alumno / Apoderado | Ver material y solo las notas del alumno |
-| Profesor | Publicar material y poner notas en sus asignaturas, y reportar fallas en Soporte |
-| Admin | Gestionar docentes, asignaturas, horarios, anuncios, postulaciones, tickets y mensajes |
+| Sin sesión | Información del instituto, asignaturas que se imparten (sin datos de docentes), postular, consultar su postulación y escribir a contacto |
+| Alumno / Apoderado | Materias con su docente, horario, Aula Virtual, avisos y solo las notas del alumno |
+| Profesor | Editar lo que se enseña en sus asignaturas, su Aula Virtual (material y notas), ver datos de contacto de los alumnos y reportar fallas en Soporte |
+| Secretaría | Admisión, mensajes, anuncios, horario, asignaturas, soporte y ficha completa de alumnos |
+| Director | Todo lo anterior, notas de todos los alumnos y crear o editar docentes |
 
 Los intentos fallidos de inicio de sesión se limitan a 10 cada 15 minutos.
 

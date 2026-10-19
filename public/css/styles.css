@@ -1278,6 +1278,20 @@ body.dark-mode .form-select {
    27. PORTAL OFICIAL (sesión, accesibilidad, footer y secciones institucionales)
 ═══════════════════════════════════════════════════════════════════════════════ */
 
+/* Franja bajo el menú con la sesión y el rol actual */
+.franja-rol {
+    width: 100%;
+    font-size: 0.82rem;
+    color: rgba(242, 244, 247, 0.8);
+    padding-top: 0.35rem;
+    border-top: 1px solid rgba(242, 244, 247, 0.12);
+}
+
+.franja-rol strong,
+.franja-rol a {
+    color: #fff;
+}
+
 /* Las secciones enlazadas desde el menú no quedan tapadas por la cabecera fija */
 section[id] {
     scroll-margin-top: 90px;

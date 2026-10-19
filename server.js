@@ -90,6 +90,9 @@ const limiteFormularios = rateLimit({
     message: { error: 'Has enviado demasiados formularios. Inténtalo nuevamente en una hora.' }
 });
 
+// Roles de la directiva (tabla administradores, columna cargo)
+const DIRECTIVA = ['director', 'secretaria'];
+
 /**
  * Exige una sesión iniciada y, si se indican, uno de los roles permitidos
  */
@@ -105,10 +108,10 @@ const requiereSesion = (...roles) => (req, res, next) => {
 };
 
 /**
- * El admin gestiona todas las asignaturas; el profesor solo las que tiene a cargo
+ * El director gestiona todas las asignaturas; el profesor solo las que tiene a cargo
  */
 async function puedeGestionarAsignatura(usuario, asignaturaId) {
-    if (usuario.rol === 'admin') return true;
+    if (usuario.rol === 'director') return true;
     if (usuario.rol !== 'profesor') return false;
     const [rows] = await pool.query(
         'SELECT id FROM asignaturas WHERE id = ? AND profesor_id = ?',
@@ -200,7 +203,7 @@ app.get('/api/asignaturas', async (req, res) => {
  * Alumnos y apoderados: nombre y correo institucional. Docentes y directiva: ficha completa.
  */
 app.get('/api/docentes', requiereSesion(), async (req, res) => {
-    const fichaCompleta = ['admin', 'profesor'].includes(req.session.usuario.rol);
+    const fichaCompleta = [...DIRECTIVA, 'profesor'].includes(req.session.usuario.rol);
     const campos = fichaCompleta
         ? 'p.id, p.nombre, p.departamento, p.correo, p.rut, p.telefono, p.correo_personal, p.horario_trabajo, p.curriculum'
         : 'p.id, p.nombre, p.correo';
@@ -233,8 +236,8 @@ app.get('/api/horario', requiereSesion(), async (req, res) => {
 async function buscarUsuario(correo, contrasena) {
     const coincide = async (fila, hash) => fila && hash && await bcrypt.compare(contrasena, hash);
 
-    const [[admin]] = await pool.query('SELECT id, nombre, contrasena FROM administradores WHERE correo = ?', [correo]);
-    if (await coincide(admin, admin?.contrasena)) return { rol: 'admin', id: admin.id, nombre: admin.nombre };
+    const [[admin]] = await pool.query('SELECT id, nombre, contrasena, cargo FROM administradores WHERE correo = ?', [correo]);
+    if (await coincide(admin, admin?.contrasena)) return { rol: DIRECTIVA.includes(admin.cargo) ? admin.cargo : 'secretaria', id: admin.id, nombre: admin.nombre };
 
     const [[profesor]] = await pool.query('SELECT id, nombre, contrasena FROM profesores WHERE correo = ?', [correo]);
     if (await coincide(profesor, profesor?.contrasena)) return { rol: 'profesor', id: profesor.id, nombre: profesor.nombre };
@@ -252,9 +255,9 @@ async function buscarUsuario(correo, contrasena) {
  * Datos que recibe el navegador según el rol de la sesión
  */
 async function datosSesion(usuario) {
-    if (usuario.rol === 'admin') {
+    if (DIRECTIVA.includes(usuario.rol)) {
         const [[admin]] = await pool.query('SELECT id, nombre, correo FROM administradores WHERE id = ?', [usuario.id]);
-        return admin ? { rol: 'admin', nombre: admin.nombre, admin } : null;
+        return admin ? { rol: usuario.rol, nombre: admin.nombre, admin } : null;
     }
     if (usuario.rol === 'profesor') {
         const [[profesor]] = await pool.query('SELECT id, nombre, departamento FROM profesores WHERE id = ?', [usuario.id]);
@@ -315,9 +318,9 @@ app.post('/api/auth/logout', (req, res) => {
 // SOLICITUDES ESTUDIANTES (ADMISIÓN)
 // =============================================
 /**
- * GET /api/solicitudes_estudiantes - Lista de postulaciones (solo admin)
+ * GET /api/solicitudes_estudiantes - Lista de postulaciones (dirección y secretaría)
  */
-app.get('/api/solicitudes_estudiantes', requiereSesion('admin'), async (req, res) => {
+app.get('/api/solicitudes_estudiantes', requiereSesion(...DIRECTIVA), async (req, res) => {
     const [solicitudes] = await pool.query('SELECT * FROM solicitudes_estudiantes');
     res.json(solicitudes);
 });
@@ -363,9 +366,9 @@ app.post('/api/solicitudes_estudiantes', limiteFormularios, async (req, res) => 
 });
 
 /**
- * PUT /api/solicitudes_estudiantes/:id - Cambiar estado (solo admin)
+ * PUT /api/solicitudes_estudiantes/:id - Cambiar estado (dirección y secretaría)
  */
-app.put('/api/solicitudes_estudiantes/:id', requiereSesion('admin'), async (req, res) => {
+app.put('/api/solicitudes_estudiantes/:id', requiereSesion(...DIRECTIVA), async (req, res) => {
     const { estado } = req.body;
     if (!ESTADOS_POSTULACION.includes(estado)) {
         return res.status(400).json({ error: 'Estado no válido' });
@@ -379,9 +382,9 @@ app.put('/api/solicitudes_estudiantes/:id', requiereSesion('admin'), async (req,
 });
 
 /**
- * DELETE /api/solicitudes_estudiantes/:id - Anular postulación (solo admin)
+ * DELETE /api/solicitudes_estudiantes/:id - Anular postulación (dirección y secretaría)
  */
-app.delete('/api/solicitudes_estudiantes/:id', requiereSesion('admin'), async (req, res) => {
+app.delete('/api/solicitudes_estudiantes/:id', requiereSesion(...DIRECTIVA), async (req, res) => {
     const [result] = await pool.query('DELETE FROM solicitudes_estudiantes WHERE id = ?', [req.params.id]);
     if (result.affectedRows === 0) {
         return res.status(404).json({ error: 'Solicitud no encontrada' });
@@ -390,7 +393,7 @@ app.delete('/api/solicitudes_estudiantes/:id', requiereSesion('admin'), async (r
 });
 
 // =============================================
-// CRUD: PROFESORES (solo admin)
+// CRUD: PROFESORES (solo el director)
 // =============================================
 // Campos opcionales de la ficha del docente
 const CAMPOS_FICHA = ['rut', 'telefono', 'correo_personal', 'horario_trabajo', 'curriculum'];
@@ -402,7 +405,7 @@ const valoresFicha = (body) => CAMPOS_FICHA.map(campo => {
 /**
  * POST /api/profesores - Crear profesor (con acceso al Aula Virtual si se indica correo)
  */
-app.post('/api/profesores', requiereSesion('admin'), async (req, res) => {
+app.post('/api/profesores', requiereSesion('director'), async (req, res) => {
     const { nombre, departamento, correo, contrasena } = req.body;
 
     if (!textoValido(nombre, 100) || !textoValido(departamento, 100)) {
@@ -433,7 +436,7 @@ app.post('/api/profesores', requiereSesion('admin'), async (req, res) => {
 /**
  * PUT /api/profesores/:id - Actualizar profesor
  */
-app.put('/api/profesores/:id', requiereSesion('admin'), async (req, res) => {
+app.put('/api/profesores/:id', requiereSesion('director'), async (req, res) => {
     const { nombre, departamento } = req.body;
     if (!textoValido(nombre, 100) || !textoValido(departamento, 100)) {
         return res.status(400).json({ error: 'Faltan campos requeridos' });
@@ -450,12 +453,12 @@ app.put('/api/profesores/:id', requiereSesion('admin'), async (req, res) => {
 });
 
 // =============================================
-// CRUD: ASIGNATURAS (solo admin)
+// CRUD: ASIGNATURAS (directiva; el profesor edita la descripción de las suyas)
 // =============================================
 /**
  * POST /api/asignaturas - Crear nueva asignatura
  */
-app.post('/api/asignaturas', requiereSesion('admin'), async (req, res) => {
+app.post('/api/asignaturas', requiereSesion(...DIRECTIVA), async (req, res) => {
     const { codigo, nombre, descripcion, profesor_id, color } = req.body;
     if (!textoValido(codigo, 20) || !textoValido(nombre, 100)) {
         return res.status(400).json({ error: 'Faltan campos requeridos' });
@@ -472,7 +475,7 @@ app.post('/api/asignaturas', requiereSesion('admin'), async (req, res) => {
 /**
  * PUT /api/asignaturas/:id - Actualizar asignatura
  */
-app.put('/api/asignaturas/:id', requiereSesion('admin'), async (req, res) => {
+app.put('/api/asignaturas/:id', requiereSesion(...DIRECTIVA), async (req, res) => {
     const { codigo, nombre, descripcion, profesor_id, color } = req.body;
     if (!textoValido(codigo, 20) || !textoValido(nombre, 100)) {
         return res.status(400).json({ error: 'Faltan campos requeridos' });
@@ -488,13 +491,32 @@ app.put('/api/asignaturas/:id', requiereSesion('admin'), async (req, res) => {
     res.json({ message: 'Asignatura actualizada correctamente' });
 });
 
+/**
+ * PUT /api/asignaturas/:id/descripcion - El profesor actualiza lo que se enseña en su asignatura
+ */
+app.put('/api/asignaturas/:id/descripcion', requiereSesion(...DIRECTIVA, 'profesor'), async (req, res) => {
+    const usuario = req.session.usuario;
+    if (!textoValido(req.body.descripcion, 1000)) {
+        return res.status(400).json({ error: 'Escribe la descripción de la asignatura' });
+    }
+    if (usuario.rol === 'profesor' && !await puedeGestionarAsignatura(usuario, req.params.id)) {
+        return res.status(403).json({ error: 'Solo puedes editar tus asignaturas' });
+    }
+
+    const [result] = await pool.query('UPDATE asignaturas SET descripcion = ? WHERE id = ?', [req.body.descripcion.trim(), req.params.id]);
+    if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Asignatura no encontrada' });
+    }
+    res.json({ message: 'Descripción actualizada correctamente' });
+});
+
 // =============================================
-// CRUD: HORARIOS (solo admin)
+// CRUD: HORARIOS (directiva)
 // =============================================
 /**
  * PUT /api/horarios - Asigna (o deja libre) una celda del horario según bloque y día
  */
-app.put('/api/horarios', requiereSesion('admin'), async (req, res) => {
+app.put('/api/horarios', requiereSesion(...DIRECTIVA), async (req, res) => {
     const { bloque, dia, asignatura_id, aula } = req.body;
 
     if (!bloque || !dia) {
@@ -521,20 +543,20 @@ app.put('/api/horarios', requiereSesion('admin'), async (req, res) => {
 // SOLICITUDES PROFESORES (SOPORTE TÉCNICO)
 // =============================================
 /**
- * GET /api/solicitudes_profesores - El admin ve todos los tickets; el profesor, solo los suyos
+ * GET /api/solicitudes_profesores - La directiva ve todos los tickets; el profesor, solo los suyos
  */
-app.get('/api/solicitudes_profesores', requiereSesion('admin', 'profesor'), async (req, res) => {
+app.get('/api/solicitudes_profesores', requiereSesion(...DIRECTIVA, 'profesor'), async (req, res) => {
     const usuario = req.session.usuario;
-    const [tickets] = usuario.rol === 'admin'
+    const [tickets] = DIRECTIVA.includes(usuario.rol)
         ? await pool.query('SELECT * FROM solicitudes_profesores')
         : await pool.query('SELECT * FROM solicitudes_profesores WHERE profesor = ?', [usuario.nombre]);
     res.json(tickets);
 });
 
 /**
- * POST /api/solicitudes_profesores - Crear ticket de soporte (profesor o admin)
+ * POST /api/solicitudes_profesores - Crear ticket de soporte (profesor o directiva)
  */
-app.post('/api/solicitudes_profesores', requiereSesion('admin', 'profesor'), async (req, res) => {
+app.post('/api/solicitudes_profesores', requiereSesion(...DIRECTIVA, 'profesor'), async (req, res) => {
     const usuario = req.session.usuario;
     const { ubicacion, problema, prioridad } = req.body;
     const profesor = usuario.rol === 'profesor' ? usuario.nombre : req.body.profesor;
@@ -552,9 +574,9 @@ app.post('/api/solicitudes_profesores', requiereSesion('admin', 'profesor'), asy
 });
 
 /**
- * PUT /api/solicitudes_profesores/:id - Actualizar prioridad (solo admin)
+ * PUT /api/solicitudes_profesores/:id - Actualizar prioridad (directiva)
  */
-app.put('/api/solicitudes_profesores/:id', requiereSesion('admin'), async (req, res) => {
+app.put('/api/solicitudes_profesores/:id', requiereSesion(...DIRECTIVA), async (req, res) => {
     const { prioridad } = req.body;
     if (!PRIORIDADES.includes(prioridad)) {
         return res.status(400).json({ error: 'Prioridad no válida' });
@@ -568,9 +590,9 @@ app.put('/api/solicitudes_profesores/:id', requiereSesion('admin'), async (req, 
 });
 
 /**
- * DELETE /api/solicitudes_profesores/:id - Cerrar ticket resuelto (solo admin)
+ * DELETE /api/solicitudes_profesores/:id - Cerrar ticket resuelto (directiva)
  */
-app.delete('/api/solicitudes_profesores/:id', requiereSesion('admin'), async (req, res) => {
+app.delete('/api/solicitudes_profesores/:id', requiereSesion(...DIRECTIVA), async (req, res) => {
     const [result] = await pool.query('DELETE FROM solicitudes_profesores WHERE id = ?', [req.params.id]);
     if (result.affectedRows === 0) {
         return res.status(404).json({ error: 'Solicitud no encontrada' });
@@ -590,9 +612,9 @@ app.get('/api/anuncios_aula', async (req, res) => {
 });
 
 /**
- * POST /api/anuncios_aula - Publicar anuncio (solo admin)
+ * POST /api/anuncios_aula - Publicar anuncio (directiva)
  */
-app.post('/api/anuncios_aula', requiereSesion('admin'), async (req, res) => {
+app.post('/api/anuncios_aula', requiereSesion(...DIRECTIVA), async (req, res) => {
     const { titulo, contenido, autor } = req.body;
     if (!textoValido(titulo, 100) || !textoValido(contenido, 5000) || !textoValido(autor, 100)) {
         return res.status(400).json({ error: 'Faltan campos requeridos' });
@@ -607,9 +629,9 @@ app.post('/api/anuncios_aula', requiereSesion('admin'), async (req, res) => {
 });
 
 /**
- * DELETE /api/anuncios_aula/:id - Eliminar anuncio (solo admin)
+ * DELETE /api/anuncios_aula/:id - Eliminar anuncio (directiva)
  */
-app.delete('/api/anuncios_aula/:id', requiereSesion('admin'), async (req, res) => {
+app.delete('/api/anuncios_aula/:id', requiereSesion(...DIRECTIVA), async (req, res) => {
     const [result] = await pool.query('DELETE FROM anuncios_aula WHERE id = ?', [req.params.id]);
     if (result.affectedRows === 0) {
         return res.status(404).json({ error: 'Anuncio no encontrado' });
@@ -634,7 +656,7 @@ app.get('/api/recursos_aula', requiereSesion(), async (req, res) => {
 /**
  * POST /api/recursos_aula - El profesor agrega un recurso a su asignatura
  */
-app.post('/api/recursos_aula', requiereSesion('admin', 'profesor'), async (req, res) => {
+app.post('/api/recursos_aula', requiereSesion('director', 'profesor'), async (req, res) => {
     const { asignatura_id, tipo, titulo, descripcion, url } = req.body;
 
     if (!asignatura_id || !textoValido(titulo, 150)) {
@@ -674,7 +696,7 @@ async function verificarRecurso(req, res) {
 /**
  * PUT /api/recursos_aula/:id - El profesor modifica un recurso ya publicado
  */
-app.put('/api/recursos_aula/:id', requiereSesion('admin', 'profesor'), async (req, res) => {
+app.put('/api/recursos_aula/:id', requiereSesion('director', 'profesor'), async (req, res) => {
     const { tipo, titulo, descripcion, url } = req.body;
 
     if (!textoValido(titulo, 150)) {
@@ -695,7 +717,7 @@ app.put('/api/recursos_aula/:id', requiereSesion('admin', 'profesor'), async (re
 /**
  * DELETE /api/recursos_aula/:id - El profesor quita un recurso de su asignatura
  */
-app.delete('/api/recursos_aula/:id', requiereSesion('admin', 'profesor'), async (req, res) => {
+app.delete('/api/recursos_aula/:id', requiereSesion('director', 'profesor'), async (req, res) => {
     if (!await verificarRecurso(req, res)) return;
 
     await pool.query('DELETE FROM recursos_aula WHERE id = ?', [req.params.id]);
@@ -703,14 +725,32 @@ app.delete('/api/recursos_aula/:id', requiereSesion('admin', 'profesor'), async 
 });
 
 // =============================================
-// ESTUDIANTES (lista básica para que el profesor asigne notas)
+// ESTUDIANTES
 // =============================================
 /**
- * GET /api/estudiantes - Lista de alumnos matriculados (sin datos de acceso)
+ * GET /api/estudiantes - Alumnos matriculados (nunca incluye contraseñas)
+ * Profesor: datos de contacto del alumno y su apoderado. Dirección y secretaría: ficha completa.
  */
-app.get('/api/estudiantes', requiereSesion('admin', 'profesor'), async (req, res) => {
-    const [estudiantes] = await pool.query('SELECT id, nombre, curso FROM estudiantes ORDER BY nombre');
+app.get('/api/estudiantes', requiereSesion(...DIRECTIVA, 'profesor'), async (req, res) => {
+    const ficha = DIRECTIVA.includes(req.session.usuario.rol) ? ', rut, fecha_nacimiento, telefono_apoderado' : '';
+    const [estudiantes] = await pool.query(
+        `SELECT id, nombre, curso, correo_alumno, apoderado_nombre, correo_apoderado${ficha} FROM estudiantes ORDER BY curso, nombre`
+    );
     res.json(estudiantes);
+});
+
+/**
+ * GET /api/panel - Pendientes de la directiva para su panel de inicio
+ */
+app.get('/api/panel', requiereSesion(...DIRECTIVA), async (req, res) => {
+    const [[panel]] = await pool.query(`SELECT
+        (SELECT COUNT(*) FROM solicitudes_estudiantes WHERE estado = 'En Revisión') AS postulaciones,
+        (SELECT COUNT(*) FROM solicitudes_profesores) AS tickets,
+        (SELECT COUNT(*) FROM mensajes_contacto) AS mensajes,
+        (SELECT COUNT(*) FROM estudiantes) AS alumnos,
+        (SELECT COUNT(*) FROM profesores) AS docentes,
+        (SELECT COUNT(*) FROM asignaturas WHERE profesor_id IS NULL) AS sin_docente`);
+    res.json(panel);
 });
 
 // =============================================
@@ -720,9 +760,9 @@ app.get('/api/estudiantes', requiereSesion('admin', 'profesor'), async (req, res
  * GET /api/calificaciones?asignatura_id=A101&estudiante_id=EST-001
  * - Alumno y apoderado: solo las notas del alumno de la sesión
  * - Profesor: solo las de sus asignaturas
- * - Admin: todas
+ * - Director: todas
  */
-app.get('/api/calificaciones', requiereSesion(), async (req, res) => {
+app.get('/api/calificaciones', requiereSesion('director', 'profesor', 'alumno', 'apoderado'), async (req, res) => {
     const usuario = req.session.usuario;
     let { asignatura_id, estudiante_id } = req.query;
 
@@ -732,8 +772,9 @@ app.get('/api/calificaciones', requiereSesion(), async (req, res) => {
         return res.status(403).json({ error: 'Solo puedes ver las notas de tus asignaturas' });
     }
 
-    let sql = `SELECT c.*, e.nombre AS estudiante_nombre FROM calificaciones c
-                JOIN estudiantes e ON e.id = c.estudiante_id WHERE 1 = 1`;
+    let sql = `SELECT c.*, e.nombre AS estudiante_nombre, a.nombre AS asignatura_nombre FROM calificaciones c
+                JOIN estudiantes e ON e.id = c.estudiante_id
+                JOIN asignaturas a ON a.id = c.asignatura_id WHERE 1 = 1`;
     const params = [];
 
     if (asignatura_id) {
@@ -756,7 +797,7 @@ const notaValida = (nota) => typeof nota === 'number' && nota >= 1 && nota <= 7;
 /**
  * POST /api/calificaciones - El profesor agrega una nota en su asignatura
  */
-app.post('/api/calificaciones', requiereSesion('admin', 'profesor'), async (req, res) => {
+app.post('/api/calificaciones', requiereSesion('director', 'profesor'), async (req, res) => {
     const { estudiante_id, asignatura_id, evaluacion, nota } = req.body;
 
     if (!estudiante_id || !asignatura_id || !textoValido(evaluacion, 100) || !notaValida(nota)) {
@@ -793,7 +834,7 @@ async function verificarCalificacion(req, res) {
 /**
  * PUT /api/calificaciones/:id - El profesor modifica una nota
  */
-app.put('/api/calificaciones/:id', requiereSesion('admin', 'profesor'), async (req, res) => {
+app.put('/api/calificaciones/:id', requiereSesion('director', 'profesor'), async (req, res) => {
     const { evaluacion, nota } = req.body;
 
     if (!textoValido(evaluacion, 100) || !notaValida(nota)) {
@@ -808,7 +849,7 @@ app.put('/api/calificaciones/:id', requiereSesion('admin', 'profesor'), async (r
 /**
  * DELETE /api/calificaciones/:id - El profesor elimina una nota
  */
-app.delete('/api/calificaciones/:id', requiereSesion('admin', 'profesor'), async (req, res) => {
+app.delete('/api/calificaciones/:id', requiereSesion('director', 'profesor'), async (req, res) => {
     if (!await verificarCalificacion(req, res)) return;
 
     await pool.query('DELETE FROM calificaciones WHERE id = ?', [req.params.id]);
@@ -836,9 +877,9 @@ app.post('/api/contacto', limiteFormularios, async (req, res) => {
 });
 
 /**
- * GET /api/contacto - Mensajes recibidos (solo admin)
+ * GET /api/contacto - Mensajes recibidos (directiva)
  */
-app.get('/api/contacto', requiereSesion('admin'), async (req, res) => {
+app.get('/api/contacto', requiereSesion(...DIRECTIVA), async (req, res) => {
     const [mensajes] = await pool.query(
         "SELECT id, nombre, correo, asunto, mensaje, DATE_FORMAT(creado_en, '%d/%m/%Y %H:%i') AS fecha FROM mensajes_contacto ORDER BY creado_en DESC"
     );
@@ -846,9 +887,9 @@ app.get('/api/contacto', requiereSesion('admin'), async (req, res) => {
 });
 
 /**
- * DELETE /api/contacto/:id - Eliminar mensaje atendido (solo admin)
+ * DELETE /api/contacto/:id - Eliminar mensaje atendido (directiva)
  */
-app.delete('/api/contacto/:id', requiereSesion('admin'), async (req, res) => {
+app.delete('/api/contacto/:id', requiereSesion(...DIRECTIVA), async (req, res) => {
     const [result] = await pool.query('DELETE FROM mensajes_contacto WHERE id = ?', [req.params.id]);
     if (result.affectedRows === 0) {
         return res.status(404).json({ error: 'Mensaje no encontrado' });

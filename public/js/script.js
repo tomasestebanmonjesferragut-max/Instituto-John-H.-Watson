@@ -75,6 +75,28 @@ window.formularioModal = async (titulo, campos, valores = {}) => {
     return value;
 };
 
+// Roles de la página. La directiva (director y secretaría) gestiona la academia.
+window.NOMBRES_ROL = { director: 'Director', secretaria: 'Secretaría', profesor: 'Docente', alumno: 'Alumno/a', apoderado: 'Apoderado/a', visitante: 'Visitante' };
+window.esDirectiva = (sesion) => sesion.rol === 'director' || sesion.rol === 'secretaria';
+
+// Menú corto: cada rol ve solo las opciones que usa ([enlace, ícono, texto])
+const PANEL = ['index.html#miPanel', 'bi-grid-fill', 'Mi panel'];
+const AULA = ['aula.html', 'bi-laptop', 'Mi Aula'];
+const ASIGNATURAS = ['academico.html#asignaturas', 'bi-journal-bookmark-fill', 'Asignaturas'];
+const DOCENTES = ['academico.html#docentes', 'bi-person-video3', 'Docentes'];
+const HORARIO = ['academico.html#agenda', 'bi-calendar-week', 'Horario'];
+const ALUMNOS = ['academico.html#alumnos', 'bi-people-fill', 'Alumnos'];
+const ADMISION = ['tramites.html#admision', 'bi-person-vcard', 'Admisión'];
+const SOPORTE = ['tramites.html#soporte', 'bi-pc-display', 'Soporte'];
+const MENU_POR_ROL = {
+    visitante: [['index.html#nosotros', 'bi-info-circle-fill', 'Nosotros'], ASIGNATURAS, DOCENTES, ADMISION, ['index.html#contacto', 'bi-envelope-fill', 'Contacto']],
+    alumno: [PANEL, AULA, HORARIO, ASIGNATURAS, DOCENTES],
+    apoderado: [PANEL, AULA, HORARIO, ASIGNATURAS, DOCENTES],
+    profesor: [PANEL, AULA, ['academico.html#alumnos', 'bi-people-fill', 'Mis alumnos'], HORARIO, SOPORTE],
+    secretaria: [PANEL, ADMISION, HORARIO, ALUMNOS, SOPORTE, ['index.html#mensajes', 'bi-envelope-fill', 'Mensajes']],
+    director: [PANEL, ADMISION, DOCENTES, ALUMNOS, HORARIO, SOPORTE]
+};
+
 // Sesión actual, compartida por todos los scripts de la página (se consulta una sola vez)
 let promesaSesion = null;
 window.obtenerSesion = () => {
@@ -154,19 +176,31 @@ document.addEventListener('DOMContentLoaded', () => {
         aplicarIcono();
     });
 
-    // 4. SESIÓN DEL USUARIO (botón del menú y elementos solo para administración)
+    // 4. SESIÓN DEL USUARIO: cada rol ve su menú, sus secciones y su nombre en la franja superior
     const btnAdmin = document.getElementById('btnAdmin');
-    const NOMBRES_ROL = { admin: 'Administración', profesor: 'Docente', alumno: 'Alumno/a', apoderado: 'Apoderado/a' };
 
     obtenerSesion().then(sesion => {
-        document.body.dataset.rol = sesion.rol || 'visitante';
-        document.querySelectorAll('.solo-admin').forEach(el => { el.hidden = sesion.rol !== 'admin'; });
+        const rol = sesion.rol || 'visitante';
+        document.body.dataset.rol = rol;
 
-        if (!btnAdmin) return;
-        if (sesion.rol) {
-            const primerNombre = (sesion.nombre || '').split(' ').find(p => !p.endsWith('.')) || NOMBRES_ROL[sesion.rol];
+        // Opciones del menú de este rol (antes del botón de tema y sesión)
+        document.querySelector('#navbarNav .navbar-nav')?.insertAdjacentHTML('afterbegin', MENU_POR_ROL[rol].map(([enlace, icono, texto]) =>
+            `<li class="nav-item"><a class="nav-link" href="${enlace}"><i class="bi ${icono} me-1"></i>${texto}</a></li>`).join(''));
+        marcarMenu();
+
+        // Elementos con data-roles="..." solo se muestran a los roles indicados
+        document.querySelectorAll('[data-roles]').forEach(el => { el.hidden = !el.dataset.roles.split(' ').includes(rol); });
+
+        if (!sesion.rol) return;
+        const franja = document.getElementById('franjaRol');
+        franja.innerHTML = `<i class="bi bi-person-badge-fill me-1"></i>Sesión: <strong>${escaparHTML(sesion.nombre)}</strong> · ${NOMBRES_ROL[rol]}
+            <a href="index.html#miPanel" class="ms-2">Ir a mi panel</a>`;
+        franja.hidden = false;
+
+        if (btnAdmin) {
+            const primerNombre = (sesion.nombre || '').split(' ').find(p => !p.endsWith('.')) || NOMBRES_ROL[rol];
             btnAdmin.innerHTML = `<i class="bi bi-person-check-fill me-1"></i>${escaparHTML(primerNombre)}`;
-            btnAdmin.className = `btn btn-sm rounded-pill ${sesion.rol === 'admin' ? 'btn-danger' : 'btn-primary'}`;
+            btnAdmin.className = `btn btn-sm rounded-pill ${esDirectiva(sesion) ? 'btn-danger' : 'btn-primary'}`;
             btnAdmin.setAttribute('aria-label', `Sesión de ${sesion.nombre}`);
         }
     });
