@@ -294,53 +294,50 @@ Content-Type: application/json
 }
 ```
 
-#### 5️⃣ Solicitudes de Estudiantes
+#### 5️⃣ Postulaciones (alumnos y docentes)
 
-**Crear Solicitud:**
 ```http
-POST /solicitudes_estudiantes
-Content-Type: application/json
-
-{
-    "id": "SOL001",
-    "nombre": "Juan Pérez",
-    "fecha_nacimiento": "2005-03-15",
-    "correo": "juan@email.com",
-    "anio_postulacion": 2026,
-    "estado": "pendiente",
-    "motivacion": "Deseo estudiar en este instituto..."
-}
+POST /postulaciones_alumnos     Postulación de un alumno nuevo (público)
+POST /postulaciones_docentes    Postulación de un docente nuevo (público)
+GET  /postulaciones/estado?folio=ADM-1234567&correo=...   Consultar estado (ADM- alumno, DOC- docente)
+GET  /postulaciones_alumnos     Lista (directiva)
+GET  /postulaciones_docentes    Lista (directiva)
 ```
 
 ---
 
 ## 🗄️ Base de Datos
 
-### Diagrama de Tablas
+Una sola base (`instituto_watson`) organizada en 4 grupos dentro de `data/instituto_watson.sql`:
 
 ```
-profesores (id, nombre, departamento, email, telefono)
-    ↓
-asignaturas (id, codigo, nombre, profesor_id, color)
-    ↓
-horarios (id, asignatura_id, dia_semana, hora_inicio, hora_fin)
+1. POSTULANTES
+   postulaciones_alumnos    (alumnos que quieren entrar)
+   postulaciones_docentes   (docentes que quieren trabajar en el instituto)
 
-anuncios_aula (id, titulo, contenido, autor, fecha, tipo)
+2. ALUMNOS (inscritos)
+   estudiantes              (alumno y su apoderado, con sus accesos)
 
-solicitudes_estudiantes (id, nombre, correo, estado, motivacion)
+3. PROFESORES (contratados)
+   profesores               (ficha del docente y su acceso)
 
-solicitudes_profesores (id, profesor, problema, prioridad, estado)
+4. AULA VIRTUAL
+   asignaturas     → profesores
+   horarios        → asignaturas
+   recursos_aula   → asignaturas
+   calificaciones  → estudiantes, asignaturas
+   anuncios_aula, notas (avisos)
 
-usuarios (id, email, password_hash, tipo)
+DIRECTIVA Y COMUNICACIÓN
+   administradores (director y secretaría), tickets_soporte, mensajes_contacto
 ```
 
 ### Consultas Útiles
 
-**Ver todos los anuncios recientes:**
+**Ver los anuncios más recientes:**
 ```sql
-SELECT * FROM anuncios_aula 
-WHERE visible = TRUE 
-ORDER BY fecha DESC 
+SELECT * FROM anuncios_aula
+ORDER BY creado_en DESC
 LIMIT 10;
 ```
 
@@ -351,10 +348,10 @@ JOIN profesores p ON a.profesor_id = p.id
 WHERE p.nombre LIKE '%Carlos%';
 ```
 
-**Contar solicitudes por estado:**
+**Contar postulaciones de alumnos por estado:**
 ```sql
 SELECT estado, COUNT(*) as total
-FROM solicitudes_estudiantes
+FROM postulaciones_alumnos
 GROUP BY estado;
 ```
 

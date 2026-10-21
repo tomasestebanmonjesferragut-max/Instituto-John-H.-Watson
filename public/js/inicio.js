@@ -4,7 +4,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const esc = escaparHTML;
 
     // 0. MI PANEL: resumen distinto para cada rol
-    obtenerSesion().then(mostrarPanel).catch(() => {});
+    obtenerSesion().then(mostrarPanel).catch(() => {
+        // Si el servidor no responde, el panel avisa en vez de quedar en blanco
+        const panel = document.querySelector('[data-vista="miPanel"]');
+        panel.innerHTML = `
+            <div class="card p-4 text-center">
+                <i class="bi bi-exclamation-triangle text-warning fs-2" aria-hidden="true"></i>
+                <p class="mb-1 mt-2 fw-semibold">No se pudo cargar tu panel.</p>
+                <p class="small text-muted mb-0">Recarga la página. Si sigue igual, reinicia el servidor (npm start).</p>
+            </div>`;
+    });
 
     async function mostrarPanel(sesion) {
         if (!sesion.rol) return;
@@ -25,14 +34,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (esDirectiva(sesion)) {
             const p = await api('panel');
             tarjetas = [
-                tarjeta('bi-person-vcard', 'Admisión', cifra(p.postulaciones, 'postulaciones en revisión'), 'tramites.html#admision', 'Gestionar postulaciones'),
+                tarjeta('bi-person-vcard', 'Admisión', cifra(p.postulaciones, 'alumnos en revisión') + cifra(p.postulaciones_docentes, 'docentes en proceso'), 'tramites.html#admision', 'Gestionar postulaciones'),
                 tarjeta('bi-envelope', 'Mensajes', cifra(p.mensajes, 'mensajes de contacto'), '#mensajes', 'Ver bandeja'),
                 tarjeta('bi-pc-display', 'Soporte técnico', cifra(p.tickets, 'tickets abiertos'), 'tramites.html#soporte', 'Ver tickets'),
-                tarjeta('bi-calendar-week', 'Horario y asignaturas', cifra(p.sin_docente, 'asignaturas sin docente'), 'academico.html#agenda', 'Organizar el horario'),
+                tarjeta('bi-journal-bookmark', 'Asignaturas y horario',
+                    cifra(p.sin_docente, 'asignaturas sin docente') + '<p class="small mb-0"><a href="academico.html#asignaturas">Ver y editar asignaturas</a></p>',
+                    'academico.html#agenda', 'Organizar el horario'),
                 tarjeta('bi-people', 'Comunidad', cifra(p.alumnos, 'alumnos') + cifra(p.docentes, 'docentes'), 'academico.html#alumnos', 'Ver fichas de alumnos'),
-                sesion.rol === 'director'
-                    ? tarjeta('bi-person-video3', 'Docentes', '<p class="small text-muted mb-0">Crea y edita las fichas de los docentes.</p>', 'academico.html#docentes', 'Gestionar docentes')
-                    : tarjeta('bi-megaphone', 'Anuncios', '<p class="small text-muted mb-0">Publica avisos para toda la comunidad.</p>', 'aula.html', 'Ir a anuncios')
+                ...(sesion.rol === 'director' ? [
+                    tarjeta('bi-laptop', 'Clases', '<p class="small text-muted mb-0">Revisa el material y las notas de todas las asignaturas en el Aula Virtual.</p>', 'aula.html', 'Ver clases'),
+                    tarjeta('bi-person-video3', 'Docentes', '<p class="small text-muted mb-0">Crea y edita las fichas de los docentes.</p>', 'academico.html#docentes', 'Gestionar docentes')
+                ] : [
+                    tarjeta('bi-megaphone', 'Anuncios', '<p class="small text-muted mb-0">Publica avisos para toda la comunidad.</p>', 'aula.html', 'Ir a anuncios')
+                ])
             ];
         } else {
             const [horario, asignaturas] = await Promise.all([api('horario'), api('asignaturas')]);
@@ -57,9 +71,32 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // Accesos a cada función del rol (el menú superior solo tiene "Mi panel")
+        const accesos = FUNCIONES_POR_ROL[sesion.rol].map(([enlace, icono, texto, descripcion, tono]) => `
+            <a href="${enlace}" class="acceso-panel tono-${tono}">
+                <span class="icono-acceso"><i class="bi ${icono}" aria-hidden="true"></i></span>
+                <span><strong class="d-block">${texto}</strong><small>${descripcion}</small></span>
+                <i class="bi bi-arrow-right-short flecha-acceso" aria-hidden="true"></i>
+            </a>`).join('');
+
+        // Saludo cercano según la hora y con el primer nombre (sin títulos como "Lic.")
+        const hora = new Date().getHours();
+        const saludo = hora < 12 ? 'Buenos días' : hora < 20 ? 'Buenas tardes' : 'Buenas noches';
+        const primerNombre = sesion.nombre.split(' ').find(p => !p.endsWith('.')) || sesion.nombre;
+        const fechaTexto = new Date().toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' });
+        const fecha = fechaTexto.charAt(0).toUpperCase() + fechaTexto.slice(1);
+
         panel.innerHTML = `
-            <h2 class="fw-bold mb-1">Hola, ${esc(sesion.nombre)}</h2>
-            <p class="text-muted mb-4">${NOMBRES_ROL[sesion.rol]}${sesion.rol === 'apoderado' ? ` de ${esc(sesion.estudiante.nombre)}` : ''} · Este es tu panel</p>
+            <div class="bienvenida-panel mb-4">
+                <div>
+                    <p class="mb-1 fecha-panel">${fecha}</p>
+                    <h2 class="fw-bold mb-1">${saludo}, ${esc(primerNombre)} 👋</h2>
+                    <p class="mb-0">${NOMBRES_ROL[sesion.rol]}${sesion.rol === 'apoderado' ? ` de ${esc(sesion.estudiante.nombre)}` : ''} · ¿Qué quieres hacer hoy?</p>
+                </div>
+                <i class="bi bi-mortarboard-fill icono-bienvenida" aria-hidden="true"></i>
+            </div>
+            <nav class="accesos-panel mb-5" aria-label="Funciones">${accesos}</nav>
+            <h3 class="titulo-seccion-panel">Resumen</h3>
             <div class="row g-4">${tarjetas.join('')}</div>`;
         panel.hidden = false;
     }

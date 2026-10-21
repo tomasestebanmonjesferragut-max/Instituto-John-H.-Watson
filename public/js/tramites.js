@@ -4,26 +4,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     const esc = escaparHTML;
 
     const ESTADOS = ['En Revisión', 'Aceptado', 'Lista de Espera', 'Rechazado'];
+    const ESTADOS_DOCENTE = ['En Revisión', 'Entrevista', 'Contratado', 'Rechazado'];
     const CURSOS = ['1° Medio', '2° Medio', '3° Medio', '4° Medio'];
     const PRIORIDADES = ['Alta', 'Media', 'Baja'];
-    const claseEstado = (e) => e === 'Aceptado' ? 'text-bg-success' : e === 'Rechazado' ? 'text-bg-danger' : 'text-bg-warning';
+    const claseEstado = (e) => ['Aceptado', 'Contratado'].includes(e) ? 'text-bg-success' : e === 'Rechazado' ? 'text-bg-danger' : 'text-bg-warning';
     const clasePrioridad = (p) => p === 'Alta' ? 'text-bg-danger' : p === 'Media' ? 'text-bg-warning' : 'text-bg-info';
     const opciones = (lista, actual) => lista.map(v => `<option ${v === actual ? 'selected' : ''}>${esc(v)}</option>`).join('');
 
     let postulaciones = [];
+    let postulacionesDocentes = [];
     let tickets = [];
 
     // =====================================================
-    // 1. ADMISIÓN PÚBLICA: postular y consultar el estado
+    // 1. ADMISIÓN PÚBLICA: postular (estudiante o docente) y consultar el estado
     // =====================================================
     const formPostulacion = document.getElementById('formPostulacion');
+    const formDocente = document.getElementById('formDocente');
     const formConsulta = document.getElementById('formConsulta');
 
-    formPostulacion.addEventListener('submit', async (e) => {
+    // "Soy estudiante" / "Soy docente" muestra el formulario que corresponde
+    document.querySelectorAll('[name="tipoPostulacion"]').forEach(opcion => opcion.addEventListener('change', () => {
+        formPostulacion.hidden = opcion.value !== 'alumno';
+        formDocente.hidden = opcion.value !== 'docente';
+    }));
+
+    const enviarPostulacion = (form, ruta) => form.addEventListener('submit', async (e) => {
         e.preventDefault();
         try {
-            const { id } = await api('solicitudes_estudiantes', 'POST', Object.fromEntries(new FormData(formPostulacion)));
-            formPostulacion.reset();
+            const { id } = await api(ruta, 'POST', Object.fromEntries(new FormData(form)));
+            form.reset();
             Swal.fire({
                 icon: 'success', title: '¡Postulación recibida!', confirmButtonColor: '#1c3a63',
                 html: `<p>Tu folio de seguimiento es:</p><p class="fs-3 fw-bold">${esc(id)}</p><p class="text-muted small mb-0">Guárdalo: con este folio y tu correo puedes consultar el estado en esta página.</p>`
@@ -32,17 +41,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             mostrarError(error);
         }
     });
+    enviarPostulacion(formPostulacion, 'postulaciones_alumnos');
+    enviarPostulacion(formDocente, 'postulaciones_docentes');
 
     formConsulta.addEventListener('submit', async (e) => {
         e.preventDefault();
         const resultado = document.getElementById('resultadoConsulta');
         const { folio, correo } = Object.fromEntries(new FormData(formConsulta));
         try {
-            const p = await api(`solicitudes_estudiantes/estado?folio=${encodeURIComponent(folio)}&correo=${encodeURIComponent(correo)}`);
+            const p = await api(`postulaciones/estado?folio=${encodeURIComponent(folio)}&correo=${encodeURIComponent(correo)}`);
             resultado.innerHTML = `
                 <div class="p-3 rounded fondo-suave">
                     <strong class="d-block">${esc(p.nombre)}</strong>
-                    <small class="text-muted d-block mb-2">Folio ${esc(p.id)} · ${esc(p.anio_postulacion)} · enviada el ${esc(p.fecha_inscripcion)}</small>
+                    <small class="text-muted d-block mb-2">Folio ${esc(p.id)} · ${esc(p.postula_a)} · enviada el ${esc(p.fecha)}</small>
                     <span class="badge rounded-pill ${claseEstado(p.estado)}">${esc(p.estado)}</span>
                 </div>`;
         } catch (error) {
@@ -51,12 +62,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // =====================================================
-    // 2. ADMISIÓN: GESTIÓN (directiva)
+    // 2. ADMISIÓN: GESTIÓN DE POSTULANTES ALUMNOS Y DOCENTES (directiva)
     // =====================================================
     async function cargarPostulaciones() {
-        postulaciones = await api('solicitudes_estudiantes');
+        [postulaciones, postulacionesDocentes] = await Promise.all([api('postulaciones_alumnos'), api('postulaciones_docentes')]);
         const filtro = document.getElementById('buscarPostulante').value.toLowerCase();
-        const lista = postulaciones.filter(p => p.nombre.toLowerCase().includes(filtro) || p.id.toLowerCase().includes(filtro));
+        const coincide = (p) => p.nombre.toLowerCase().includes(filtro) || p.id.toLowerCase().includes(filtro);
+        const lista = postulaciones.filter(coincide);
+
+        document.getElementById('tablaDocentes').innerHTML = postulacionesDocentes.filter(coincide).map(p => `
+            <tr>
+                <td><span class="badge badge-id">#${esc(p.id)}</span></td>
+                <td><strong class="d-block">${esc(p.nombre)}</strong><small class="text-muted">${esc(p.correo)}</small></td>
+                <td>${esc(p.especialidad)}</td>
+                <td><select class="form-select form-select-sm" data-estado-docente="${esc(p.id)}" aria-label="Estado de ${esc(p.nombre)}">${opciones(ESTADOS_DOCENTE, p.estado)}</select></td>
+                <td class="small text-muted">${esc(p.fecha_postulacion)}</td>
+                <td class="text-end text-nowrap">
+                    <button type="button" class="btn btn-sm btn-outline-primary" data-accion="ver-docente" data-id="${esc(p.id)}" aria-label="Ver detalle"><i class="bi bi-eye-fill"></i></button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-accion="anular-docente" data-id="${esc(p.id)}" aria-label="Anular postulación"><i class="bi bi-trash-fill"></i></button>
+                </td>
+            </tr>`).join('') || '<tr><td colspan="6" class="text-center text-muted py-4">No hay postulaciones de docentes.</td></tr>';
 
         document.getElementById('tablaPostulaciones').innerHTML = lista.map(p => `
             <tr>
@@ -88,15 +113,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    function verDocente(p) {
+        Swal.fire({
+            title: esc(p.nombre), confirmButtonText: 'Cerrar', confirmButtonColor: '#1c3a63',
+            html: `
+                <dl class="ficha-docente text-start">
+                    <dt>Folio</dt><dd>${esc(p.id)}</dd>
+                    <dt>RUT</dt><dd>${esc(p.rut || '—')}</dd>
+                    <dt>Correo</dt><dd>${esc(p.correo)}</dd>
+                    <dt>Teléfono</dt><dd>${esc(p.telefono || '—')}</dd>
+                    <dt>Especialidad</dt><dd>${esc(p.especialidad)}</dd>
+                    <dt>Estado</dt><dd><span class="badge ${claseEstado(p.estado)}">${esc(p.estado)}</span></dd>
+                    <dt>Títulos y experiencia</dt><dd>${esc(p.experiencia)}</dd>
+                </dl>`
+        });
+    }
+
     if (esAdmin) {
         document.getElementById('admisionPublica').hidden = true;
         document.getElementById('admisionGestion').hidden = false;
         document.getElementById('buscarPostulante').addEventListener('input', cargarPostulaciones);
-        document.getElementById('tablaPostulaciones').addEventListener('change', (e) => {
-            const id = e.target.dataset.estado;
-            if (!id) return;
-            api(`solicitudes_estudiantes/${id}`, 'PUT', { estado: e.target.value })
-                .then(() => { postulaciones.find(p => p.id === id).estado = e.target.value; aviso('Estado actualizado'); })
+
+        // Cambiar el estado desde la misma fila (alumnos o docentes)
+        document.getElementById('admisionGestion').addEventListener('change', (e) => {
+            const { estado: idAlumno, estadoDocente: idDocente } = e.target.dataset;
+            if (!idAlumno && !idDocente) return;
+            const [ruta, lista, id] = idAlumno ? ['postulaciones_alumnos', postulaciones, idAlumno] : ['postulaciones_docentes', postulacionesDocentes, idDocente];
+            api(`${ruta}/${id}`, 'PUT', { estado: e.target.value })
+                .then(() => { lista.find(p => p.id === id).estado = e.target.value; aviso('Estado actualizado'); })
                 .catch(mostrarError);
         });
         cargarPostulaciones().catch(mostrarError);
@@ -108,7 +152,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const formTicket = document.getElementById('formTicket');
 
     async function cargarTickets() {
-        tickets = await api('solicitudes_profesores');
+        tickets = await api('tickets_soporte');
         const filtro = document.getElementById('filtroPrioridad').value;
         const lista = tickets.filter(t => !filtro || t.prioridad === filtro);
 
@@ -137,7 +181,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         formTicket.addEventListener('submit', async (e) => {
             e.preventDefault();
             try {
-                const { id } = await api('solicitudes_profesores', 'POST', { ...Object.fromEntries(new FormData(formTicket)), profesor: formTicket.profesor.value });
+                const { id } = await api('tickets_soporte', 'POST', { ...Object.fromEntries(new FormData(formTicket)), profesor: formTicket.profesor.value });
                 formTicket.reset();
                 formTicket.profesor.value = nombres[0];
                 Swal.fire('Reporte enviado', `Tu reporte quedó registrado con el número ${esc(id)}.`, 'success');
@@ -149,7 +193,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('filtroPrioridad').addEventListener('change', cargarTickets);
         document.getElementById('tablaTickets').addEventListener('change', (e) => {
             const id = e.target.dataset.prioridad;
-            if (id) api(`solicitudes_profesores/${id}`, 'PUT', { prioridad: e.target.value }).then(() => aviso('Prioridad actualizada')).catch(mostrarError);
+            if (id) api(`tickets_soporte/${id}`, 'PUT', { prioridad: e.target.value }).then(() => aviso('Prioridad actualizada')).catch(mostrarError);
         });
         cargarTickets().catch(mostrarError);
     } else {
@@ -163,8 +207,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     // =====================================================
     const acciones = {
         'ver-postulacion': (id) => verPostulacion(postulaciones.find(p => p.id === id)),
+        'ver-docente': (id) => verDocente(postulacionesDocentes.find(p => p.id === id)),
+        'anular-docente': async (id) => {
+            if (await confirmar(`¿Anular la postulación ${id}?`)) api(`postulaciones_docentes/${id}`, 'DELETE').then(cargarPostulaciones).catch(mostrarError);
+        },
         'anular-postulacion': async (id) => {
-            if (await confirmar(`¿Anular la postulación ${id}?`)) api(`solicitudes_estudiantes/${id}`, 'DELETE').then(cargarPostulaciones).catch(mostrarError);
+            if (await confirmar(`¿Anular la postulación ${id}?`)) api(`postulaciones_alumnos/${id}`, 'DELETE').then(cargarPostulaciones).catch(mostrarError);
         },
         'nueva-postulacion': async () => {
             const datos = await formularioModal('Ingresar postulación', [
@@ -174,10 +222,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 { name: 'anio_postulacion', label: 'Curso al que postula', type: 'select', options: CURSOS.map(c => [c, c]) },
                 { name: 'motivacion', label: 'Motivación', type: 'textarea', required: true }
             ]);
-            if (datos) api('solicitudes_estudiantes', 'POST', datos).then(({ id }) => { aviso(`Folio ${id} registrado`); cargarPostulaciones(); }).catch(mostrarError);
+            if (datos) api('postulaciones_alumnos', 'POST', datos).then(({ id }) => { aviso(`Folio ${id} registrado`); cargarPostulaciones(); }).catch(mostrarError);
         },
         'resolver-ticket': async (id) => {
-            if (await confirmar(`¿Marcar el ticket ${id} como resuelto?`)) api(`solicitudes_profesores/${id}`, 'DELETE').then(cargarTickets).catch(mostrarError);
+            if (await confirmar(`¿Marcar el ticket ${id} como resuelto?`)) api(`tickets_soporte/${id}`, 'DELETE').then(cargarTickets).catch(mostrarError);
         }
     };
 

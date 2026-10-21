@@ -125,6 +125,7 @@ const URL_VALIDA = /^https?:\/\//i;
 const ANIOS_POSTULACION = ['1° Medio', '2° Medio', '3° Medio', '4° Medio'];
 const PRIORIDADES = ['Baja', 'Media', 'Alta'];
 const ESTADOS_POSTULACION = ['En Revisión', 'Aceptado', 'Lista de Espera', 'Rechazado'];
+const ESTADOS_DOCENTE = ['En Revisión', 'Entrevista', 'Contratado', 'Rechazado'];
 
 // Texto obligatorio y con largo máximo
 const textoValido = (texto, maximo) => typeof texto === 'string' && texto.trim().length > 0 && texto.trim().length <= maximo;
@@ -321,26 +322,27 @@ app.post('/api/auth/logout', (req, res) => {
 // SOLICITUDES ESTUDIANTES (ADMISIÓN)
 // =============================================
 /**
- * GET /api/solicitudes_estudiantes - Lista de postulaciones (dirección y secretaría)
+ * GET /api/postulaciones_alumnos - Lista de postulaciones (dirección y secretaría)
  */
-app.get('/api/solicitudes_estudiantes', requiereSesion(...DIRECTIVA), async (req, res) => {
-    const [solicitudes] = await pool.query('SELECT * FROM solicitudes_estudiantes');
+app.get('/api/postulaciones_alumnos', requiereSesion(...DIRECTIVA), async (req, res) => {
+    const [solicitudes] = await pool.query('SELECT * FROM postulaciones_alumnos');
     res.json(solicitudes);
 });
 
 /**
- * GET /api/solicitudes_estudiantes/estado?folio=ADM-123&correo=... - El postulante consulta su estado
+ * GET /api/postulaciones/estado?folio=ADM-123&correo=... - El postulante (alumno o docente) consulta su estado
  */
-app.get('/api/solicitudes_estudiantes/estado', limiteIntentos, async (req, res) => {
+app.get('/api/postulaciones/estado', limiteIntentos, async (req, res) => {
     const { folio, correo } = req.query;
     if (!textoValido(folio, 20) || !textoValido(correo, 100)) {
         return res.status(400).json({ error: 'Ingresa tu folio y el correo con que postulaste' });
     }
 
-    const [[solicitud]] = await pool.query(
-        'SELECT id, nombre, anio_postulacion, estado, fecha_inscripcion FROM solicitudes_estudiantes WHERE id = ? AND correo = ?',
-        [folio.trim().toUpperCase(), correo.trim()]
-    );
+    // Folio ADM-... = alumno, DOC-... = docente
+    const id = folio.trim().toUpperCase();
+    const [[solicitud]] = id.startsWith('DOC-')
+        ? await pool.query('SELECT id, nombre, especialidad AS postula_a, estado, fecha_postulacion AS fecha FROM postulaciones_docentes WHERE id = ? AND correo = ?', [id, correo.trim()])
+        : await pool.query('SELECT id, nombre, anio_postulacion AS postula_a, estado, fecha_inscripcion AS fecha FROM postulaciones_alumnos WHERE id = ? AND correo = ?', [id, correo.trim()]);
 
     if (!solicitud) {
         return res.status(404).json({ error: 'No encontramos una postulación con esos datos' });
@@ -349,9 +351,9 @@ app.get('/api/solicitudes_estudiantes/estado', limiteIntentos, async (req, res) 
 });
 
 /**
- * POST /api/solicitudes_estudiantes - Nueva postulación (público)
+ * POST /api/postulaciones_alumnos - Nueva postulación (público)
  */
-app.post('/api/solicitudes_estudiantes', limiteFormularios, async (req, res) => {
+app.post('/api/postulaciones_alumnos', limiteFormularios, async (req, res) => {
     const { nombre, fecha_nacimiento, correo, anio_postulacion, motivacion } = req.body;
 
     if (!textoValido(nombre, 100) || !textoValido(fecha_nacimiento, 10) || !CORREO_VALIDO.test(correo || '')
@@ -361,7 +363,7 @@ app.post('/api/solicitudes_estudiantes', limiteFormularios, async (req, res) => 
 
     const id = nuevoId('ADM-');
     await pool.query(
-        'INSERT INTO solicitudes_estudiantes (id, nombre, fecha_nacimiento, correo, anio_postulacion, estado, fecha_inscripcion, motivacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO postulaciones_alumnos (id, nombre, fecha_nacimiento, correo, anio_postulacion, estado, fecha_inscripcion, motivacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
         [id, nombre.trim(), fecha_nacimiento, correo.trim(), anio_postulacion, 'En Revisión', fechaHoy(), motivacion.trim()]
     );
 
@@ -369,15 +371,15 @@ app.post('/api/solicitudes_estudiantes', limiteFormularios, async (req, res) => 
 });
 
 /**
- * PUT /api/solicitudes_estudiantes/:id - Cambiar estado (dirección y secretaría)
+ * PUT /api/postulaciones_alumnos/:id - Cambiar estado (dirección y secretaría)
  */
-app.put('/api/solicitudes_estudiantes/:id', requiereSesion(...DIRECTIVA), async (req, res) => {
+app.put('/api/postulaciones_alumnos/:id', requiereSesion(...DIRECTIVA), async (req, res) => {
     const { estado } = req.body;
     if (!ESTADOS_POSTULACION.includes(estado)) {
         return res.status(400).json({ error: 'Estado no válido' });
     }
 
-    const [result] = await pool.query('UPDATE solicitudes_estudiantes SET estado = ? WHERE id = ?', [estado, req.params.id]);
+    const [result] = await pool.query('UPDATE postulaciones_alumnos SET estado = ? WHERE id = ?', [estado, req.params.id]);
     if (result.affectedRows === 0) {
         return res.status(404).json({ error: 'Solicitud no encontrada' });
     }
@@ -385,14 +387,69 @@ app.put('/api/solicitudes_estudiantes/:id', requiereSesion(...DIRECTIVA), async 
 });
 
 /**
- * DELETE /api/solicitudes_estudiantes/:id - Anular postulación (dirección y secretaría)
+ * DELETE /api/postulaciones_alumnos/:id - Anular postulación (dirección y secretaría)
  */
-app.delete('/api/solicitudes_estudiantes/:id', requiereSesion(...DIRECTIVA), async (req, res) => {
-    const [result] = await pool.query('DELETE FROM solicitudes_estudiantes WHERE id = ?', [req.params.id]);
+app.delete('/api/postulaciones_alumnos/:id', requiereSesion(...DIRECTIVA), async (req, res) => {
+    const [result] = await pool.query('DELETE FROM postulaciones_alumnos WHERE id = ?', [req.params.id]);
     if (result.affectedRows === 0) {
         return res.status(404).json({ error: 'Solicitud no encontrada' });
     }
     res.json({ message: 'Solicitud eliminada correctamente' });
+});
+
+// =============================================
+// POSTULACIONES DE DOCENTES ("Trabaja con nosotros")
+// =============================================
+/**
+ * GET /api/postulaciones_docentes - Lista de postulantes docentes (directiva)
+ */
+app.get('/api/postulaciones_docentes', requiereSesion(...DIRECTIVA), async (req, res) => {
+    const [postulaciones] = await pool.query('SELECT * FROM postulaciones_docentes');
+    res.json(postulaciones);
+});
+
+/**
+ * POST /api/postulaciones_docentes - Nueva postulación docente (público)
+ */
+app.post('/api/postulaciones_docentes', limiteFormularios, async (req, res) => {
+    const { nombre, rut, correo, telefono, especialidad, experiencia } = req.body;
+
+    if (!textoValido(nombre, 100) || !CORREO_VALIDO.test(correo || '') || !textoValido(especialidad, 100) || !textoValido(experiencia, 2000)) {
+        return res.status(400).json({ error: 'Revisa los datos del formulario' });
+    }
+
+    const id = nuevoId('DOC-');
+    await pool.query(
+        'INSERT INTO postulaciones_docentes (id, nombre, rut, correo, telefono, especialidad, experiencia, estado, fecha_postulacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [id, nombre.trim(), (rut || '').trim().slice(0, 12) || null, correo.trim(), (telefono || '').trim().slice(0, 20) || null,
+            especialidad.trim(), experiencia.trim(), 'En Revisión', fechaHoy()]
+    );
+    res.status(201).json({ message: 'Postulación recibida correctamente', id });
+});
+
+/**
+ * PUT /api/postulaciones_docentes/:id - Cambiar estado (directiva)
+ */
+app.put('/api/postulaciones_docentes/:id', requiereSesion(...DIRECTIVA), async (req, res) => {
+    if (!ESTADOS_DOCENTE.includes(req.body.estado)) {
+        return res.status(400).json({ error: 'Estado no válido' });
+    }
+    const [result] = await pool.query('UPDATE postulaciones_docentes SET estado = ? WHERE id = ?', [req.body.estado, req.params.id]);
+    if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Postulación no encontrada' });
+    }
+    res.json({ message: 'Postulación actualizada correctamente' });
+});
+
+/**
+ * DELETE /api/postulaciones_docentes/:id - Anular postulación (directiva)
+ */
+app.delete('/api/postulaciones_docentes/:id', requiereSesion(...DIRECTIVA), async (req, res) => {
+    const [result] = await pool.query('DELETE FROM postulaciones_docentes WHERE id = ?', [req.params.id]);
+    if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Postulación no encontrada' });
+    }
+    res.json({ message: 'Postulación eliminada correctamente' });
 });
 
 // =============================================
@@ -546,20 +603,20 @@ app.put('/api/horarios', requiereSesion(...DIRECTIVA), async (req, res) => {
 // SOLICITUDES PROFESORES (SOPORTE TÉCNICO)
 // =============================================
 /**
- * GET /api/solicitudes_profesores - La directiva ve todos los tickets; el profesor, solo los suyos
+ * GET /api/tickets_soporte - La directiva ve todos los tickets; el profesor, solo los suyos
  */
-app.get('/api/solicitudes_profesores', requiereSesion(...DIRECTIVA, 'profesor'), async (req, res) => {
+app.get('/api/tickets_soporte', requiereSesion(...DIRECTIVA, 'profesor'), async (req, res) => {
     const usuario = req.session.usuario;
     const [tickets] = DIRECTIVA.includes(usuario.rol)
-        ? await pool.query('SELECT * FROM solicitudes_profesores')
-        : await pool.query('SELECT * FROM solicitudes_profesores WHERE profesor = ?', [usuario.nombre]);
+        ? await pool.query('SELECT * FROM tickets_soporte')
+        : await pool.query('SELECT * FROM tickets_soporte WHERE profesor = ?', [usuario.nombre]);
     res.json(tickets);
 });
 
 /**
- * POST /api/solicitudes_profesores - Crear ticket de soporte (profesor o directiva)
+ * POST /api/tickets_soporte - Crear ticket de soporte (profesor o directiva)
  */
-app.post('/api/solicitudes_profesores', requiereSesion(...DIRECTIVA, 'profesor'), async (req, res) => {
+app.post('/api/tickets_soporte', requiereSesion(...DIRECTIVA, 'profesor'), async (req, res) => {
     const usuario = req.session.usuario;
     const { ubicacion, problema, prioridad } = req.body;
     const profesor = usuario.rol === 'profesor' ? usuario.nombre : req.body.profesor;
@@ -570,22 +627,22 @@ app.post('/api/solicitudes_profesores', requiereSesion(...DIRECTIVA, 'profesor')
 
     const id = nuevoId('SOP-');
     await pool.query(
-        'INSERT INTO solicitudes_profesores (id, profesor, ubicacion, problema, prioridad, fecha) VALUES (?, ?, ?, ?, ?, ?)',
+        'INSERT INTO tickets_soporte (id, profesor, ubicacion, problema, prioridad, fecha) VALUES (?, ?, ?, ?, ?, ?)',
         [id, profesor.trim(), ubicacion.trim(), problema.trim(), prioridad, fechaHoy()]
     );
     res.status(201).json({ message: 'Solicitud de soporte creada correctamente', id });
 });
 
 /**
- * PUT /api/solicitudes_profesores/:id - Actualizar prioridad (directiva)
+ * PUT /api/tickets_soporte/:id - Actualizar prioridad (directiva)
  */
-app.put('/api/solicitudes_profesores/:id', requiereSesion(...DIRECTIVA), async (req, res) => {
+app.put('/api/tickets_soporte/:id', requiereSesion(...DIRECTIVA), async (req, res) => {
     const { prioridad } = req.body;
     if (!PRIORIDADES.includes(prioridad)) {
         return res.status(400).json({ error: 'Prioridad no válida' });
     }
 
-    const [result] = await pool.query('UPDATE solicitudes_profesores SET prioridad = ? WHERE id = ?', [prioridad, req.params.id]);
+    const [result] = await pool.query('UPDATE tickets_soporte SET prioridad = ? WHERE id = ?', [prioridad, req.params.id]);
     if (result.affectedRows === 0) {
         return res.status(404).json({ error: 'Solicitud no encontrada' });
     }
@@ -593,10 +650,10 @@ app.put('/api/solicitudes_profesores/:id', requiereSesion(...DIRECTIVA), async (
 });
 
 /**
- * DELETE /api/solicitudes_profesores/:id - Cerrar ticket resuelto (directiva)
+ * DELETE /api/tickets_soporte/:id - Cerrar ticket resuelto (directiva)
  */
-app.delete('/api/solicitudes_profesores/:id', requiereSesion(...DIRECTIVA), async (req, res) => {
-    const [result] = await pool.query('DELETE FROM solicitudes_profesores WHERE id = ?', [req.params.id]);
+app.delete('/api/tickets_soporte/:id', requiereSesion(...DIRECTIVA), async (req, res) => {
+    const [result] = await pool.query('DELETE FROM tickets_soporte WHERE id = ?', [req.params.id]);
     if (result.affectedRows === 0) {
         return res.status(404).json({ error: 'Solicitud no encontrada' });
     }
@@ -747,8 +804,9 @@ app.get('/api/estudiantes', requiereSesion(...DIRECTIVA, 'profesor'), async (req
  */
 app.get('/api/panel', requiereSesion(...DIRECTIVA), async (req, res) => {
     const [[panel]] = await pool.query(`SELECT
-        (SELECT COUNT(*) FROM solicitudes_estudiantes WHERE estado = 'En Revisión') AS postulaciones,
-        (SELECT COUNT(*) FROM solicitudes_profesores) AS tickets,
+        (SELECT COUNT(*) FROM postulaciones_alumnos WHERE estado = 'En Revisión') AS postulaciones,
+        (SELECT COUNT(*) FROM postulaciones_docentes WHERE estado IN ('En Revisión', 'Entrevista')) AS postulaciones_docentes,
+        (SELECT COUNT(*) FROM tickets_soporte) AS tickets,
         (SELECT COUNT(*) FROM mensajes_contacto) AS mensajes,
         (SELECT COUNT(*) FROM estudiantes) AS alumnos,
         (SELECT COUNT(*) FROM profesores) AS docentes,

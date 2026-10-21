@@ -133,11 +133,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         contenedor.innerHTML = `
             <div class="table-responsive">
-                <table class="table align-middle">
+                <table class="table align-middle" data-ordenable="docentes">
                     <thead><tr><th>Docente</th><th>Asignaturas</th><th>Correo institucional</th>${conAcciones ? '<th></th>' : ''}</tr></thead>
                     <tbody>${lista.map(d => `
                         <tr>
-                            <td><strong>${esc(d.nombre)}</strong>${esPropio(d) ? ' <span class="badge text-bg-primary">Tú</span>' : ''}
+                            <td data-valor="${esc(d.nombre.replace(/^(\S+\.|Teacher)\s+/, ''))}"><strong>${esc(d.nombre)}</strong>${esPropio(d) ? ' <span class="badge text-bg-primary">Tú</span>' : ''}
                                 ${d.departamento ? `<br><small class="text-muted">${esc(d.departamento)}</small>` : ''}</td>
                             <td class="small">${esc(d.asignaturas.join(', ') || 'Sin asignaturas a cargo')}</td>
                             <td class="small">${d.correo ? `<a href="mailto:${esc(d.correo)}">${esc(d.correo)}</a>` : '—'}</td>
@@ -149,6 +149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </tbody>
                 </table>
             </div>`;
+        ordenarTabla(contenedor.querySelector('table'));
     }
 
     function verFicha(d) {
@@ -278,7 +279,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         contenedor.innerHTML = `
             <div class="table-responsive">
-                <table class="table align-middle">
+                <table class="table align-middle" data-ordenable="alumnos">
                     <thead><tr><th>Alumno</th><th>Curso</th>${conFicha ? '<th>RUT</th><th>Nacimiento</th>' : ''}<th>Correo del alumno</th><th>Apoderado</th></tr></thead>
                     <tbody>${lista.map(a => `
                         <tr>
@@ -293,6 +294,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </tbody>
                 </table>
             </div>`;
+        ordenarTabla(contenedor.querySelector('table'));
     }
     document.getElementById('buscarAlumno').addEventListener('input', mostrarAlumnos);
     if (sesion.rol === 'profesor') document.getElementById('tituloAlumnos').lastChild.textContent = 'Mis alumnos';

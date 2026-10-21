@@ -24,7 +24,7 @@ window.api = async (ruta, metodo = 'GET', datos) => {
 window.aviso = (titulo) => Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: titulo, showConfirmButton: false, timer: 2200 });
 window.mostrarError = (error) => Swal.fire('Error', escaparHTML(error.message || error), 'error');
 window.confirmar = async (titulo) => (await Swal.fire({
-    title: titulo, icon: 'warning', showCancelButton: true,
+    title: titulo, icon: 'warning', showCancelButton: true, reverseButtons: true,
     confirmButtonText: 'Sí, continuar', cancelButtonText: 'Cancelar', confirmButtonColor: '#963337'
 })).isConfirmed;
 
@@ -57,8 +57,10 @@ window.formularioModal = async (titulo, campos, valores = {}) => {
     }).join('');
 
     const { value } = await Swal.fire({
-        title: titulo, html, width: '560px', focusConfirm: false, showCancelButton: true,
-        confirmButtonText: 'Guardar', cancelButtonText: 'Cancelar', confirmButtonColor: '#1c3a63',
+        title: `<i class="bi bi-pencil-square me-2 text-primary"></i>${escaparHTML(titulo)}`,
+        html, width: '560px', focusConfirm: false, showCancelButton: true, showCloseButton: true, reverseButtons: true,
+        customClass: { popup: 'modal-formulario' },
+        confirmButtonText: '<i class="bi bi-check-lg me-1"></i>Guardar', cancelButtonText: 'Cancelar', confirmButtonColor: '#1c3a63',
         preConfirm: () => {
             const datos = {};
             for (const c of campos) {
@@ -79,22 +81,26 @@ window.formularioModal = async (titulo, campos, valores = {}) => {
 window.NOMBRES_ROL = { director: 'Director', secretaria: 'Secretaría', profesor: 'Docente', alumno: 'Alumno/a', apoderado: 'Apoderado/a', visitante: 'Visitante' };
 window.esDirectiva = (sesion) => sesion.rol === 'director' || sesion.rol === 'secretaria';
 
-// Menú corto: cada rol ve solo las opciones que usa ([enlace, ícono, texto])
+// Opciones de cada rol ([enlace, ícono, texto, descripción, color]).
+// Sin sesión se muestran en el menú; con sesión el menú solo tiene "Mi panel" y estas
+// funciones aparecen como accesos dentro del panel.
 const PANEL = ['index.html#miPanel', 'bi-grid-fill', 'Mi panel'];
-const AULA = ['aula.html', 'bi-laptop', 'Mi Aula'];
-const ASIGNATURAS = ['academico.html#asignaturas', 'bi-journal-bookmark-fill', 'Asignaturas'];
-const DOCENTES = ['academico.html#docentes', 'bi-person-video3', 'Docentes'];
-const HORARIO = ['academico.html#agenda', 'bi-calendar-week', 'Horario'];
-const ALUMNOS = ['academico.html#alumnos', 'bi-people-fill', 'Alumnos'];
-const ADMISION = ['tramites.html#admision', 'bi-person-vcard', 'Admisión'];
-const SOPORTE = ['tramites.html#soporte', 'bi-pc-display', 'Soporte'];
-const MENU_POR_ROL = {
+const AULA = ['aula.html', 'bi-laptop', 'Mi Aula', 'Material, notas y anuncios', 'azul'];
+const ASIGNATURAS = ['academico.html#asignaturas', 'bi-journal-bookmark-fill', 'Asignaturas', 'Plan común y módulos técnicos', 'violeta'];
+const DOCENTES = ['academico.html#docentes', 'bi-person-video3', 'Docentes', 'Contacto de los profesores', 'celeste'];
+const HORARIO = ['academico.html#agenda', 'bi-calendar-week', 'Horario', 'Tu semana de clases', 'verde'];
+const ALUMNOS = ['academico.html#alumnos', 'bi-people-fill', 'Alumnos', 'Fichas de alumnos y apoderados', 'ambar'];
+const ADMISION = ['tramites.html#admision', 'bi-person-vcard', 'Admisión', 'Postulantes alumnos y docentes', 'rojo'];
+const SOPORTE = ['tramites.html#soporte', 'bi-pc-display', 'Soporte', 'Fallas en salas y equipos', 'gris'];
+const MENSAJES = ['index.html#mensajes', 'bi-envelope-fill', 'Mensajes', 'Consultas desde Contacto', 'celeste'];
+window.FUNCIONES_POR_ROL = {
     visitante: [['index.html#nosotros', 'bi-info-circle-fill', 'Nosotros'], ASIGNATURAS, DOCENTES, ADMISION, ['index.html#contacto', 'bi-envelope-fill', 'Contacto']],
-    alumno: [PANEL, AULA, HORARIO, ASIGNATURAS, DOCENTES],
-    apoderado: [PANEL, AULA, HORARIO, ASIGNATURAS, DOCENTES],
-    profesor: [PANEL, AULA, ['academico.html#alumnos', 'bi-people-fill', 'Mis alumnos'], HORARIO, SOPORTE],
-    secretaria: [PANEL, ADMISION, HORARIO, ALUMNOS, SOPORTE, ['index.html#mensajes', 'bi-envelope-fill', 'Mensajes']],
-    director: [PANEL, ADMISION, DOCENTES, ALUMNOS, HORARIO, SOPORTE]
+    alumno: [AULA, HORARIO, ASIGNATURAS, DOCENTES],
+    apoderado: [AULA, HORARIO, ASIGNATURAS, DOCENTES],
+    profesor: [AULA, ['academico.html#alumnos', 'bi-people-fill', 'Mis alumnos', 'Contacto de tus alumnos', 'ambar'], HORARIO, ASIGNATURAS, DOCENTES, SOPORTE],
+    secretaria: [ADMISION, MENSAJES, ['aula.html', 'bi-megaphone-fill', 'Anuncios', 'Avisos para la comunidad', 'azul'], ASIGNATURAS, HORARIO, ALUMNOS, SOPORTE],
+    // El director revisa todas las clases (material y notas) desde el Aula Virtual
+    director: [['aula.html', 'bi-laptop', 'Clases', 'Material y notas de cada clase', 'azul'], ASIGNATURAS, DOCENTES, ALUMNOS, HORARIO, ADMISION, MENSAJES, SOPORTE]
 };
 
 // Sesión actual, compartida por todos los scripts de la página (se consulta una sola vez)
@@ -112,7 +118,7 @@ window.abrirLogin = async () => {
             <p class="text-muted small mb-2">Administración, docentes, alumnos y apoderados</p>
             <input id="swalLoginCorreo" type="email" class="swal2-input" placeholder="Correo institucional" autocomplete="username" autocapitalize="off">
             <input id="swalLoginClave" type="password" class="swal2-input" placeholder="Contraseña" autocomplete="current-password">`,
-        focusConfirm: false, showCancelButton: true, showLoaderOnConfirm: true,
+        focusConfirm: false, showCancelButton: true, showLoaderOnConfirm: true, reverseButtons: true,
         confirmButtonText: 'Ingresar', cancelButtonText: 'Cancelar', confirmButtonColor: '#1c3a63',
         didOpen: () => document.getElementById('swalLoginCorreo').focus(),
         preConfirm: () => {
@@ -130,8 +136,37 @@ window.cerrarSesion = async () => {
     location.reload();
 };
 
+// Tablas ordenables (<table data-ordenable="nombre">): clic en un encabezado ordena A-Z
+// y un segundo clic al revés. El orden elegido se recuerda al volver a dibujar la tabla.
+const ordenTablas = {};
+const valorCelda = (fila, columna) => {
+    const celda = fila.cells[columna];
+    const texto = celda ? (celda.dataset.valor ?? celda.textContent.trim()) : '';
+    const fecha = texto.match(/^(\d{2})\/(\d{2})\/(\d{4})/); // dd/mm/aaaa se compara como aaaammdd
+    return fecha ? fecha[3] + fecha[2] + fecha[1] : texto;
+};
+window.ordenarTabla = (tabla) => {
+    const orden = tabla && ordenTablas[tabla.dataset.ordenable];
+    if (!orden) return;
+    const cuerpo = tabla.tBodies[0];
+    const filas = [...cuerpo.rows].filter(f => f.cells.length > 1); // deja fuera el aviso "no hay datos"
+    filas.sort((a, b) => valorCelda(a, orden.columna).localeCompare(valorCelda(b, orden.columna), 'es', { numeric: true, sensitivity: 'base' }) * (orden.asc ? 1 : -1));
+    cuerpo.append(...filas);
+    tabla.querySelectorAll('thead th').forEach((th, i) => th.setAttribute('aria-sort', i === orden.columna ? (orden.asc ? 'ascending' : 'descending') : 'none'));
+};
+document.addEventListener('click', (e) => {
+    const th = e.target.closest('table[data-ordenable] thead th');
+    if (!th || !th.textContent.trim()) return;
+    const tabla = th.closest('table');
+    const previo = ordenTablas[tabla.dataset.ordenable];
+    // Primer clic: A-Z (o mayor a menor si el encabezado tiene data-desc, como las notas)
+    ordenTablas[tabla.dataset.ordenable] = { columna: th.cellIndex, asc: previo?.columna === th.cellIndex ? !previo.asc : !('desc' in th.dataset) };
+    ordenarTabla(tabla);
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     let vistaActual = '';
+    let rolActual = 'visitante';
 
     // 1. ILUMINAR MENÚ ACTIVO (página y vista actual)
     const marcarMenu = () => {
@@ -142,19 +177,35 @@ document.addEventListener('DOMContentLoaded', () => {
             link.classList.toggle('active', activo);
             if (activo) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
         });
+
+        // Función actual en la franja de sesión: "Mi panel › Alumnos"
+        const ubicacion = document.getElementById('ubicacionActual');
+        if (ubicacion) {
+            const funcion = FUNCIONES_POR_ROL[rolActual].find(([enlace]) => {
+                const [archivo, ancla] = enlace.split('#');
+                return archivo === pagina && (!ancla || ancla === vistaActual);
+            });
+            // En el panel y en el inicio solo queda el enlace "Mi panel"
+            const sinUbicacion = pagina === 'index.html' && ['miPanel', 'inicio'].includes(vistaActual);
+            const actual = funcion ? funcion[2] : document.title.split('|')[0].trim();
+            ubicacion.innerHTML = sinUbicacion ? '' : `<i class="bi bi-chevron-right mx-1" aria-hidden="true"></i><strong>${escaparHTML(actual)}</strong>`;
+        }
     };
 
     // 2. VISTAS: cada opción del menú abre solo su sección (pagina.html#vista).
-    //    Sin #vista se abre la de <main data-vista-inicial> (o data-vista-sesion si hay sesión).
+    //    Sin #vista se abre la de <main data-vista-inicial>.
     const vistas = [...document.querySelectorAll('main [data-vista]')];
     const mostrarVista = async () => {
         if (vistas.length) {
             const sesion = await obtenerSesion();
             const main = document.querySelector('main');
             const pedida = location.hash.slice(1);
-            vistaActual = vistas.some(v => v.dataset.vista === pedida)
+            // Una vista solo se abre si el rol puede verla (ej: al cerrar sesión en "Mi panel" se vuelve al inicio)
+            const rol = sesion.rol || 'visitante';
+            const permitida = vistas.some(v => v.dataset.vista === pedida && (!v.dataset.roles || v.dataset.roles.split(' ').includes(rol)));
+            vistaActual = permitida
                 ? pedida
-                : (sesion.rol && main.dataset.vistaSesion) || main.dataset.vistaInicial || vistas[0].dataset.vista;
+                : main.dataset.vistaInicial || vistas[0].dataset.vista;
             vistas.forEach(v => v.classList.toggle('d-none', v.dataset.vista !== vistaActual));
             window.scrollTo(0, 0);
         }
@@ -188,7 +239,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.dataset.rol = rol;
 
         // Opciones del menú de este rol (antes del botón de tema y sesión)
-        document.querySelector('#navbarNav .navbar-nav')?.insertAdjacentHTML('afterbegin', MENU_POR_ROL[rol].map(([enlace, icono, texto]) =>
+        // Sin sesión: menú del sitio público. Con sesión: solo "Mi panel" (desde ahí se llega a cada función)
+        rolActual = rol;
+        const opcionesMenu = sesion.rol ? [PANEL] : FUNCIONES_POR_ROL.visitante;
+        document.querySelector('#navbarNav .navbar-nav')?.insertAdjacentHTML('afterbegin', opcionesMenu.map(([enlace, icono, texto]) =>
             `<li class="nav-item"><a class="nav-link" href="${enlace}"><i class="bi ${icono} me-1"></i>${texto}</a></li>`).join(''));
         marcarMenu();
 
@@ -197,13 +251,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!sesion.rol) return;
         const franja = document.getElementById('franjaRol');
-        franja.innerHTML = `<i class="bi bi-person-badge-fill me-1"></i>Sesión: <strong>${escaparHTML(sesion.nombre)}</strong> · ${NOMBRES_ROL[rol]}
-            <a href="index.html#miPanel" class="ms-2">Ir a mi panel</a>`;
+        franja.innerHTML = `
+            <span><i class="bi bi-person-badge-fill me-1"></i>Sesión: <strong>${escaparHTML(sesion.nombre)}</strong> · ${NOMBRES_ROL[rol]}</span>
+            <nav class="ubicacion" aria-label="Estás en"><a href="index.html#miPanel"><i class="bi bi-grid-fill me-1"></i>Mi panel</a><span id="ubicacionActual"></span></nav>`;
         franja.hidden = false;
+        marcarMenu();
 
         if (btnAdmin) {
-            const primerNombre = (sesion.nombre || '').split(' ').find(p => !p.endsWith('.')) || NOMBRES_ROL[rol];
-            btnAdmin.innerHTML = `<i class="bi bi-person-check-fill me-1"></i>${escaparHTML(primerNombre)}`;
+            // Al director se le muestra con tratamiento formal (Sr. + apellido); al resto, su primer nombre
+            const partes = (sesion.nombre || '').split(' ').filter(p => !p.endsWith('.'));
+            const nombreBoton = rol === 'director' && partes.length > 1 ? `Sr. ${partes.at(-1)}` : partes[0] || NOMBRES_ROL[rol];
+            btnAdmin.innerHTML = `<i class="bi bi-person-check-fill me-1"></i>${escaparHTML(nombreBoton)}`;
             btnAdmin.className = `btn btn-sm rounded-pill ${esDirectiva(sesion) ? 'btn-danger' : 'btn-primary'}`;
             btnAdmin.setAttribute('aria-label', `Sesión de ${sesion.nombre}`);
         }

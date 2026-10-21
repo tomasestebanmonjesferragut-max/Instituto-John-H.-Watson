@@ -136,8 +136,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             const nota = (n) => `<span class="badge ${Number(n.nota) >= 4 ? 'badge-primary' : 'badge-danger'} fs-6">${Number(n.nota).toFixed(1)}</span>`;
             document.getElementById('claseNotas').innerHTML = !notas.length
                 ? `<p class="text-muted"><i class="bi bi-mortarboard me-2"></i>${esEstudiante || editable ? 'Aún no hay notas registradas.' : 'Las notas solo las ven el alumno, su apoderado y el docente.'}</p>`
-                : `<div class="table-responsive"><table class="table align-middle">
-                    <thead><tr>${editable ? '<th>Alumno</th>' : ''}<th>Evaluación</th><th>Fecha</th><th>Nota</th>${editable ? '<th></th>' : ''}</tr></thead>
+                : `<div class="table-responsive"><table class="table align-middle" data-ordenable="notas">
+                    <thead><tr>${editable ? '<th>Alumno</th>' : ''}<th>Evaluación</th><th>Fecha</th><th data-desc>Nota</th>${editable ? '<th></th>' : ''}</tr></thead>
                     <tbody>${notas.map(n => `<tr>
                         ${editable ? `<td>${esc(n.estudiante_nombre)}</td>` : ''}
                         <td>${esc(n.evaluacion)}</td><td class="small text-muted">${esc(n.fecha)}</td><td>${nota(n)}</td>
@@ -146,6 +146,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <button type="button" class="btn btn-sm btn-outline-danger" data-accion="borrar-nota" data-id="${n.id}" aria-label="Eliminar nota"><i class="bi bi-trash-fill"></i></button>
                         </td>` : ''}</tr>`).join('')}</tbody>
                 </table></div>`;
+            ordenarTabla(document.querySelector('#claseNotas table'));
 
             contenido.recursos = recursos;
             contenido.notas = notas;
